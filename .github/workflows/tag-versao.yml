@@ -1,0 +1,88 @@
+name: Tag de versão
+
+# Cria a tag anotada vX.Y.Z (SemVer) quando uma versão é integrada na main.
+# A execução manual permite marcar versões anteriores informando versão e commit.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      versao:
+        description: "Versão a marcar (ex.: 0.1.0). Vazio = versão atual do pacote."
+        required: false
+        default: ""
+      commit:
+        description: "SHA do commit a marcar. Vazio = último commit da main."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tag-de-versao
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    name: Criar tag anotada
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obter o código com histórico e tags
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Determinar versão e commit
+        id: alvo
+        env:
+          VERSAO_INFORMADA: ${{ inputs.versao }}
+          COMMIT_INFORMADO: ${{ inputs.commit }}
+        run: |
+          versao="$VERSAO_INFORMADA"
+          if [ -z "$versao" ]; then
+            versao=$(sed -nE 's/^__version__ = "([^"]+)"/\1/p' src/antimicrobiano/__init__.py)
+          fi
+          if ! printf '%s' "$versao" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::A versão '$versao' não segue o formato SemVer MAJOR.MINOR.PATCH."
+            exit 1
+          fi
+          commit="${COMMIT_INFORMADO:-$(git rev-parse HEAD)}"
+          if ! printf '%s' "$commit" | grep -Eq '^[0-9a-f]{7,40}$'; then
+            echo "::error::O commit '$commit' não é um SHA válido."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$commit" origin/main; then
+            echo "::error::O commit $commit não pertence ao histórico da main."
+            exit 1
+          fi
+          echo "versao=$versao" >> "$GITHUB_OUTPUT"
+          echo "tag=v$versao" >> "$GITHUB_OUTPUT"
+          echo "commit=$(git rev-parse "$commit")" >> "$GITHUB_OUTPUT"
+
+      - name: Criar e publicar a tag anotada
+        env:
+          VERSAO: ${{ steps.alvo.outputs.versao }}
+          TAG: ${{ steps.alvo.outputs.tag }}
+          COMMIT: ${{ steps.alvo.outputs.commit }}
+        run: |
+          if git rev-parse -q --verify "refs/tags/$TAG" > /dev/null; then
+            echo "A tag $TAG já existe; nada a fazer." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # Mensagem da tag: resumo e notas da versão extraídos do CHANGELOG do commit marcado.
+          git show "$COMMIT:CHANGELOG.md" | awk -v cabecalho="## [$VERSAO]" -v tag="$TAG" '
+            index($0, cabecalho) == 1 { dentro = 1; next }
+            dentro && (/^## \[/ || /^\[[^]]+\]: /) { exit }
+            dentro && !titulo && NF { print tag " — " $0; print ""; titulo = 1; next }
+            dentro && titulo { print }
+          ' > "$RUNNER_TEMP/mensagem.txt"
+          if [ ! -s "$RUNNER_TEMP/mensagem.txt" ]; then
+            echo "$TAG" > "$RUNNER_TEMP/mensagem.txt"
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" "$COMMIT" -F "$RUNNER_TEMP/mensagem.txt"
+          git push origin "refs/tags/$TAG"
+          echo "Tag anotada $TAG criada no commit $COMMIT." | tee -a "$GITHUB_STEP_SUMMARY"
