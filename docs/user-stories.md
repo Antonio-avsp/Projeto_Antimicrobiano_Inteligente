@@ -173,3 +173,223 @@ Funcionalidade: Intervenções do PGA
     Quando eu informar data de reavaliação ou de término anterior ao início da prescrição ou posterior a hoje
     Então o sistema deve responder 422
 ```
+
+---
+
+## Microbiologia
+
+### US06 — Registrar cultura e antibiograma
+
+> **Como** analista do laboratório de microbiologia, **quero** registrar a coleta e o resultado das culturas com o antibiograma **para que** a equipe ajuste a terapia com base em evidências.
+
+```gherkin
+# language: pt
+Funcionalidade: Culturas e antibiogramas
+
+  Cenário: Registrar coleta
+    Quando eu registrar uma cultura de "SANGUE" do paciente "PAC-0001" coletada hoje
+    Então o sistema deve responder 201 com status "PENDENTE"
+
+  Cenário: Resultado positivo com antibiograma
+    Dado que a cultura 1 está "PENDENTE"
+    Quando eu registrar o resultado "POSITIVA" com microrganismo "Escherichia coli" e antibiograma Ceftriaxona=R e Gentamicina=S
+    Então a cultura deve passar a "POSITIVA" exibindo o antibiograma
+
+  Cenário: Resultado positivo sem microrganismo
+    Quando eu registrar o resultado "POSITIVA" sem microrganismo
+    Então o sistema deve responder 422
+
+  Cenário: Antimicrobiano repetido no antibiograma
+    Quando eu informar a "Gentamicina" duas vezes no mesmo antibiograma
+    Então o sistema deve responder 422
+
+  Cenário: Resultado negativo com antibiograma
+    Quando eu registrar o resultado "NEGATIVA" informando microrganismo ou antibiograma
+    Então o sistema deve responder 422
+
+  Cenário: Listar culturas por paciente
+    Dado que o paciente "PAC-0001" possui 2 culturas
+    Quando eu listar culturas filtrando por paciente "PAC-0001"
+    Então as 2 culturas devem ser retornadas da coleta mais recente para a mais antiga
+```
+
+---
+
+## Motor de regras (alertas inteligentes)
+
+> Nos cenários abaixo, "consultar os alertas" significa `GET /alertas` com a data de referência indicada (padrão: hoje).
+
+### US07 — Alerta de time-out de 72 horas
+
+> **Como** farmacêutico clínico, **quero** ser alertado quando uma prescrição completar 72 horas sem reavaliação **para que** o time-out recomendado pelo PGA seja garantido.
+
+```gherkin
+# language: pt
+Funcionalidade: Alerta de time-out
+
+  Cenário: Prescrição com 72h sem reavaliação
+    Dado uma prescrição ativa iniciada em 01/11/2026 sem reavaliação
+    Quando eu consultar os alertas com data de referência 04/11/2026
+    Então deve existir um alerta "TIMEOUT_REAVALIACAO" de severidade "MEDIA"
+
+  Cenário: Prescrição reavaliada
+    Dado que a prescrição recebeu reavaliação em 03/11/2026
+    Quando eu consultar os alertas com data de referência 04/11/2026
+    Então não deve existir alerta "TIMEOUT_REAVALIACAO" para ela
+
+  Cenário: Antes de 72h
+    Dado uma prescrição ativa iniciada em 02/11/2026 sem reavaliação
+    Quando eu consultar os alertas com data de referência 04/11/2026
+    Então não deve existir alerta "TIMEOUT_REAVALIACAO"
+```
+
+### US08 — Alertas de duração e profilaxia
+
+> **Como** farmacêutico clínico, **quero** ser alertado sobre tratamentos que ultrapassaram a duração prevista e profilaxias planejadas por mais de 24 horas **para que** a exposição desnecessária a antimicrobianos seja evitada.
+
+```gherkin
+# language: pt
+Funcionalidade: Alertas de duração
+
+  Cenário: Duração excedida
+    Dado uma prescrição ativa iniciada em 01/11/2026 com duração prevista de 3 dias
+    Quando eu consultar os alertas com data de referência 05/11/2026
+    Então deve existir um alerta "DURACAO_EXCEDIDA" informando o dia de terapia 5
+
+  Cenário: Dentro da duração prevista
+    Dado uma prescrição ativa iniciada em 01/11/2026 com duração prevista de 7 dias
+    Quando eu consultar os alertas com data de referência 05/11/2026
+    Então não deve existir alerta "DURACAO_EXCEDIDA"
+
+  Cenário: Profilaxia prolongada
+    Dado uma prescrição ativa com indicação "PROFILAXIA" e duração prevista de 3 dias
+    Quando eu consultar os alertas
+    Então deve existir um alerta "PROFILAXIA_PROLONGADA" recomendando suspensão em até 24 horas
+
+  Cenário: Prescrições encerradas não geram alertas
+    Dado uma prescrição "CONCLUIDA"
+    Quando eu consultar os alertas
+    Então nenhum alerta deve ser gerado para ela
+```
+
+### US09 — Alerta de uso restrito sem justificativa
+
+> **Como** coordenador do PGA, **quero** ser alertado sobre antimicrobianos de uso restrito prescritos sem justificativa **para que** a política de restrição do hospital seja cumprida.
+
+```gherkin
+# language: pt
+Funcionalidade: Política de uso restrito
+
+  Cenário: Restrito sem justificativa
+    Dado que "Meropenem" é de uso restrito
+    E existe uma prescrição ativa de "Meropenem" sem justificativa
+    Quando eu consultar os alertas
+    Então deve existir um alerta "RESTRITO_SEM_JUSTIFICATIVA" de severidade "ALTA"
+
+  Cenário: Justificativa registrada
+    Dado que a prescrição de "Meropenem" possui justificativa preenchida
+    Quando eu consultar os alertas
+    Então não deve existir alerta "RESTRITO_SEM_JUSTIFICATIVA" para ela
+```
+
+### US10 — Alerta de resistência
+
+> **Como** médico infectologista, **quero** ser alertado quando o microrganismo isolado for resistente ao antimicrobiano prescrito **para que** terapias inadequadas sejam corrigidas rapidamente.
+
+```gherkin
+# language: pt
+Funcionalidade: Descompasso microrganismo x antimicrobiano
+
+  Cenário: Microrganismo resistente
+    Dado uma prescrição ativa de "Ceftriaxona" para o paciente "PAC-0001"
+    E uma cultura positiva do mesmo paciente com "Klebsiella pneumoniae" resistente à "Ceftriaxona" e sensível ao "Meropenem"
+    Quando eu consultar os alertas
+    Então deve existir um alerta "RESISTENCIA" de severidade "ALTA"
+    E a recomendação deve listar "Meropenem" como alternativa sensível
+
+  Cenário: Cultura fora da janela de relevância
+    Dado que a única cultura resistente foi coletada 30 dias antes do início da prescrição
+    Quando eu consultar os alertas
+    Então não deve existir alerta "RESISTENCIA"
+```
+
+### US11 — Sugestão de descalonamento
+
+> **Como** médico infectologista, **quero** receber sugestões de descalonamento quando o antibiograma permitir um antimicrobiano de categoria AWaRe inferior **para que** a pressão seletiva seja reduzida sem perda de eficácia.
+
+```gherkin
+# language: pt
+Funcionalidade: Descalonamento guiado por antibiograma
+
+  Cenário: Oportunidade de descalonamento
+    Dado uma prescrição ativa de "Meropenem" (WATCH) para o paciente "PAC-0002"
+    E uma cultura positiva com "Escherichia coli" sensível a "Meropenem" e a "Gentamicina" (ACCESS)
+    Quando eu consultar os alertas
+    Então deve existir um alerta "DESCALONAMENTO" de severidade "BAIXA" sugerindo "Gentamicina"
+
+  Cenário: Prescrição já na categoria ACCESS
+    Dado uma prescrição ativa de "Amoxicilina" (ACCESS)
+    Quando eu consultar os alertas
+    Então não deve existir alerta "DESCALONAMENTO"
+
+  Cenário: Opção não sensível em todas as culturas
+    Dado duas culturas positivas relevantes e "Gentamicina" sensível em apenas uma delas
+    Quando eu consultar os alertas
+    Então "Gentamicina" não deve ser sugerida
+```
+
+### US12 — Alerta de amplo espectro sem cultura
+
+> **Como** farmacêutico clínico, **quero** ser alertado quando um antimicrobiano WATCH ou RESERVE for iniciado empiricamente sem cultura coletada **para que** a coleta de culturas no início da terapia seja estimulada.
+
+```gherkin
+# language: pt
+Funcionalidade: Cultura antes do amplo espectro
+
+  Cenário: Empírico de amplo espectro sem cultura
+    Dado uma prescrição ativa "EMPIRICA" de "Piperacilina + tazobactam" (WATCH) para "PAC-0003"
+    E nenhuma cultura do paciente "PAC-0003" na janela de relevância
+    Quando eu consultar os alertas
+    Então deve existir um alerta "SEM_CULTURA" de severidade "MEDIA"
+
+  Cenário: Cultura coletada
+    Dado uma cultura do paciente "PAC-0003" coletada no dia do início da terapia
+    Quando eu consultar os alertas
+    Então não deve existir alerta "SEM_CULTURA"
+
+  Cenário: Antimicrobiano ACCESS ou indicação não empírica
+    Dado uma prescrição de "Amoxicilina" (ACCESS) ou uma profilaxia sem cultura
+    Quando eu consultar os alertas
+    Então não deve existir alerta "SEM_CULTURA"
+```
+
+### US13 — Painel de alertas filtrável
+
+> **Como** membro da equipe do PGA, **quero** um painel de alertas filtrável por tipo, severidade, setor e paciente, com resumo por severidade, **para que** as intervenções do dia sejam priorizadas.
+
+```gherkin
+# language: pt
+Funcionalidade: Painel de alertas
+
+  Cenário: Ordenação e resumo
+    Dado que existem alertas de severidade ALTA, MEDIA e BAIXA
+    Quando eu consultar o painel de alertas
+    Então os alertas devem vir ordenados de ALTA para BAIXA
+    E o resumo deve informar a quantidade de alertas por severidade e por tipo
+
+  Cenário: Filtros combinados
+    Quando eu filtrar o painel por severidade=ALTA e setor="UTI Adulto"
+    Então somente alertas de severidade ALTA da "UTI Adulto" devem ser retornados
+
+  Cenário: Filtro por tipo e paciente
+    Quando eu filtrar por tipo=RESISTENCIA e paciente_codigo="PAC-0001"
+    Então somente alertas de resistência do paciente "PAC-0001" devem ser retornados
+
+  Cenário: Transparência do alerta
+    Quando eu consultar qualquer alerta
+    Então ele deve conter tipo, severidade, mensagem, recomendação e as evidências usadas pela regra
+
+  Cenário: Data de referência inválida
+    Quando eu informar data_referencia em formato inválido
+    Então o sistema deve responder 422
+```
