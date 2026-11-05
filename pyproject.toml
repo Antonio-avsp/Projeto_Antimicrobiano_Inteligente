@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "antimicrobiano-inteligente"
 dynamic = ["version"]
 description = "API de apoio ao gerenciamento do uso de antimicrobianos (stewardship) com motor de regras explicável."
+readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "Antonio-avsp" }]
@@ -15,6 +16,11 @@ dependencies = [
     "uvicorn>=0.30",
     "sqlalchemy>=2.0,<3.0",
 ]
+
+[project.urls]
+Repositorio = "https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente"
+Documentacao = "https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/tree/main/docs"
+Issues = "https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues"
 
 [project.optional-dependencies]
 dev = [
