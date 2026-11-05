@@ -196,3 +196,69 @@ flowchart LR
 - **FE02 — Antimicrobiano do antibiograma inexistente:** `422` identificando o item.
 - **FE03 — Data de coleta futura ou data de resultado anterior à coleta:** `422`.
 - **FE04 — Cultura inexistente:** `404`.
+
+---
+
+### UC05 — Consultar painel de alertas inteligentes
+
+| Item | Descrição |
+|---|---|
+| **Objetivo** | Obter a lista priorizada de intervenções do dia, gerada pelo motor de regras. |
+| **Atores** | Farmacêutico clínico e Médico infectologista (primários); Motor de regras (secundário) |
+| **Requisitos** | RF07 a RF13 · RN11 a RN18, RN21 · RNF01, RNF10 |
+| **Pré-condições** | Prescrições registradas (UC02). |
+| **Pós-condições** | Nenhum dado é alterado (consulta). A equipe executa as intervenções em UC02 e UC03. |
+
+**Fluxo principal**
+
+1. O ator envia `GET /alertas`, opcionalmente com `data_referencia` e filtros (`tipo`, `severidade`, `setor`, `paciente_codigo`).
+2. O sistema carrega as prescrições `ATIVA` (com antimicrobiano e reavaliações) e as culturas dos pacientes envolvidos.
+3. **[Include — Avaliar regras clínicas]** O motor de regras aplica cada regra (RN12 a RN18) a cada prescrição na data de referência (padrão: hoje).
+4. O sistema aplica os filtros, ordena os alertas por severidade (RN21) e calcula o resumo por severidade e por tipo.
+5. O sistema responde `200` com a data de referência, o aviso de apoio à decisão, o total, o resumo e os alertas — cada um com tipo, severidade, prescrição, paciente, setor, antimicrobiano, mensagem, recomendação e evidências.
+6. O ator prioriza os alertas `ALTA` e registra as intervenções (UC03) ou atualiza a prescrição (UC02).
+
+**Fluxos alternativos**
+
+- **FA01 — Nenhum alerta:** o sistema responde `200` com lista vazia e total 0.
+- **FA02 — Planejamento da ronda:** o ator informa uma `data_referencia` futura (ex.: amanhã) para antecipar os alertas que surgirão.
+
+**Fluxos de exceção**
+
+- **FE01 — Parâmetros inválidos** (data em formato inválido, tipo ou severidade inexistentes): `422`.
+
+---
+
+### UC06 — Gerar antibiograma cumulativo
+
+| Item | Descrição |
+|---|---|
+| **Objetivo** | Conhecer o perfil local de sensibilidade para orientar os protocolos de terapia empírica. |
+| **Atores** | Gestor da CCIH (primário), Médico infectologista |
+| **Requisitos** | RF14 · RN19, RN20 |
+| **Pré-condições** | Culturas positivas com antibiograma registradas (UC04). |
+| **Pós-condições** | Relatório gerado (consulta, sem alteração de dados). |
+
+**Fluxo principal**
+
+1. O ator envia `GET /relatorios/antibiograma-cumulativo?inicio=2026-01-01&fim=2026-06-30`.
+2. O sistema seleciona as culturas `POSITIVA` coletadas no período.
+3. O sistema mantém apenas o primeiro isolado por paciente e microrganismo (RN19).
+4. O sistema agrega por microrganismo × antimicrobiano: testados, `S`, `I`, `R` e percentual de sensibilidade, sinalizando `amostra_suficiente`.
+5. O sistema responde `200` com o período, o mínimo de isolados considerado e os resultados agrupados por microrganismo.
+
+**Fluxos alternativos**
+
+- **FA01 — Filtro por setor:** com `setor=UTI Adulto`, apenas culturas desse setor são consideradas.
+- **FA02 — Nenhuma cultura no período:** o sistema responde `200` com lista vazia.
+
+**Fluxos de exceção**
+
+- **FE01 — Período inválido** (início posterior ao fim ou datas mal formatadas): `422`.
+
+---
+
+## 5. Casos de uso planejados (iteração 2)
+
+- **UC07 — Consultar indicadores de consumo:** o gestor consulta os dias de terapia (DOT) por antimicrobiano e por categoria AWaRe em um período ([#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21)).
+- **UC08 — Autenticar usuário:** o usuário informa credenciais, recebe um token com expiração e passa a ter acesso conforme o perfil ([#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24)).
