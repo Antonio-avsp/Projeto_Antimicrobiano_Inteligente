@@ -147,3 +147,111 @@ erDiagram
 | `antimicrobiano_id` | inteiro | sim | FK → `antimicrobianos.id` | Antimicrobiano testado |
 | `interpretacao` | enum | sim | `S`, `I`, `R` | Interpretação BrCAST/EUCAST |
 | (`cultura_id`, `antimicrobiano_id`) | — | — | **único** | Um antimicrobiano por antibiograma (RN10) |
+
+## 3. Diagrama de classes
+
+O diagrama mostra as entidades do domínio e o motor de regras, que aplica o padrão **Strategy**: cada regra clínica é uma especialização de `Regra` e o `MotorDeRegras` apenas as orquestra (RNF07).
+
+```mermaid
+classDiagram
+    direction TB
+
+    class Antimicrobiano {
+        +int id
+        +str nome
+        +str classe
+        +CategoriaAware categoria_aware
+        +bool uso_restrito
+        +bool ativo
+    }
+    class Prescricao {
+        +int id
+        +str paciente_codigo
+        +str setor
+        +Indicacao indicacao
+        +date data_inicio
+        +int duracao_prevista_dias
+        +str justificativa
+        +StatusPrescricao status
+        +dia_de_terapia(data_referencia) int
+    }
+    class Reavaliacao {
+        +date data_reavaliacao
+        +Conduta conduta
+        +str observacao
+    }
+    class Cultura {
+        +str paciente_codigo
+        +Material material
+        +date data_coleta
+        +StatusCultura status
+        +str microrganismo
+    }
+    class ItemAntibiograma {
+        +Interpretacao interpretacao
+    }
+
+    Prescricao "*" --> "1" Antimicrobiano : prescreve
+    Prescricao "1" *-- "*" Reavaliacao : reavaliacoes
+    Cultura "1" *-- "*" ItemAntibiograma : antibiograma
+    ItemAntibiograma "*" --> "1" Antimicrobiano : testa
+
+    class MotorDeRegras {
+        -list~Regra~ regras
+        +avaliar(prescricoes, contexto) list~Alerta~
+    }
+    class ContextoAvaliacao {
+        +date data_referencia
+        +ParametrosClinicos parametros
+        +culturas_relevantes(prescricao) list~Cultura~
+    }
+    class ParametrosClinicos {
+        +int timeout_dias
+        +int limite_profilaxia_dias
+        +int janela_cultura_dias
+        +int minimo_isolados
+    }
+    class Regra {
+        <<abstract>>
+        +TipoAlerta tipo
+        +Severidade severidade
+        +avaliar(prescricao, contexto) list~Alerta~
+    }
+    class Alerta {
+        +TipoAlerta tipo
+        +Severidade severidade
+        +int prescricao_id
+        +str mensagem
+        +str recomendacao
+        +dict evidencias
+    }
+
+    MotorDeRegras o-- "1..*" Regra
+    MotorDeRegras ..> ContextoAvaliacao : usa
+    ContextoAvaliacao --> ParametrosClinicos
+    Regra ..> Prescricao : avalia
+    Regra ..> Alerta : cria
+
+    Regra <|-- RegraTimeout
+    Regra <|-- RegraDuracaoExcedida
+    Regra <|-- RegraProfilaxiaProlongada
+    Regra <|-- RegraRestritoSemJustificativa
+    Regra <|-- RegraSemCultura
+    Regra <|-- RegraResistencia
+    Regra <|-- RegraDescalonamento
+```
+
+## 4. Enumerações do domínio
+
+| Enumeração | Valores |
+|---|---|
+| `CategoriaAware` | `ACCESS` (1), `WATCH` (2), `RESERVE` (3) — ordem usada no descalonamento (RN20) |
+| `Via` | `IV`, `VO`, `IM` |
+| `Indicacao` | `PROFILAXIA`, `EMPIRICA`, `DIRIGIDA` |
+| `StatusPrescricao` | `ATIVA`, `CONCLUIDA`, `SUSPENSA` |
+| `Conduta` | `MANTER`, `AJUSTAR`, `DESCALONAR`, `SUSPENDER` |
+| `Material` | `SANGUE`, `URINA`, `SECRECAO_TRAQUEAL`, `LIQUOR`, `PONTA_DE_CATETER`, `SECRECAO_DE_FERIDA`, `OUTRO` |
+| `StatusCultura` | `PENDENTE`, `POSITIVA`, `NEGATIVA` |
+| `Interpretacao` | `S` (sensível), `I` (sensível, aumentando exposição), `R` (resistente) |
+| `TipoAlerta` | `TIMEOUT_REAVALIACAO`, `DURACAO_EXCEDIDA`, `PROFILAXIA_PROLONGADA`, `RESTRITO_SEM_JUSTIFICATIVA`, `SEM_CULTURA`, `RESISTENCIA`, `DESCALONAMENTO` |
+| `Severidade` | `ALTA`, `MEDIA`, `BAIXA` (RN21) |
