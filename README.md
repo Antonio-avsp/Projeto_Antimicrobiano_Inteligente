@@ -50,3 +50,44 @@ O **Antimicrobiano Inteligente** cruza automaticamente prescrições, culturas e
 | `DESCALONAMENTO` | Antibiograma permite opção de categoria AWaRe inferior | 🔵 BAIXA |
 
 As regras seguem diretrizes reconhecidas — classificação **AWaRe** da OMS, diretriz nacional de PGA da **ANVISA**, recomendações **IDSA/SHEA** e norma **CLSI M39** — e estão detalhadas nas [regras de negócio](docs/requisitos.md#3-regras-de-negócio-rn).
+
+## Funcionalidades
+
+Legenda: ✅ implementado · 🚧 em desenvolvimento · 🗓️ planejado
+
+| Funcionalidade | Requisito | Issue | Versão | Status |
+|---|---|---|---|---|
+| Documentação de planejamento (termo de abertura, requisitos, casos de uso, histórias, arquitetura) | — | [#1](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/1)–[#5](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/5) | v0.1.0 | ✅ |
+| API base com `/health` e documentação interativa (Swagger UI) | RNF03 | [#6](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/6) | v0.1.0 | ✅ |
+| Pipeline de CI (pytest em Python 3.11–3.13) | RNF06, RNF08 | [#7](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/7) | v0.1.0 | ✅ |
+| Catálogo de antimicrobianos com classificação AWaRe | RF01, RF02 | [#9](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/9) | v0.2.0 | 🗓️ |
+| Registro, consulta e atualização de prescrições | RF03, RF04 | [#10](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/10) | v0.2.0 | 🗓️ |
+| Reavaliação (time-out) e encerramento de prescrições | RF05 | [#11](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/11) | v0.2.0 | 🗓️ |
+| Culturas e antibiogramas (S/I/R) | RF06 | [#12](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/12) | v0.2.0 | 🗓️ |
+| Alertas de time-out, duração excedida e profilaxia prolongada | RF07, RF08 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13) | v0.3.0 | 🗓️ |
+| Alertas de uso restrito sem justificativa e de amplo espectro sem cultura | RF09, RF12 | [#14](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/14) | v0.3.0 | 🗓️ |
+| Alertas de resistência e sugestão de descalonamento | RF10, RF11 | [#15](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/15) | v0.3.0 | 🗓️ |
+| Painel de alertas com filtros e resumo | RF13 | [#16](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/16) | v0.3.0 | 🗓️ |
+| Antibiograma cumulativo institucional | RF14 | [#17](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/17) | v0.3.0 | 🗓️ |
+| Parâmetros clínicos configuráveis por ambiente | RNF11 | [#18](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/18) | v0.3.0 | 🗓️ |
+| Carga de dados fictícios para demonstração | HT01 | [#19](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/19) | v0.3.0 | 🗓️ |
+| Gates de qualidade no CI (ruff + cobertura mínima) | RNF07, RNF08 | [#20](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/20) | v1.0.0 | 🗓️ |
+| Indicadores de consumo (DOT) | RF15 | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) | v1.0.0 | 🗓️ |
+| Alerta de duplicidade terapêutica | RF16 | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) | v1.0.0 | 🗓️ |
+| Autenticação e perfis de acesso | RF17 | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) | v1.0.0 | 🗓️ |
+| Interface web do painel de alertas | RF18 | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) | v1.0.0 | 🗓️ |
+
+O detalhamento de cada requisito está em [docs/requisitos.md](docs/requisitos.md) e a ligação requisito → issue → teste em [docs/rastreabilidade.md](docs/rastreabilidade.md).
+
+## Stack tecnológica
+
+| Camada | Tecnologia | Por quê |
+|---|---|---|
+| Linguagem | Python 3.11+ | Legibilidade, ecossistema de saúde/dados e ampla adoção acadêmica |
+| Framework web | FastAPI + Uvicorn | Validação declarativa e documentação OpenAPI automática |
+| Validação | Pydantic v2 | Contratos de entrada e saída tipados |
+| Persistência | SQLite + SQLAlchemy 2.0 | Zero configuração; troca para PostgreSQL apenas por variável de ambiente |
+| Testes | pytest, pytest-cov, httpx | Testes de unidade e de API com relatório de cobertura |
+| Qualidade | ruff | Lint e formatação no padrão PEP 8 |
+| CI | GitHub Actions | Testes automáticos em cada push e pull request |
+| Documentação | Markdown + Mermaid | Diagramas versionados junto com o código e renderizados pelo GitHub |
