@@ -104,3 +104,63 @@ Cada objetivo é **E**specífico, **M**ensurável, **A**tingível, **R**elevante
 
 - **Primário:** equipes multiprofissionais de PGA/SCIH de hospitais de pequeno e médio porte (até cerca de 200 leitos) que não possuem software dedicado ao *stewardship* e utilizam planilhas.
 - **Secundário:** estudantes e docentes das áreas de saúde e tecnologia, como recurso didático sobre gerenciamento de antimicrobianos e engenharia de software.
+
+---
+
+## 5. Premissas, restrições e riscos
+
+### 5.1 Premissas
+
+- Os usuários da iteração 1 conseguem operar uma API REST pela documentação interativa (Swagger UI).
+- As diretrizes clínicas são aplicadas de forma **simplificada** e parametrizável, adequada a um protótipo acadêmico.
+- O desenvolvedor dispõe de aproximadamente 20 horas de trabalho na semana.
+
+### 5.2 Restrições
+
+- **Prazo:** entrega da atividade em 07/11/2026 às 23:59.
+- **Equipe:** um único desenvolvedor.
+- **Custo:** zero — somente ferramentas gratuitas e de código aberto (Python, FastAPI, SQLite, GitHub Free, GitHub Actions).
+- **Infraestrutura:** execução local, sem servidores ou serviços pagos.
+- **Processo:** Git Flow, Conventional Commits e Versionamento Semântico obrigatórios.
+
+### 5.3 Riscos
+
+| Risco | Probabilidade | Impacto | Resposta |
+|---|---|---|---|
+| Interpretação clínica equivocada dos alertas | Média | Alto | Aviso explícito de apoio à decisão; alertas com evidências e referências; revisão por especialista antes de qualquer uso real |
+| Aumento de escopo (*scope creep*) | Alta | Médio | Priorização MoSCoW, lista explícita de itens fora do escopo e backlog de próximas iterações |
+| Prazo curto (1 semana) | Alta | Alto | Entregas incrementais (v0.1.0 → v0.3.0) priorizando o MVP |
+| Exposição de dados sensíveis | Baixa | Alto | Apenas códigos pseudonimizados e dados fictícios; `.env` ignorado pelo Git |
+| Conhecimento limitado do domínio | Média | Médio | Glossário e referências (OMS, ANVISA, CLSI, IDSA/SHEA) |
+| Fadiga de alertas (*alert fatigue*) | Média | Médio | Severidades, filtros no painel e parâmetros configuráveis |
+
+---
+
+## 6. Marcos (milestones) e versões
+
+| Versão (SemVer) | Marco | Prazo | Issues |
+|---|---|---|---|
+| `v0.1.0` | Documentação de planejamento e fundação técnica (setup, CI, README) | 05/11/2026 | #1 a #8 |
+| `v0.2.0` | Cadastros essenciais: catálogo, prescrições, reavaliação/encerramento e culturas | 06/11/2026 | #9 a #12 |
+| `v0.3.0` | Motor de regras inteligente, painel de alertas, antibiograma cumulativo e dados de demonstração | 07/11/2026 | #13 a #19 |
+| `v1.0.0` | Gates de qualidade no CI, indicadores DOT, duplicidade terapêutica, autenticação e interface web | Iteração 2 (após a próxima aula) | #20 a #26 |
+
+## 7. Critérios de sucesso do projeto
+
+- Todos os objetivos SMART da seção 2 atingidos no prazo.
+- Ao menos 15 issues no backlog, com labels e critérios de aceite, todas rastreáveis aos requisitos.
+- Nenhum commit direto em `main`; todas as integrações via Pull Request com referência à issue (`Closes #N`).
+
+## 8. Aprovação
+
+| Nome | Papel | Data |
+|---|---|---|
+| Antonio-avsp | Gerente do projeto | 05/11/2026 |
+
+## Referências
+
+- ANVISA. *Diretriz Nacional para Elaboração de Programa de Gerenciamento do Uso de Antimicrobianos em Serviços de Saúde*. Brasília, 2017.
+- WHO. *The WHO AWaRe (Access, Watch, Reserve) antibiotic book*. Genebra, 2022.
+- Barlam, T. F. et al. *Implementing an Antibiotic Stewardship Program: Guidelines by IDSA and SHEA*. Clinical Infectious Diseases, 2016.
+- Murray, C. J. L. et al. *Global burden of bacterial antimicrobial resistance in 2019*. The Lancet, 2022.
+- CLSI. *M39 — Analysis and Presentation of Cumulative Antimicrobial Susceptibility Test Data*.
