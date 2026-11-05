@@ -253,7 +253,7 @@ Versões no formato `MAJOR.MINOR.PATCH`, marcadas com **tags anotadas** na `main
 
 | Versão | Marco | Issues | Status |
 |---|---|---|---|
-| `v0.1.0` | Documentação de planejamento e fundação técnica (setup, CI, README) | #1 a #8 | 🚧 em preparação |
+| `v0.1.0` | Documentação de planejamento e fundação técnica (setup, CI, README) | #1 a #8 | ✅ lançada em 05/11/2026 |
 | `v0.2.0` | Cadastros essenciais: catálogo, prescrições, reavaliação/encerramento e culturas | #9 a #12 | 🗓️ |
 | `v0.3.0` | Motor de regras inteligente, painel de alertas, antibiograma cumulativo e dados de demonstração | #13 a #19 | 🗓️ |
 | `v1.0.0` | Gates de qualidade, indicadores DOT, duplicidade terapêutica, autenticação e interface web | #20 a #26 | 🗓️ |
