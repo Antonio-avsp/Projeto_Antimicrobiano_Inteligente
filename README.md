@@ -91,3 +91,79 @@ O detalhamento de cada requisito está em [docs/requisitos.md](docs/requisitos.m
 | Qualidade | ruff | Lint e formatação no padrão PEP 8 |
 | CI | GitHub Actions | Testes automáticos em cada push e pull request |
 | Documentação | Markdown + Mermaid | Diagramas versionados junto com o código e renderizados pelo GitHub |
+
+## Como executar localmente
+
+### Pré-requisitos
+
+- [Python](https://www.python.org/downloads/) **3.11 ou superior** (`python --version`)
+- [Git](https://git-scm.com/downloads)
+
+### Passo a passo
+
+**1. Clonar o repositório**
+
+```bash
+git clone https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente.git
+cd Projeto_Antimicrobiano_Inteligente
+```
+
+**2. Criar e ativar o ambiente virtual**
+
+```bash
+python -m venv .venv
+```
+
+| Sistema | Comando de ativação |
+|---|---|
+| Windows (PowerShell) | `.venv\Scripts\Activate.ps1` |
+| Windows (cmd) | `.venv\Scripts\activate.bat` |
+| Linux / macOS | `source .venv/bin/activate` |
+
+**3. Instalar a aplicação e as dependências de desenvolvimento**
+
+```bash
+pip install -e ".[dev]"
+```
+
+**4. Iniciar a API**
+
+```bash
+uvicorn antimicrobiano.main:app --reload
+```
+
+**5. Acessar a documentação interativa** em <http://127.0.0.1:8000/docs> (Swagger UI) ou <http://127.0.0.1:8000/redoc>.
+
+**6. Executar os testes e a análise estática**
+
+```bash
+pytest --cov
+```
+
+```bash
+ruff check .
+```
+
+### Variáveis de ambiente
+
+| Variável | Padrão | Descrição |
+|---|---|---|
+| `AMI_DATABASE_URL` | `sqlite:///./antimicrobiano.db` | URL de conexão do banco. O arquivo SQLite é criado automaticamente na primeira execução. |
+
+## Exemplos de uso
+
+Com a API em execução:
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+```json
+{
+  "status": "ok",
+  "versao": "0.1.0",
+  "aviso": "Ferramenta de apoio à decisão para fins acadêmicos: não substitui o julgamento clínico. Utilize apenas dados fictícios."
+}
+```
+
+Os exemplos dos recursos de negócio (antimicrobianos, prescrições, culturas e alertas) são adicionados a esta seção conforme cada funcionalidade é entregue.
