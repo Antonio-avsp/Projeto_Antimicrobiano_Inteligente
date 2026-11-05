@@ -393,3 +393,146 @@ Funcionalidade: Painel de alertas
     Quando eu informar data_referencia em formato inválido
     Então o sistema deve responder 422
 ```
+
+---
+
+## Relatórios
+
+### US14 — Antibiograma cumulativo
+
+> **Como** gestor da CCIH, **quero** gerar o antibiograma cumulativo do hospital em um período **para que** os protocolos de terapia empírica sejam orientados pelo perfil local de sensibilidade.
+
+```gherkin
+# language: pt
+Funcionalidade: Antibiograma cumulativo
+
+  Cenário: Percentual de sensibilidade
+    Dado 4 culturas positivas de "Escherichia coli" de pacientes distintos no período, com "Gentamicina" S, S, S e R
+    Quando eu gerar o antibiograma cumulativo do período
+    Então "Escherichia coli" x "Gentamicina" deve apresentar 4 testados e 75,0% de sensibilidade
+
+  Cenário: Primeiro isolado por paciente
+    Dado 2 culturas positivas de "Escherichia coli" do mesmo paciente no período
+    Quando eu gerar o antibiograma cumulativo
+    Então somente o primeiro isolado deve ser contabilizado
+
+  Cenário: Amostra insuficiente
+    Quando uma combinação microrganismo x antimicrobiano tiver menos de 30 isolados testados
+    Então ela deve ser sinalizada com amostra_suficiente=false
+
+  Cenário: Filtro por setor
+    Quando eu gerar o relatório filtrando setor="UTI Adulto"
+    Então somente culturas da "UTI Adulto" devem ser consideradas
+
+  Cenário: Período inválido
+    Quando eu informar data inicial posterior à data final
+    Então o sistema deve responder 422
+```
+
+---
+
+## História técnica
+
+### HT01 — Dados de demonstração
+
+> **Como** avaliador do projeto, **quero** carregar dados fictícios de demonstração com um único comando **para que** eu explore a API e o painel de alertas logo após a instalação.
+
+```gherkin
+# language: pt
+Funcionalidade: Carga de demonstração
+
+  Cenário: Carga em banco vazio
+    Dado um banco de dados vazio
+    Quando eu executar "python -m antimicrobiano.seed"
+    Então o catálogo deve conter ao menos 15 antimicrobianos classificados pela AWaRe
+    E o painel de alertas do dia deve apresentar ao menos um alerta de cada tipo implementado
+
+  Cenário: Execução repetida
+    Dado que a carga já foi executada
+    Quando eu executar a carga novamente sem a opção --reset
+    Então nenhum registro duplicado deve ser criado e uma mensagem deve informar que a base já possui dados
+
+  Cenário: Recriar a base
+    Quando eu executar "python -m antimicrobiano.seed --reset"
+    Então a base deve ser recriada apenas com os dados de demonstração
+```
+
+---
+
+## Planejadas para a iteração 2 (v1.0.0)
+
+### US15 — Indicadores de consumo (DOT)
+
+> **Como** gestor da CCIH, **quero** acompanhar os dias de terapia (DOT) por antimicrobiano e por categoria AWaRe **para que** o consumo e as metas do PGA sejam monitorados.
+
+```gherkin
+# language: pt
+Funcionalidade: Indicadores de consumo
+
+  Cenário: DOT por categoria AWaRe
+    Dado prescrições de "Ceftriaxona" (WATCH) por 5 dias e de "Amoxicilina" (ACCESS) por 3 dias no período
+    Quando eu consultar os indicadores do período
+    Então devo ver WATCH = 5 e ACCESS = 3 dias de terapia
+    E o percentual de uso ACCESS deve ser 37,5%
+
+  Cenário: Prescrição parcialmente no período
+    Dado uma prescrição iniciada antes do período e encerrada dentro dele
+    Quando eu consultar os indicadores
+    Então somente os dias dentro do período devem ser contabilizados
+```
+
+### US16 — Alerta de duplicidade terapêutica
+
+> **Como** farmacêutico clínico, **quero** ser alertado quando um paciente tiver duas prescrições ativas da mesma classe de antimicrobiano **para que** a duplicidade terapêutica seja evitada.
+
+```gherkin
+# language: pt
+Funcionalidade: Duplicidade terapêutica
+
+  Cenário: Mesma classe para o mesmo paciente
+    Dado duas prescrições ativas da classe "Cefalosporina de 3ª geração" para "PAC-0001"
+    Quando eu consultar os alertas
+    Então deve existir um alerta "DUPLICIDADE_TERAPEUTICA" para cada prescrição envolvida
+
+  Cenário: Classes diferentes
+    Dado prescrições ativas de classes diferentes para o mesmo paciente
+    Quando eu consultar os alertas
+    Então não deve existir alerta "DUPLICIDADE_TERAPEUTICA"
+```
+
+### US17 — Autenticação e perfis de acesso
+
+> **Como** coordenador do PGA, **quero** que apenas usuários autenticados acessem a API, com permissões por perfil, **para que** os dados fiquem protegidos e a autoria das intervenções seja registrada.
+
+```gherkin
+# language: pt
+Funcionalidade: Controle de acesso
+
+  Cenário: Acesso sem token
+    Quando uma requisição a um endpoint protegido for feita sem token
+    Então o sistema deve responder 401
+
+  Cenário: Perfil sem permissão
+    Dado um usuário com perfil "LABORATORIO"
+    Quando ele tentar inativar um antimicrobiano
+    Então o sistema deve responder 403
+```
+
+### US18 — Interface web do painel
+
+> **Como** farmacêutico clínico, **quero** visualizar o painel de alertas em uma interface web simples **para que** eu use o sistema no dia a dia sem ferramentas técnicas.
+
+```gherkin
+# language: pt
+Funcionalidade: Painel web
+
+  Cenário: Visualizar painel
+    Dado que existem alertas para a data de hoje
+    Quando eu abrir a página do painel
+    Então devo ver os alertas agrupados por severidade, indicada por cor e por texto
+    E o resumo com a quantidade de alertas por severidade
+
+  Cenário: Filtrar por setor
+    Quando eu selecionar o setor "UTI Adulto"
+    Então somente os alertas da "UTI Adulto" devem ser exibidos
+```
