@@ -80,3 +80,27 @@ Cada objetivo é **E**specífico, **M**ensurável, **A**tingível, **R**elevante
 - ❌ Modelos preditivos / aprendizado de máquina.
 - ❌ Notificações (e-mail, SMS, aplicativos de mensagem), aplicativo móvel e operação multi-hospital.
 - ❌ Regularização como *Software as a Medical Device* (RDC ANVISA nº 657/2022) e validação clínica para uso assistencial real.
+
+---
+
+## 4. Stakeholders e público-alvo
+
+### 4.1 Stakeholders
+
+| Stakeholder | Papel no projeto | Principal interesse | Influência | Comunicação |
+|---|---|---|---|---|
+| Docente da disciplina | Patrocinador acadêmico e avaliador | Qualidade da especificação, rastreabilidade e workflow | Alta | Entregas no Teams, repositório, issues e PRs |
+| Antonio-avsp | Gerente do projeto e desenvolvedor | Entregar o MVP no prazo com qualidade | Alta | Issues, PRs, CHANGELOG |
+| Coordenação do PGA / CCIH (cenário simulado) | Patrocinador de negócio | Reduzir uso inadequado de antimicrobianos e cumprir as diretrizes da ANVISA | Alta | Releases e relatórios |
+| Farmacêutico clínico | Usuário principal | Triagem diária rápida das prescrições e registro das intervenções | Média | Painel de alertas |
+| Médico infectologista | Usuário principal | Corrigir terapias inadequadas, descalonar e reavaliar tratamentos | Média | Painel de alertas |
+| Analista do laboratório de microbiologia | Usuário | Registrar culturas e antibiogramas de forma estruturada | Baixa | API de culturas |
+| Gestor da CCIH / qualidade | Usuário de relatórios | Perfil local de resistência (antibiograma cumulativo) e indicadores | Média | Relatórios |
+| Corpo clínico prescritor | Afetado indireto | Receber recomendações claras e fundamentadas | Média | Intervenções do PGA |
+| Pacientes | Beneficiários indiretos | Tratamento eficaz, seguro e pelo tempo adequado | Baixa | — |
+| ANVISA / vigilância sanitária | Órgão regulador (contexto) | Conformidade com as diretrizes nacionais de PGA | Alta | Normas e diretrizes |
+
+### 4.2 Público-alvo
+
+- **Primário:** equipes multiprofissionais de PGA/SCIH de hospitais de pequeno e médio porte (até cerca de 200 leitos) que não possuem software dedicado ao *stewardship* e utilizam planilhas.
+- **Secundário:** estudantes e docentes das áreas de saúde e tecnologia, como recurso didático sobre gerenciamento de antimicrobianos e engenharia de software.
