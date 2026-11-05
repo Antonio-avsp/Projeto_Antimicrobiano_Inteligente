@@ -129,3 +129,70 @@ flowchart LR
 - **FE03 — Data de início futura, duração ou intervalo fora dos limites:** `422`.
 - **FE04 — Prescrição inexistente** em FA02 ou FA03: `404`.
 - **FE05 — Atualização de prescrição encerrada (RN08):** `409 Conflict`.
+
+---
+
+### UC03 — Reavaliar (time-out) e encerrar prescrição
+
+| Item | Descrição |
+|---|---|
+| **Objetivo** | Documentar as intervenções do PGA: a reavaliação estruturada da terapia e o encerramento do tratamento. |
+| **Atores** | Médico infectologista (primário), Farmacêutico clínico |
+| **Requisitos** | RF05 · RN08, RN09 |
+| **Pré-condições** | Prescrição com status `ATIVA` (UC02). |
+| **Pós-condições** | Reavaliação registrada (o alerta de time-out deixa de ser exibido) ou prescrição encerrada (deixa de gerar alertas). |
+
+**Fluxo principal — registrar reavaliação**
+
+1. O infectologista identifica no painel um alerta de time-out (UC05).
+2. Discute o caso com a equipe assistente e define a conduta.
+3. O ator envia `POST /prescricoes/{id}/reavaliacoes` com a data, a conduta (`MANTER`, `AJUSTAR`, `DESCALONAR` ou `SUSPENDER`) e a observação.
+4. O sistema verifica se a prescrição está ativa (RN08) e se a data é válida (RN09).
+5. O sistema grava a reavaliação e responde `201 Created`.
+6. Na próxima consulta ao painel, o alerta `TIMEOUT_REAVALIACAO` não é mais exibido para a prescrição.
+
+**Fluxos alternativos**
+
+- **FA01 — Encerrar prescrição:** o ator envia `POST /prescricoes/{id}/encerramento` com `status_final` (`CONCLUIDA` ou `SUSPENSA`), data de término e motivo. O sistema atualiza o status e responde `200`.
+- **FA02 — Troca de antimicrobiano (conduta `AJUSTAR` ou `DESCALONAR`):** o ator encerra a prescrição atual como `SUSPENSA` (FA01) e registra uma nova prescrição com o novo antimicrobiano (UC02), preservando o histórico de cada tratamento.
+- **FA03 — Consultar histórico:** `GET /prescricoes/{id}/reavaliacoes` responde `200` com as reavaliações em ordem cronológica.
+
+**Fluxos de exceção**
+
+- **FE01 — Prescrição encerrada (RN08):** `409 Conflict`.
+- **FE02 — Data anterior ao início da prescrição ou futura (RN09):** `422`.
+- **FE03 — Conduta ou status final inválido** (ex.: `status_final = ATIVA`): `422`.
+- **FE04 — Prescrição inexistente:** `404`.
+
+---
+
+### UC04 — Registrar cultura e antibiograma
+
+| Item | Descrição |
+|---|---|
+| **Objetivo** | Registrar culturas e antibiogramas de forma estruturada, permitindo o cruzamento automático com as prescrições. |
+| **Atores** | Analista de microbiologia (primário) |
+| **Requisitos** | RF06 · RN10 |
+| **Pré-condições** | Antimicrobianos testados cadastrados no catálogo (UC01). |
+| **Pós-condições** | Cultura registrada. Resultados positivos passam a alimentar as regras de resistência e descalonamento (UC05) e o antibiograma cumulativo (UC06); a simples coleta já satisfaz a regra de cultura obrigatória. |
+
+**Fluxo principal — coleta e resultado positivo**
+
+1. O analista registra a coleta com `POST /culturas` (paciente, setor, material e data de coleta).
+2. O sistema valida os dados (RN04, RN10) e responde `201 Created` com status `PENDENTE`.
+3. Após a identificação do microrganismo, o analista envia `PUT /culturas/{id}/resultado` com resultado `POSITIVA`, o microrganismo e o antibiograma (lista de antimicrobiano e interpretação `S`, `I` ou `R`).
+4. O sistema valida o resultado (RN10) e a existência dos antimicrobianos informados.
+5. O sistema grava o resultado e responde `200` com a cultura e o antibiograma.
+
+**Fluxos alternativos**
+
+- **FA01 — Cultura negativa:** `PUT /culturas/{id}/resultado` com resultado `NEGATIVA`, sem microrganismo e sem antibiograma. Resposta `200`.
+- **FA02 — Correção de resultado:** um novo `PUT` substitui integralmente o resultado anterior.
+- **FA03 — Listar culturas:** `GET /culturas?paciente_codigo=PAC-0001&status=POSITIVA` responde `200`, da coleta mais recente para a mais antiga.
+
+**Fluxos de exceção**
+
+- **FE01 — Resultado inconsistente** (positiva sem microrganismo, negativa com antibiograma, antimicrobiano repetido ou interpretação inválida): `422`.
+- **FE02 — Antimicrobiano do antibiograma inexistente:** `422` identificando o item.
+- **FE03 — Data de coleta futura ou data de resultado anterior à coleta:** `422`.
+- **FE04 — Cultura inexistente:** `404`.
