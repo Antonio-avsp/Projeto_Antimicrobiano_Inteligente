@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from antimicrobiano import __version__
+from antimicrobiano import __version__, models  # noqa: F401 — registra as tabelas no metadata
 from antimicrobiano.config import Configuracao
 from antimicrobiano.database import Base, criar_engine, criar_fabrica_sessoes
 from antimicrobiano.routers import sistema
