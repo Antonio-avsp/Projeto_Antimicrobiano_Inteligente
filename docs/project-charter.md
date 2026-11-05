@@ -35,3 +35,19 @@ Em hospitais de pequeno e médio porte, o acompanhamento do PGA costuma ser feit
 > **Para** equipes de PGA/SCIH de hospitais de pequeno e médio porte, **que** acompanham manualmente as prescrições de antimicrobianos, o **Antimicrobiano Inteligente** é uma **API REST de apoio à decisão** que centraliza prescrições, culturas e antibiogramas e **gera automaticamente alertas explicáveis** (time-out, duração, restrição, resistência e descalonamento). **Diferentemente** das planilhas e da revisão manual, o produto aplica regras baseadas em diretrizes reconhecidas (OMS AWaRe, ANVISA, IDSA/SHEA e CLSI) de forma padronizada, rastreável e auditável.
 
 A "inteligência" desta versão é um **sistema especialista baseado em regras**: cada alerta informa a regra aplicada, a severidade, as evidências utilizadas e a recomendação de conduta. Modelos preditivos (aprendizado de máquina) ficam para trabalhos futuros, quando houver dados reais e validados.
+
+---
+
+## 2. Objetivos SMART do software
+
+Cada objetivo é **E**specífico, **M**ensurável, **A**tingível, **R**elevante e **T**emporal. O prazo da primeira iteração é **07/11/2026**.
+
+| ID | Objetivo | Métrica de verificação | Meta | Prazo |
+|---|---|---|---|---|
+| **OBJ-01** | Implementar o motor de regras com os alertas de time-out, duração excedida, profilaxia prolongada, uso restrito sem justificativa, ausência de cultura, resistência e descalonamento. | Quantidade de regras com testes automatizados de cenários positivos e negativos | **7 regras** | 07/11/2026 (v0.3.0) |
+| **OBJ-02** | Garantir a qualidade do código da aplicação com testes automatizados. | Cobertura de linhas medida pelo `pytest-cov` | **≥ 80%** | 07/11/2026 |
+| **OBJ-03** | Gerar o painel de alertas com desempenho adequado ao uso diário. | Tempo de resposta de `GET /alertas` com 1.000 prescrições ativas, medido por teste automatizado em ambiente local | **≤ 2 s** | 07/11/2026 |
+| **OBJ-04** | Manter a rastreabilidade completa entre especificação, backlog e código. | % dos RFs do MVP (RF01–RF14) ligados a caso de uso, história de usuário, issue e teste na matriz de rastreabilidade | **100%** | 07/11/2026 |
+| **OBJ-05** | Seguir um fluxo de engenharia profissional. | % de mudanças integradas via Pull Request a partir de branches por issue com Conventional Commits; versões SemVer anotadas publicadas | **100%** e **3 tags** (v0.1.0, v0.2.0, v0.3.0) | 07/11/2026 |
+
+**Relevância:** OBJ-01 ataca diretamente os problemas descritos na seção 1.2; OBJ-02 e OBJ-03 reduzem o risco de alertas incorretos ou lentos (que levam a equipe a ignorá-los); OBJ-04 e OBJ-05 atendem aos critérios de rastreabilidade e SDLC da disciplina.
