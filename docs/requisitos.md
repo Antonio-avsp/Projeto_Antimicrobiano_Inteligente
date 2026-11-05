@@ -73,3 +73,60 @@ Documento de requisitos do **Antimicrobiano Inteligente**. Os termos do domínio
 | **[RNF10]** | Transparência clínica | Cada alerta deve informar tipo, severidade, mensagem, recomendação e as **evidências** usadas pela regra; a API deve exibir aviso de que o sistema é apoio à decisão e não substitui o julgamento clínico. | Testes do painel (#13, #16) |
 | **[RNF11]** | Configurabilidade | Os parâmetros clínicos das regras (time-out, limite de profilaxia, janela de culturas e mínimo de isolados) devem ser configuráveis por variáveis de ambiente, com validação dos valores. | Testes de configuração (#18) |
 | **[RNF12]** | Processo (organizacional) | O versionamento deve seguir **Git Flow**, **Conventional Commits** e **SemVer**; toda mudança deve entrar via Pull Request com referência à issue; o CHANGELOG deve ser atualizado a cada release. | Histórico do Git e PRs (todas as issues) |
+
+---
+
+## 3. Regras de Negócio (RN)
+
+### 3.1 Catálogo
+
+| ID | Regra |
+|---|---|
+| **[RN01]** | O nome do antimicrobiano é **único**, comparado sem diferenciar maiúsculas/minúsculas, acentos e espaços extras (`Ceftriaxona` = `CEFTRIAXONA` = ` ceftriaxona `). |
+| **[RN02]** | Antimicrobiano **inativo** continua consultável e presente nos históricos, mas não pode ser usado em novas prescrições. |
+| **[RN03]** | A exclusão de antimicrobiano é sempre **lógica** (inativação), preservando o histórico de prescrições e antibiogramas. |
+
+### 3.2 Prescrições
+
+| ID | Regra |
+|---|---|
+| **[RN04]** | O paciente é identificado apenas pelo código pseudonimizado no formato `PAC-` seguido de 4 a 10 dígitos (ex.: `PAC-0001`). |
+| **[RN05]** | A data de início da prescrição não pode ser posterior à data atual. |
+| **[RN06]** | A duração prevista deve estar entre **1 e 90 dias** e o intervalo entre doses entre **1 e 168 horas**. |
+| **[RN07]** | Antimicrobiano de uso restrito deve ter justificativa. A ausência **não bloqueia** o registro (o sistema é de monitoramento), mas gera o alerta da RN15. |
+| **[RN08]** | Prescrição encerrada (`CONCLUIDA` ou `SUSPENSA`) não pode ser atualizada, reavaliada ou encerrada novamente. |
+| **[RN09]** | As datas de reavaliação e de término devem estar entre a data de início da prescrição e a data atual. |
+
+### 3.3 Microbiologia
+
+| ID | Regra |
+|---|---|
+| **[RN10]** | A data de coleta não pode ser futura. Cultura `POSITIVA` exige microrganismo; o antibiograma só é aceito em cultura positiva, com cada antimicrobiano no máximo uma vez e interpretação `S`, `I` ou `R`. Cultura `NEGATIVA` não possui microrganismo nem antibiograma. A data do resultado deve estar entre a data de coleta e a data atual. |
+
+### 3.4 Motor de alertas
+
+| ID | Regra |
+|---|---|
+| **[RN11]** | As regras são avaliadas somente para prescrições `ATIVA`, em uma **data de referência** (padrão: hoje). **Dia de terapia** = (data de referência − data de início) + 1. Uma cultura é **relevante** para a prescrição quando pertence ao mesmo paciente e foi coletada entre 7 dias antes do início da terapia e a data de referência. |
+
+Cada regra a seguir gera um alerta com tipo, severidade, mensagem, recomendação e evidências (RNF10):
+
+| ID | Tipo do alerta | Severidade | Condição de disparo | Recomendação |
+|---|---|---|---|---|
+| **[RN12]** | `TIMEOUT_REAVALIACAO` | MEDIA | (data de referência − data de início) ≥ **3 dias (72 h)** e nenhuma reavaliação registrada. | Realizar o time-out: confirmar o diagnóstico, revisar culturas e definir a conduta (manter, ajustar, descalonar ou suspender). |
+| **[RN13]** | `DURACAO_EXCEDIDA` | MEDIA | Dia de terapia **maior** que a duração prevista. | Avaliar a suspensão ou registrar nova duração justificada. |
+| **[RN14]** | `PROFILAXIA_PROLONGADA` | MEDIA | Indicação `PROFILAXIA` e duração prevista **maior que 1 dia (24 h)**. | Suspender a profilaxia em até 24 horas após o procedimento, salvo exceção justificada. |
+| **[RN15]** | `RESTRITO_SEM_JUSTIFICATIVA` | ALTA | Antimicrobiano de uso restrito e justificativa vazia. | Registrar a justificativa clínica e solicitar validação do PGA. |
+| **[RN16]** | `SEM_CULTURA` | MEDIA | Indicação `EMPIRICA`, antimicrobiano `WATCH` ou `RESERVE` e **nenhuma cultura relevante** do paciente. | Coletar culturas pertinentes ao sítio de infecção, idealmente antes da próxima dose. |
+| **[RN17]** | `RESISTENCIA` | ALTA | Existe cultura positiva relevante com interpretação **`R`** para o antimicrobiano prescrito. | Revisar a terapia. Alternativas: antimicrobianos ativos com `S` em todas as culturas positivas relevantes, ordenados por categoria AWaRe (ACCESS primeiro). |
+| **[RN18]** | `DESCALONAMENTO` | BAIXA | Antimicrobiano prescrito `WATCH` ou `RESERVE`, nenhuma cultura relevante com `R` para ele e ao menos um antimicrobiano ativo com `S` em **todas** as culturas positivas relevantes e de **categoria AWaRe inferior**. | Considerar o descalonamento para as opções listadas. |
+
+### 3.5 Relatórios e apresentação
+
+| ID | Regra |
+|---|---|
+| **[RN19]** | **Antibiograma cumulativo:** considera culturas `POSITIVA` coletadas no período (e setor, se informado); conta apenas o **primeiro isolado** (coleta mais antiga) por paciente e microrganismo, comparando o nome do microrganismo sem diferenciar maiúsculas/minúsculas; percentual de sensibilidade = `S` ÷ testados × 100 (uma casa decimal); combinações com **menos de 30 isolados** testados recebem `amostra_suficiente = false` (CLSI M39). |
+| **[RN20]** | **Hierarquia AWaRe** usada nas comparações: `ACCESS` (1) < `WATCH` (2) < `RESERVE` (3). |
+| **[RN21]** | **Severidades:** `ALTA` = ação imediata; `MEDIA` = ação em até 24 horas; `BAIXA` = oportunidade de otimização. O painel ordena os alertas de `ALTA` para `BAIXA`, depois por tipo e por prescrição. |
+
+> Os limites de 3 dias, 1 dia, 7 dias e 30 isolados são **parâmetros clínicos** configuráveis (RNF11), pois variam entre protocolos institucionais.
