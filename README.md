@@ -167,3 +167,133 @@ curl http://127.0.0.1:8000/health
 ```
 
 Os exemplos dos recursos de negócio (antimicrobianos, prescrições, culturas e alertas) são adicionados a esta seção conforme cada funcionalidade é entregue.
+
+## Documentação do projeto
+
+| Documento | Conteúdo |
+|---|---|
+| [📋 Termo de Abertura](docs/project-charter.md) | Justificativa, visão do produto, objetivos SMART, escopo, stakeholders, riscos e marcos |
+| [📐 Requisitos](docs/requisitos.md) | Requisitos funcionais (RF), não funcionais (RNF) e regras de negócio (RN) |
+| [🎭 Casos de Uso](docs/casos-de-uso.md) | Atores, diagrama e fluxos principal, alternativos e de exceção |
+| [📖 Histórias de Usuário](docs/user-stories.md) | Histórias no padrão canônico com critérios de aceite em Gherkin |
+| [🏛️ Arquitetura](docs/arquitetura.md) | Modelo C4, camadas, motor de regras, fluxo de alertas e decisões técnicas |
+| [🗃️ Modelo de Dados](docs/modelo-de-dados.md) | DER, dicionário de dados, diagrama de classes e enumerações |
+| [🔗 Rastreabilidade](docs/rastreabilidade.md) | Matriz requisito → caso de uso → história → issue → release → teste |
+| [📚 Glossário](docs/glossario.md) | Termos do domínio (AWaRe, time-out, descalonamento, S/I/R…) |
+| [🤝 Guia de Contribuição](CONTRIBUTING.md) | Git Flow, Conventional Commits, Pull Requests, SemVer e Definição de Pronto |
+| [📝 CHANGELOG](CHANGELOG.md) | Histórico de mudanças de cada versão |
+
+## Fluxo de trabalho (Git Flow, commits e versões)
+
+### Branches
+
+| Branch | Origem | Destino | Finalidade |
+|---|---|---|---|
+| `main` | — | — | Produção: apenas versões liberadas, marcadas com tags `vX.Y.Z`. Sem commits diretos. |
+| `develop` | `main` | — | Integração das funcionalidades da próxima versão. |
+| `feature/issue-NN-descricao` | `develop` | `develop` (PR) | Uma branch por issue. Ex.: `feature/issue-09-catalogo-antimicrobianos`. |
+| `release/vX.Y.Z` | `develop` | `main` (PR) e `develop` | Preparação da versão: número de versão e CHANGELOG. |
+| `hotfix/vX.Y.Z` | `main` | `main` (PR) e `develop` | Correção urgente em produção. |
+
+```mermaid
+gitGraph
+    commit id: "commit inicial"
+    branch develop
+    checkout develop
+    branch feature/issue-NN-descricao
+    checkout feature/issue-NN-descricao
+    commit id: "feat: ... (#NN)"
+    commit id: "test: ... (#NN)"
+    checkout develop
+    merge feature/issue-NN-descricao id: "PR Closes #NN"
+    branch release/vX.Y.0
+    checkout release/vX.Y.0
+    commit id: "chore(release): vX.Y.0"
+    checkout main
+    merge release/vX.Y.0 tag: "vX.Y.0"
+    checkout develop
+    merge main id: "sincroniza develop"
+    checkout main
+    branch hotfix/vX.Y.1
+    checkout hotfix/vX.Y.1
+    commit id: "fix: ... (#MM)"
+    checkout main
+    merge hotfix/vX.Y.1 tag: "vX.Y.1"
+    checkout develop
+    merge hotfix/vX.Y.1
+```
+
+### Ciclo de vida de uma issue
+
+```mermaid
+flowchart LR
+    A["Issue #NN<br/>labels + critérios de aceite"] --> B["feature/issue-NN-descricao<br/>a partir de develop"]
+    B --> C["Commits atômicos<br/>tipo(escopo): descrição (#NN)"]
+    C --> D["Pull Request → develop<br/>Closes #NN + CI verde"]
+    D --> E["release/vX.Y.Z<br/>versão + CHANGELOG"]
+    E --> F["Pull Request → main<br/>fecha as issues da versão"]
+    F --> G["Tag anotada vX.Y.Z"]
+```
+
+### Commits (Conventional Commits)
+
+Formato `tipo(escopo): descrição no imperativo (#issue)`, com commits pequenos e autossuficientes:
+
+```text
+docs(charter): definir objetivos SMART do software (#1)
+feat(api): criar aplicação FastAPI com conexão SQLite e endpoint /health (#6)
+ci: adicionar workflow de testes com matriz Python 3.11 a 3.13 (#7)
+```
+
+### Versionamento Semântico
+
+Versões no formato `MAJOR.MINOR.PATCH`, marcadas com **tags anotadas** na `main` ao final de cada marco. Enquanto a versão for `0.y.z`, a API está em desenvolvimento inicial. Detalhes no [Guia de Contribuição](CONTRIBUTING.md).
+
+## Roadmap e versões
+
+| Versão | Marco | Issues | Status |
+|---|---|---|---|
+| `v0.1.0` | Documentação de planejamento e fundação técnica (setup, CI, README) | #1 a #8 | 🚧 em preparação |
+| `v0.2.0` | Cadastros essenciais: catálogo, prescrições, reavaliação/encerramento e culturas | #9 a #12 | 🗓️ |
+| `v0.3.0` | Motor de regras inteligente, painel de alertas, antibiograma cumulativo e dados de demonstração | #13 a #19 | 🗓️ |
+| `v1.0.0` | Gates de qualidade, indicadores DOT, duplicidade terapêutica, autenticação e interface web | #20 a #26 | 🗓️ |
+
+Versões publicadas: [tags](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/tags) · histórico: [CHANGELOG](CHANGELOG.md).
+
+## Estrutura do repositório
+
+```text
+Projeto_Antimicrobiano_Inteligente/
+├── .github/
+│   ├── ISSUE_TEMPLATE/            # Templates de issue (funcionalidade, bug, documentação)
+│   ├── workflows/ci.yml           # Pipeline de CI (GitHub Actions)
+│   └── pull_request_template.md   # Template de Pull Request
+├── docs/                          # Documentação de planejamento e engenharia
+│   ├── project-charter.md
+│   ├── requisitos.md
+│   ├── casos-de-uso.md
+│   ├── user-stories.md
+│   ├── arquitetura.md
+│   ├── modelo-de-dados.md
+│   ├── rastreabilidade.md
+│   └── glossario.md
+├── src/antimicrobiano/            # Código-fonte da API
+│   ├── main.py                    # Application factory (create_app)
+│   ├── config.py                  # Configuração por variáveis de ambiente
+│   ├── database.py                # Engine e sessões do SQLAlchemy
+│   ├── routers/                   # Camada HTTP (rotas)
+│   └── schemas/                   # Contratos Pydantic
+├── tests/                         # Testes automatizados (pytest)
+├── .gitignore
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── pyproject.toml                 # Metadados, dependências e configuração das ferramentas
+└── README.md
+```
+
+## Autor e licença
+
+Desenvolvido por [Antonio-avsp](https://github.com/Antonio-avsp) na atividade prática *Especificação, Gestão com Issues e SDLC no GitHub*.
+
+Distribuído sob a licença [MIT](LICENSE).
