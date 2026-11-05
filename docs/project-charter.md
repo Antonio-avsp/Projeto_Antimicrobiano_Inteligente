@@ -51,3 +51,32 @@ Cada objetivo é **E**specífico, **M**ensurável, **A**tingível, **R**elevante
 | **OBJ-05** | Seguir um fluxo de engenharia profissional. | % de mudanças integradas via Pull Request a partir de branches por issue com Conventional Commits; versões SemVer anotadas publicadas | **100%** e **3 tags** (v0.1.0, v0.2.0, v0.3.0) | 07/11/2026 |
 
 **Relevância:** OBJ-01 ataca diretamente os problemas descritos na seção 1.2; OBJ-02 e OBJ-03 reduzem o risco de alertas incorretos ou lentos (que levam a equipe a ignorá-los); OBJ-04 e OBJ-05 atendem aos critérios de rastreabilidade e SDLC da disciplina.
+
+---
+
+## 3. Escopo preliminar
+
+### 3.1 Dentro do escopo desta semana (iteração 1 — MVP, até 07/11/2026)
+
+| Entrega | Descrição | Issues |
+|---|---|---|
+| Documentação de planejamento | Termo de abertura, requisitos, casos de uso, histórias de usuário, arquitetura, modelo de dados e rastreabilidade | #1 a #5 |
+| Fundação técnica | Estrutura FastAPI + SQLite + pytest, pipeline de CI e README | #6 a #8 |
+| Catálogo de antimicrobianos | Cadastro com classe, categoria AWaRe da OMS e indicação de uso restrito | #9 |
+| Prescrições | Registro, consulta, atualização, reavaliação (*time-out*) e encerramento | #10, #11 |
+| Microbiologia | Culturas, resultados e antibiogramas (S/I/R) | #12 |
+| Motor de regras inteligente | 7 regras de alerta explicáveis e painel filtrável | #13 a #16 |
+| Antibiograma cumulativo | Perfil local de sensibilidade (primeiro isolado por paciente) | #17 |
+| Qualidade e demonstração | Parâmetros configuráveis e carga de dados fictícios | #18, #19 |
+
+### 3.2 Fora do escopo (expressamente excluído desta semana)
+
+- ❌ **Integração** com prontuário eletrônico, sistema hospitalar (HIS) ou laboratorial (LIS) — ex.: HL7/FHIR.
+- ❌ **Dados reais de pacientes** — o sistema trabalha apenas com códigos pseudonimizados e dados fictícios.
+- ❌ **Autenticação e perfis de acesso** — planejado para a v1.0.0 ([#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24)).
+- ❌ **Interface web** — nesta iteração a API é operada pelo Swagger UI; painel web planejado ([#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26)).
+- ❌ **Indicadores de consumo** (DOT/DDD) e **alerta de duplicidade terapêutica** — planejados ([#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21), [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22)).
+- ❌ Prescrição eletrônica, dispensação, ajuste de dose por função renal e interações medicamentosas.
+- ❌ Modelos preditivos / aprendizado de máquina.
+- ❌ Notificações (e-mail, SMS, aplicativos de mensagem), aplicativo móvel e operação multi-hospital.
+- ❌ Regularização como *Software as a Medical Device* (RDC ANVISA nº 657/2022) e validação clínica para uso assistencial real.
