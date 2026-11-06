@@ -74,3 +74,29 @@ def nova_prescricao(client: TestClient, novo_antimicrobiano):
         return resposta.json()
 
     return _criar
+
+
+@pytest.fixture
+def nova_cultura(client: TestClient):
+    """Fábrica que registra a coleta e, opcionalmente, o resultado da cultura."""
+
+    def _criar(
+        paciente_codigo: str = "PAC-0001",
+        setor: str = "UTI Adulto",
+        material: str = "SANGUE",
+        data_coleta: str | None = None,
+        resultado: dict | None = None,
+    ) -> dict:
+        dados = {"paciente_codigo": paciente_codigo, "setor": setor, "material": material}
+        if data_coleta:
+            dados["data_coleta"] = data_coleta
+        resposta = client.post("/culturas", json=dados)
+        assert resposta.status_code == 201, resposta.text
+        cultura = resposta.json()
+        if resultado is not None:
+            resposta = client.put(f"/culturas/{cultura['id']}/resultado", json=resultado)
+            assert resposta.status_code == 200, resposta.text
+            cultura = resposta.json()
+        return cultura
+
+    return _criar
