@@ -100,10 +100,11 @@ def test_motor_ignora_prescricoes_encerradas(prescricao):
 
 
 def test_motor_combina_regras_e_ordena_por_tipo_e_prescricao(prescricao):
+    motor = MotorDeRegras([RegraDuracaoExcedida(), RegraTimeout(), RegraProfilaxiaProlongada()])
     primeira = prescricao(data_inicio=date(2026, 11, 1), duracao_prevista_dias=3)
     segunda = prescricao(data_inicio=date(2026, 11, 1), duracao_prevista_dias=10)
 
-    alertas = criar_motor_padrao().avaliar([segunda, primeira], _contexto(5))
+    alertas = motor.avaliar([segunda, primeira], _contexto(5))
 
     assert [(a.tipo, a.prescricao_id) for a in alertas] == [
         (TipoAlerta.TIMEOUT_REAVALIACAO, primeira.id),
