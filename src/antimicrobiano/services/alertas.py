@@ -6,6 +6,7 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from antimicrobiano.config import ParametrosClinicos
 from antimicrobiano.enums import Severidade, StatusPrescricao, TipoAlerta
 from antimicrobiano.models import Cultura, Prescricao
 from antimicrobiano.regras import Alerta, ContextoAvaliacao, MotorDeRegras, criar_motor_padrao
@@ -16,6 +17,7 @@ def avaliar(
     data_referencia: date,
     motor: MotorDeRegras | None = None,
     *,
+    parametros: ParametrosClinicos | None = None,
     tipo: TipoAlerta | None = None,
     severidade: Severidade | None = None,
     setor: str | None = None,
@@ -34,6 +36,7 @@ def avaliar(
     contexto = ContextoAvaliacao(
         data_referencia=data_referencia,
         culturas_por_paciente=_culturas_por_paciente(sessao, prescricoes),
+        parametros=parametros or ParametrosClinicos(),
     )
     alertas = (motor or criar_motor_padrao()).avaliar(prescricoes, contexto)
     return [

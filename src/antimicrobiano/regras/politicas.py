@@ -2,7 +2,7 @@
 
 from antimicrobiano.enums import CategoriaAware, Indicacao, Severidade, TipoAlerta
 from antimicrobiano.models import Prescricao
-from antimicrobiano.regras.base import JANELA_CULTURA_DIAS, Alerta, ContextoAvaliacao, Regra
+from antimicrobiano.regras.base import Alerta, ContextoAvaliacao, Regra
 
 CATEGORIAS_AMPLO_ESPECTRO = frozenset({CategoriaAware.WATCH, CategoriaAware.RESERVE})
 
@@ -59,6 +59,6 @@ class RegraSemCultura(Regra):
                     "próxima dose, para permitir o ajuste da terapia."
                 ),
                 categoria_aware=categoria.value,
-                janela_de_culturas_dias=JANELA_CULTURA_DIAS,
+                janela_de_culturas_dias=contexto.parametros.janela_cultura_dias,
             )
         ]

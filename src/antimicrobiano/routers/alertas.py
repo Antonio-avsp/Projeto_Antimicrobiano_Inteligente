@@ -7,6 +7,7 @@ from fastapi import APIRouter, Query
 
 from antimicrobiano.database import SessaoDep
 from antimicrobiano.enums import Severidade, TipoAlerta
+from antimicrobiano.routers.dependencias import ParametrosDep
 from antimicrobiano.schemas.alerta import PainelAlertas
 from antimicrobiano.schemas.comum import AVISO_APOIO_A_DECISAO
 from antimicrobiano.schemas.prescricao import PADRAO_CODIGO_PACIENTE
@@ -18,6 +19,7 @@ router = APIRouter(prefix="/alertas", tags=["Alertas"])
 @router.get("", response_model=PainelAlertas, summary="Painel de alertas inteligentes")
 def painel(
     sessao: SessaoDep,
+    parametros: ParametrosDep,
     data_referencia: Annotated[
         date | None, Query(description="Data em que as regras são avaliadas. Padrão: hoje.")
     ] = None,
@@ -32,6 +34,7 @@ def painel(
     alertas = servico.avaliar(
         sessao,
         referencia,
+        parametros=parametros,
         tipo=tipo,
         severidade=severidade,
         setor=setor,
