@@ -6,6 +6,14 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.1.1] - 2026-11-05
+
+Hotfix do processo de versionamento.
+
+### Corrigido
+
+- Publicação das tags de versão: o workflow `tag-versao.yml` cria a tag anotada `vX.Y.Z` com as notas do CHANGELOG sempre que uma versão é integrada na `main`, e permite marcar versões anteriores por execução manual. Corrige a ausência da tag `v0.1.0`, cujo push manual foi recusado pelo GitHub (HTTP 403) ([#35](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/35)).
+
 ## [0.1.0] - 2026-11-05
 
 Documentação de planejamento e fundação técnica do projeto.
@@ -21,5 +29,6 @@ Documentação de planejamento e fundação técnica do projeto.
 - Pipeline de CI no GitHub Actions com testes em Python 3.11, 3.12 e 3.13 ([#7](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/7)).
 - README com badges, guia de execução, quadro de funcionalidades e fluxo Git Flow ([#8](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/8)).
 
-[Não lançado]: https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/compare/v0.1.0...develop
+[Não lançado]: https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/compare/v0.1.1...develop
+[0.1.1]: https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/tree/v0.1.0
