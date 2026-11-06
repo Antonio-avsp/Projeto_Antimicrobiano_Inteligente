@@ -4,12 +4,6 @@ from antimicrobiano.enums import Indicacao, Severidade, TipoAlerta
 from antimicrobiano.models import Prescricao
 from antimicrobiano.regras.base import Alerta, ContextoAvaliacao, Regra
 
-TIMEOUT_DIAS = 3
-"""Dias de uso sem reavaliação que disparam o time-out (72 horas)."""
-
-LIMITE_PROFILAXIA_DIAS = 1
-"""Duração máxima recomendada para profilaxia (24 horas)."""
-
 
 class RegraTimeout(Regra):
     """RN12: prescrição ativa há 72 horas ou mais sem reavaliação registrada."""
@@ -18,18 +12,19 @@ class RegraTimeout(Regra):
     severidade = Severidade.MEDIA
 
     def avaliar(self, prescricao: Prescricao, contexto: ContextoAvaliacao) -> list[Alerta]:
+        limite = contexto.parametros.timeout_dias
         dias_de_uso = (contexto.data_referencia - prescricao.data_inicio).days
         reavaliada = any(
             r.data_reavaliacao <= contexto.data_referencia for r in prescricao.reavaliacoes
         )
-        if dias_de_uso < TIMEOUT_DIAS or reavaliada:
+        if dias_de_uso < limite or reavaliada:
             return []
         return [
             self._alerta(
                 prescricao,
                 mensagem=(
                     f"{prescricao.antimicrobiano.nome} em uso há {dias_de_uso} dias "
-                    f"(≥ {TIMEOUT_DIAS * 24} horas) sem reavaliação registrada."
+                    f"(≥ {limite * 24} horas) sem reavaliação registrada."
                 ),
                 recomendacao=(
                     "Realizar o time-out: confirmar o diagnóstico, revisar as culturas e definir "
@@ -37,7 +32,7 @@ class RegraTimeout(Regra):
                 ),
                 data_inicio=prescricao.data_inicio.isoformat(),
                 dias_de_uso=dias_de_uso,
-                limite_dias=TIMEOUT_DIAS,
+                limite_dias=limite,
             )
         ]
 
@@ -76,9 +71,10 @@ class RegraProfilaxiaProlongada(Regra):
     severidade = Severidade.MEDIA
 
     def avaliar(self, prescricao: Prescricao, contexto: ContextoAvaliacao) -> list[Alerta]:
+        limite = contexto.parametros.limite_profilaxia_dias
         if (
             prescricao.indicacao != Indicacao.PROFILAXIA
-            or prescricao.duracao_prevista_dias <= LIMITE_PROFILAXIA_DIAS
+            or prescricao.duracao_prevista_dias <= limite
         ):
             return []
         return [
@@ -87,13 +83,13 @@ class RegraProfilaxiaProlongada(Regra):
                 mensagem=(
                     f"Profilaxia com {prescricao.antimicrobiano.nome} planejada para "
                     f"{prescricao.duracao_prevista_dias} dias (acima de "
-                    f"{LIMITE_PROFILAXIA_DIAS * 24} horas)."
+                    f"{limite * 24} horas)."
                 ),
                 recomendacao=(
-                    "Suspender a profilaxia em até 24 horas após o procedimento, "
+                    f"Suspender a profilaxia em até {limite * 24} horas após o procedimento, "
                     "salvo exceção justificada."
                 ),
                 duracao_prevista_dias=prescricao.duracao_prevista_dias,
-                limite_dias=LIMITE_PROFILAXIA_DIAS,
+                limite_dias=limite,
             )
         ]

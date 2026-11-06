@@ -8,11 +8,9 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 from typing import Any, ClassVar
 
+from antimicrobiano.config import ParametrosClinicos
 from antimicrobiano.enums import Severidade, TipoAlerta
 from antimicrobiano.models import Cultura, Prescricao
-
-JANELA_CULTURA_DIAS = 7
-"""Culturas coletadas até 7 dias antes do início da terapia são relevantes (RN11)."""
 
 
 @dataclass(frozen=True)
@@ -36,10 +34,11 @@ class ContextoAvaliacao:
 
     data_referencia: date
     culturas_por_paciente: Mapping[str, Sequence[Cultura]] = field(default_factory=dict)
+    parametros: ParametrosClinicos = field(default_factory=ParametrosClinicos)
 
     def culturas_relevantes(self, prescricao: Prescricao) -> list[Cultura]:
         """Culturas do paciente coletadas na janela de relevância da prescrição (RN11)."""
-        inicio_janela = prescricao.data_inicio - timedelta(days=JANELA_CULTURA_DIAS)
+        inicio_janela = prescricao.data_inicio - timedelta(days=self.parametros.janela_cultura_dias)
         return [
             cultura
             for cultura in self.culturas_por_paciente.get(prescricao.paciente_codigo, ())
