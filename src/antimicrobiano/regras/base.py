@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 from typing import Any, ClassVar
 
 from antimicrobiano.enums import Severidade, TipoAlerta
-from antimicrobiano.models import Prescricao
+from antimicrobiano.models import Cultura, Prescricao
+
+JANELA_CULTURA_DIAS = 7
+"""Culturas coletadas até 7 dias antes do início da terapia são relevantes (RN11)."""
 
 
 @dataclass(frozen=True)
@@ -31,6 +35,16 @@ class ContextoAvaliacao:
     """Dados pré-carregados que as regras consultam, sem acessar o banco."""
 
     data_referencia: date
+    culturas_por_paciente: Mapping[str, Sequence[Cultura]] = field(default_factory=dict)
+
+    def culturas_relevantes(self, prescricao: Prescricao) -> list[Cultura]:
+        """Culturas do paciente coletadas na janela de relevância da prescrição (RN11)."""
+        inicio_janela = prescricao.data_inicio - timedelta(days=JANELA_CULTURA_DIAS)
+        return [
+            cultura
+            for cultura in self.culturas_por_paciente.get(prescricao.paciente_codigo, ())
+            if inicio_janela <= cultura.data_coleta <= self.data_referencia
+        ]
 
 
 class Regra(ABC):
