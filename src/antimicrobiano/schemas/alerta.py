@@ -24,10 +24,18 @@ class AlertaResposta(BaseModel):
     evidencias: dict[str, Any]
 
 
+class ResumoAlertas(BaseModel):
+    """Quantidade de alertas por severidade e por tipo (inclui zeros)."""
+
+    por_severidade: dict[Severidade, int]
+    por_tipo: dict[TipoAlerta, int]
+
+
 class PainelAlertas(BaseModel):
-    """Alertas da data de referência, ordenados por severidade (RN21)."""
+    """Alertas da data de referência, filtrados e ordenados por severidade (RN21)."""
 
     data_referencia: date
     aviso: str
     total: int
+    resumo: ResumoAlertas
     alertas: list[AlertaResposta]

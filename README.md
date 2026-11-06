@@ -67,7 +67,7 @@ Legenda: ✅ implementado · 🚧 em desenvolvimento · 🗓️ planejado
 | Alertas de time-out, duração excedida e profilaxia prolongada | RF07, RF08 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13) | v0.3.0 | ✅ |
 | Alertas de uso restrito sem justificativa e de amplo espectro sem cultura | RF09, RF12 | [#14](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/14) | v0.3.0 | ✅ |
 | Alertas de resistência e sugestão de descalonamento | RF10, RF11 | [#15](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/15) | v0.3.0 | ✅ |
-| Painel de alertas com filtros e resumo | RF13 | [#16](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/16) | v0.3.0 | 🗓️ |
+| Painel de alertas com filtros e resumo | RF13 | [#16](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/16) | v0.3.0 | ✅ |
 | Antibiograma cumulativo institucional | RF14 | [#17](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/17) | v0.3.0 | 🗓️ |
 | Parâmetros clínicos configuráveis por ambiente | RNF11 | [#18](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/18) | v0.3.0 | 🗓️ |
 | Carga de dados fictícios para demonstração | HT01 | [#19](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/19) | v0.3.0 | 🗓️ |
@@ -220,11 +220,23 @@ curl -X PUT http://127.0.0.1:8000/culturas/1/resultado \
 curl "http://127.0.0.1:8000/alertas?data_referencia=2026-11-06"
 ```
 
+**Filtrar o painel** — apenas alertas de severidade ALTA da UTI (RF13):
+
+```bash
+curl "http://127.0.0.1:8000/alertas?severidade=ALTA&setor=UTI%20Adulto"
+```
+
+Resposta resumida de uma consulta sem filtros:
+
 ```json
 {
   "data_referencia": "2026-11-06",
   "aviso": "Ferramenta de apoio à decisão para fins acadêmicos: não substitui o julgamento clínico. Utilize apenas dados fictícios.",
   "total": 1,
+  "resumo": {
+    "por_severidade": {"ALTA": 0, "MEDIA": 1, "BAIXA": 0},
+    "por_tipo": {"TIMEOUT_REAVALIACAO": 1, "DURACAO_EXCEDIDA": 0, "...": 0}
+  },
   "alertas": [
     {
       "tipo": "TIMEOUT_REAVALIACAO",
