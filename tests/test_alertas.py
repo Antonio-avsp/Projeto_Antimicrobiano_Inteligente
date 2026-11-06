@@ -196,3 +196,65 @@ def test_descalonamento_no_painel_sugere_opcao_access(
         {"nome": "Gentamicina", "categoria_aware": "ACCESS"}
     ]
     assert painel["alertas"][-1]["severidade"] == "BAIXA"
+
+
+# --- US13: painel filtrável com resumo -------------------------------------------------------
+
+
+@pytest.fixture
+def cenario_painel(novo_antimicrobiano, nova_prescricao):
+    """Três prescrições que geram alertas ALTA, MEDIA e BAIXA em setores diferentes."""
+    meropenem = novo_antimicrobiano(nome="Meropenem", classe="Carbapenêmico", uso_restrito=True)
+    amoxicilina = novo_antimicrobiano(
+        nome="Amoxicilina", classe="Penicilina", categoria_aware="ACCESS"
+    )
+    return {
+        "uti": nova_prescricao(
+            antimicrobiano_id=meropenem["id"], setor="UTI Adulto", paciente_codigo="PAC-0001"
+        ),
+        "clinica": nova_prescricao(
+            antimicrobiano_id=amoxicilina["id"],
+            setor="Clínica Médica",
+            paciente_codigo="PAC-0002",
+            data_inicio="2026-11-01",
+        ),
+    }
+
+
+def test_ordenacao_por_severidade_e_resumo(cenario_painel, alertas):
+    painel = alertas(data_referencia="2026-11-05")
+
+    ordens = {"ALTA": 0, "MEDIA": 1, "BAIXA": 2}
+    severidades = [alerta["severidade"] for alerta in painel["alertas"]]
+    assert severidades == sorted(severidades, key=ordens.get)
+    assert painel["total"] == len(painel["alertas"])
+    assert sum(painel["resumo"]["por_severidade"].values()) == painel["total"]
+    assert painel["resumo"]["por_severidade"]["ALTA"] == 1
+    assert painel["resumo"]["por_tipo"]["RESTRITO_SEM_JUSTIFICATIVA"] == 1
+    assert painel["resumo"]["por_tipo"]["DESCALONAMENTO"] == 0
+
+
+def test_filtros_combinados_de_severidade_e_setor(cenario_painel, alertas):
+    painel = alertas(data_referencia="2026-11-05", severidade="ALTA", setor="UTI Adulto")
+
+    assert painel["total"] == 1
+    assert {(a["severidade"], a["setor"]) for a in painel["alertas"]} == {("ALTA", "UTI Adulto")}
+    assert painel["resumo"]["por_severidade"] == {"ALTA": 1, "MEDIA": 0, "BAIXA": 0}
+
+
+def test_filtro_por_tipo_e_paciente(cenario_painel, alertas):
+    painel = alertas(
+        data_referencia="2026-11-05", tipo="TIMEOUT_REAVALIACAO", paciente_codigo="PAC-0002"
+    )
+
+    assert [(a["tipo"], a["paciente_codigo"]) for a in painel["alertas"]] == [
+        ("TIMEOUT_REAVALIACAO", "PAC-0002")
+    ]
+
+
+@pytest.mark.parametrize(
+    "params",
+    [{"tipo": "INEXISTENTE"}, {"severidade": "CRITICA"}, {"paciente_codigo": "Maria"}],
+)
+def test_filtros_invalidos_retornam_422(client, params):
+    assert client.get("/alertas", params=params).status_code == 422
