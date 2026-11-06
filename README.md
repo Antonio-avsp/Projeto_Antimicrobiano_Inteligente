@@ -192,6 +192,7 @@ Os exemplos dos recursos de negócio (antimicrobianos, prescrições, culturas e
 | `main` | — | — | Produção: apenas versões liberadas, marcadas com tags `vX.Y.Z`. Sem commits diretos. |
 | `develop` | `main` | — | Integração das funcionalidades da próxima versão. |
 | `feature/issue-NN-descricao` | `develop` | `develop` (PR) | Uma branch por issue. Ex.: `feature/issue-09-catalogo-antimicrobianos`. |
+| `bugfix/issue-NN-descricao` | `develop` | `develop` (PR) | Correção não urgente, liberada na próxima versão. |
 | `release/vX.Y.Z` | `develop` | `main` (PR) e `develop` | Preparação da versão: número de versão e CHANGELOG. |
 | `hotfix/vX.Y.Z` | `main` | `main` (PR) e `develop` | Correção urgente em produção. |
 
