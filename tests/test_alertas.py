@@ -89,3 +89,49 @@ def test_painel_vazio_e_aviso_de_apoio_a_decisao(alertas):
 
 def test_data_de_referencia_invalida_retorna_422(client):
     assert client.get("/alertas", params={"data_referencia": "04/11/2026"}).status_code == 422
+
+
+# --- US09 e US12: políticas de uso ----------------------------------------------------------
+
+
+def test_justificativa_registrada_resolve_o_alerta_de_uso_restrito(
+    client, novo_antimicrobiano, nova_prescricao, alertas
+):
+    meropenem = novo_antimicrobiano(nome="Meropenem", classe="Carbapenêmico", uso_restrito=True)
+    prescricao = nova_prescricao(antimicrobiano_id=meropenem["id"])
+
+    antes = alertas()
+    client.patch(
+        f"/prescricoes/{prescricao['id']}",
+        json={"justificativa": "Choque séptico com suspeita de ESBL"},
+    )
+    depois = alertas()
+
+    assert "RESTRITO_SEM_JUSTIFICATIVA" in _tipos(antes, prescricao["id"])
+    assert antes["alertas"][0]["severidade"] == "ALTA"
+    assert "RESTRITO_SEM_JUSTIFICATIVA" not in _tipos(depois, prescricao["id"])
+
+
+def test_cultura_coletada_resolve_o_alerta_de_amplo_espectro_sem_cultura(
+    client, novo_antimicrobiano, nova_prescricao, nova_cultura, alertas
+):
+    piperacilina = novo_antimicrobiano(nome="Piperacilina + tazobactam", classe="Penicilina")
+    prescricao = nova_prescricao(
+        antimicrobiano_id=piperacilina["id"], paciente_codigo="PAC-0003", data_inicio="2026-11-01"
+    )
+
+    antes = alertas(data_referencia="2026-11-02")
+    nova_cultura(paciente_codigo="PAC-0003", data_coleta="2026-11-01")
+    depois = alertas(data_referencia="2026-11-02")
+
+    assert "SEM_CULTURA" in _tipos(antes, prescricao["id"])
+    assert "SEM_CULTURA" not in _tipos(depois, prescricao["id"])
+
+
+def test_access_empirico_nao_exige_cultura(novo_antimicrobiano, nova_prescricao, alertas):
+    amoxicilina = novo_antimicrobiano(
+        nome="Amoxicilina", classe="Penicilina", categoria_aware="ACCESS"
+    )
+    prescricao = nova_prescricao(antimicrobiano_id=amoxicilina["id"])
+
+    assert "SEM_CULTURA" not in _tipos(alertas(), prescricao["id"])
