@@ -6,6 +6,22 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.2.0] - 2026-11-06
+
+Cadastros essenciais da API: catálogo, prescrições, intervenções do PGA e microbiologia.
+
+### Adicionado
+
+- Catálogo de antimicrobianos com classificação AWaRe, nome único sem diferenciar maiúsculas/acentos, filtros e inativação lógica (RF01, RF02 — [#9](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/9)).
+- Registro, consulta e atualização de prescrições com código de paciente pseudonimizado e cálculo do dia de terapia (RF03, RF04 — [#10](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/10)).
+- Reavaliação (time-out) e encerramento de prescrições, com bloqueio de alterações em prescrições encerradas (RF05 — [#11](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/11)).
+- Culturas microbiológicas, resultados e antibiogramas S/I/R (RF06 — [#12](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/12)).
+- Branches `bugfix/` documentadas no fluxo Git Flow ([#37](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/37)).
+
+### Corrigido
+
+- A mensagem das tags de versão passa a preservar os títulos de seção do CHANGELOG ([#37](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/37)).
+
 ## [0.1.1] - 2026-11-05
 
 Hotfix do processo de versionamento.
@@ -29,6 +45,7 @@ Documentação de planejamento e fundação técnica do projeto.
 - Pipeline de CI no GitHub Actions com testes em Python 3.11, 3.12 e 3.13 ([#7](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/7)).
 - README com badges, guia de execução, quadro de funcionalidades e fluxo Git Flow ([#8](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/8)).
 
-[Não lançado]: https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/compare/v0.1.1...develop
+[Não lançado]: https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/compare/v0.2.0...develop
+[0.2.0]: https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/tree/v0.1.0
