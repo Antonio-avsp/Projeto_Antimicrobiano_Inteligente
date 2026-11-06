@@ -70,7 +70,7 @@ Legenda: ✅ implementado · 🚧 em desenvolvimento · 🗓️ planejado
 | Painel de alertas com filtros e resumo | RF13 | [#16](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/16) | v0.3.0 | ✅ |
 | Antibiograma cumulativo institucional | RF14 | [#17](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/17) | v0.3.0 | ✅ |
 | Parâmetros clínicos configuráveis por ambiente | RNF11 | [#18](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/18) | v0.3.0 | ✅ |
-| Carga de dados fictícios para demonstração | HT01 | [#19](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/19) | v0.3.0 | 🗓️ |
+| Carga de dados fictícios para demonstração | HT01 | [#19](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/19) | v0.3.0 | ✅ |
 | Gates de qualidade no CI (ruff + cobertura mínima) | RNF07, RNF08 | [#20](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/20) | v1.0.0 | 🗓️ |
 | Indicadores de consumo (DOT) | RF15 | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) | v1.0.0 | 🗓️ |
 | Alerta de duplicidade terapêutica | RF16 | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) | v1.0.0 | 🗓️ |
@@ -126,15 +126,23 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
-**4. Iniciar a API**
+**4. (Opcional) Carregar dados fictícios de demonstração**
+
+```bash
+python -m antimicrobiano.seed
+```
+
+O comando cria o catálogo com 21 antimicrobianos classificados pela AWaRe, prescrições que geram **um exemplo de cada tipo de alerta** no dia da execução e um histórico de culturas para o antibiograma cumulativo. Execuções repetidas não duplicam dados; use `--reset` para recriar a base.
+
+**5. Iniciar a API**
 
 ```bash
 uvicorn antimicrobiano.main:app --reload
 ```
 
-**5. Acessar a documentação interativa** em <http://127.0.0.1:8000/docs> (Swagger UI) ou <http://127.0.0.1:8000/redoc>.
+**6. Acessar a documentação interativa** em <http://127.0.0.1:8000/docs> (Swagger UI) ou <http://127.0.0.1:8000/redoc>. Com os dados de demonstração, comece por `GET /alertas`.
 
-**6. Executar os testes e a análise estática**
+**7. Executar os testes e a análise estática**
 
 ```bash
 pytest --cov
@@ -384,6 +392,7 @@ Projeto_Antimicrobiano_Inteligente/
 │   ├── models.py                  # Entidades ORM
 │   ├── enums.py                   # Enumerações do domínio (AWaRe…)
 │   ├── erros.py                   # Exceções de domínio → HTTP 404/409/422
+│   ├── seed.py                    # Carga de dados fictícios (python -m antimicrobiano.seed)
 │   ├── texto.py                   # Normalização de nomes (RN01)
 │   ├── regras/                    # Motor de regras clínicas (Strategy)
 │   ├── routers/                   # Camada HTTP (rotas)
