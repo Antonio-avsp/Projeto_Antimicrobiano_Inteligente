@@ -175,7 +175,7 @@ curl http://127.0.0.1:8000/health
 ```json
 {
   "status": "ok",
-  "versao": "0.1.0",
+  "versao": "0.3.0",
   "aviso": "Ferramenta de apoio à decisão para fins acadêmicos: não substitui o julgamento clínico. Utilize apenas dados fictícios."
 }
 ```
@@ -362,7 +362,7 @@ Versões no formato `MAJOR.MINOR.PATCH`, marcadas com **tags anotadas** na `main
 | `v0.1.0` | Documentação de planejamento e fundação técnica (setup, CI, README) | #1 a #8 | ✅ lançada em 05/11/2026 |
 | `v0.1.1` | Hotfix: publicação automática das tags anotadas de versão | #35 | ✅ lançada em 05/11/2026 |
 | `v0.2.0` | Cadastros essenciais: catálogo, prescrições, reavaliação/encerramento e culturas | #9 a #12, #37 | ✅ lançada em 06/11/2026 |
-| `v0.3.0` | Motor de regras inteligente, painel de alertas, antibiograma cumulativo e dados de demonstração | #13 a #19 | 🗓️ |
+| `v0.3.0` | Motor de regras inteligente, painel de alertas, antibiograma cumulativo e dados de demonstração | #13 a #19 | ✅ lançada em 06/11/2026 |
 | `v1.0.0` | Gates de qualidade, indicadores DOT, duplicidade terapêutica, autenticação e interface web | #20 a #26 | 🗓️ |
 
 Versões publicadas: [tags](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/tags) · histórico: [CHANGELOG](CHANGELOG.md).
