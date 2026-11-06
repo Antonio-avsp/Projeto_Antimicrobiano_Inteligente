@@ -50,3 +50,31 @@ class Conduta(StrEnum):
     AJUSTAR = "AJUSTAR"
     DESCALONAR = "DESCALONAR"
     SUSPENDER = "SUSPENDER"
+
+
+class Material(StrEnum):
+    """Material biológico da cultura."""
+
+    SANGUE = "SANGUE"
+    URINA = "URINA"
+    SECRECAO_TRAQUEAL = "SECRECAO_TRAQUEAL"
+    LIQUOR = "LIQUOR"
+    PONTA_DE_CATETER = "PONTA_DE_CATETER"
+    SECRECAO_DE_FERIDA = "SECRECAO_DE_FERIDA"
+    OUTRO = "OUTRO"
+
+
+class StatusCultura(StrEnum):
+    """Situação do exame de cultura."""
+
+    PENDENTE = "PENDENTE"
+    POSITIVA = "POSITIVA"
+    NEGATIVA = "NEGATIVA"
+
+
+class Interpretacao(StrEnum):
+    """Interpretação do antibiograma (BrCAST/EUCAST)."""
+
+    S = "S"
+    I = "I"  # noqa: E741 — sigla oficial: sensível, aumentando exposição
+    R = "R"

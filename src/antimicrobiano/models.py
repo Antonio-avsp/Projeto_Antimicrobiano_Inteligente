@@ -4,12 +4,21 @@ from __future__ import annotations
 
 from datetime import UTC, date, datetime
 
-from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy import DateTime, ForeignKey, String, UniqueConstraint
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from antimicrobiano.database import Base
-from antimicrobiano.enums import CategoriaAware, Conduta, Indicacao, StatusPrescricao, Via
+from antimicrobiano.enums import (
+    CategoriaAware,
+    Conduta,
+    Indicacao,
+    Interpretacao,
+    Material,
+    StatusCultura,
+    StatusPrescricao,
+    Via,
+)
 
 
 def agora_utc() -> datetime:
@@ -95,3 +104,42 @@ class Reavaliacao(Base):
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=agora_utc)
 
     prescricao: Mapped[Prescricao] = relationship(back_populates="reavaliacoes")
+
+
+class Cultura(Auditavel, Base):
+    """Cultura microbiológica de um paciente pseudonimizado (RF06)."""
+
+    __tablename__ = "culturas"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    paciente_codigo: Mapped[str] = mapped_column(String(15), index=True)
+    setor: Mapped[str] = mapped_column(String(60))
+    material: Mapped[Material] = mapped_column(_enum(Material))
+    data_coleta: Mapped[date]
+    status: Mapped[StatusCultura] = mapped_column(
+        _enum(StatusCultura), default=StatusCultura.PENDENTE
+    )
+    microrganismo: Mapped[str | None] = mapped_column(String(120))
+    data_resultado: Mapped[date | None]
+
+    antibiograma: Mapped[list[ItemAntibiograma]] = relationship(
+        back_populates="cultura",
+        lazy="selectin",
+        cascade="all, delete-orphan",
+        order_by="ItemAntibiograma.id",
+    )
+
+
+class ItemAntibiograma(Base):
+    """Interpretação de um antimicrobiano testado em uma cultura (RN10)."""
+
+    __tablename__ = "itens_antibiograma"
+    __table_args__ = (UniqueConstraint("cultura_id", "antimicrobiano_id"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    cultura_id: Mapped[int] = mapped_column(ForeignKey("culturas.id", ondelete="CASCADE"))
+    antimicrobiano_id: Mapped[int] = mapped_column(ForeignKey("antimicrobianos.id"))
+    interpretacao: Mapped[Interpretacao] = mapped_column(_enum(Interpretacao))
+
+    cultura: Mapped[Cultura] = relationship(back_populates="antibiograma")
+    antimicrobiano: Mapped[Antimicrobiano] = relationship(lazy="joined")
