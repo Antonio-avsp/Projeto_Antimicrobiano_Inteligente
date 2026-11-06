@@ -8,8 +8,8 @@ Legenda: ✅ implementado · 🗓️ planejado
 
 | RF | Descrição | UC | US | RN | Issue | Release | Testes automatizados | Situação |
 |---|---|---|---|---|---|---|---|---|
-| RF01 | Cadastrar antimicrobiano | UC01 | US01 | RN01 | [#9](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/9) | v0.2.0 | `tests/test_antimicrobianos.py` | 🗓️ |
-| RF02 | Listar, consultar, atualizar e inativar antimicrobianos | UC01 | US02 | RN02, RN03 | [#9](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/9) | v0.2.0 | `tests/test_antimicrobianos.py` | 🗓️ |
+| RF01 | Cadastrar antimicrobiano | UC01 | US01 | RN01 | [#9](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/9) | v0.2.0 | `tests/test_antimicrobianos.py` | ✅ |
+| RF02 | Listar, consultar, atualizar e inativar antimicrobianos | UC01 | US02 | RN02, RN03 | [#9](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/9) | v0.2.0 | `tests/test_antimicrobianos.py` | ✅ |
 | RF03 | Registrar prescrição | UC02 | US03 | RN02, RN04–RN07 | [#10](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/10) | v0.2.0 | `tests/test_prescricoes.py` | 🗓️ |
 | RF04 | Listar, consultar e atualizar prescrições | UC02 | US04 | RN08 | [#10](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/10) | v0.2.0 | `tests/test_prescricoes.py` | 🗓️ |
 | RF05 | Reavaliar (time-out) e encerrar prescrição | UC03 | US05 | RN08, RN09 | [#11](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/11) | v0.2.0 | `tests/test_intervencoes.py` | 🗓️ |

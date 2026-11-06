@@ -60,7 +60,7 @@ Legenda: ✅ implementado · 🚧 em desenvolvimento · 🗓️ planejado
 | Documentação de planejamento (termo de abertura, requisitos, casos de uso, histórias, arquitetura) | — | [#1](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/1)–[#5](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/5) | v0.1.0 | ✅ |
 | API base com `/health` e documentação interativa (Swagger UI) | RNF03 | [#6](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/6) | v0.1.0 | ✅ |
 | Pipeline de CI (pytest em Python 3.11–3.13) | RNF06, RNF08 | [#7](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/7) | v0.1.0 | ✅ |
-| Catálogo de antimicrobianos com classificação AWaRe | RF01, RF02 | [#9](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/9) | v0.2.0 | 🗓️ |
+| Catálogo de antimicrobianos com classificação AWaRe | RF01, RF02 | [#9](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/9) | v0.2.0 | ✅ |
 | Registro, consulta e atualização de prescrições | RF03, RF04 | [#10](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/10) | v0.2.0 | 🗓️ |
 | Reavaliação (time-out) e encerramento de prescrições | RF05 | [#11](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/11) | v0.2.0 | 🗓️ |
 | Culturas e antibiogramas (S/I/R) | RF06 | [#12](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/12) | v0.2.0 | 🗓️ |
@@ -166,7 +166,23 @@ curl http://127.0.0.1:8000/health
 }
 ```
 
-Os exemplos dos recursos de negócio (antimicrobianos, prescrições, culturas e alertas) são adicionados a esta seção conforme cada funcionalidade é entregue.
+> No Windows, execute os exemplos no **Git Bash** ou use o Swagger UI em `/docs`, que monta as requisições pelo navegador.
+
+**Cadastrar um antimicrobiano no catálogo** (RF01):
+
+```bash
+curl -X POST http://127.0.0.1:8000/antimicrobianos \
+  -H "Content-Type: application/json" \
+  -d '{"nome": "Meropenem", "classe": "Carbapenêmico", "categoria_aware": "WATCH", "uso_restrito": true}'
+```
+
+**Listar antimicrobianos WATCH de uso restrito** (RF02):
+
+```bash
+curl "http://127.0.0.1:8000/antimicrobianos?categoria_aware=WATCH&uso_restrito=true"
+```
+
+Os exemplos dos demais recursos (prescrições, culturas e alertas) são adicionados a esta seção conforme cada funcionalidade é entregue.
 
 ## Documentação do projeto
 
@@ -283,8 +299,13 @@ Projeto_Antimicrobiano_Inteligente/
 │   ├── main.py                    # Application factory (create_app)
 │   ├── config.py                  # Configuração por variáveis de ambiente
 │   ├── database.py                # Engine e sessões do SQLAlchemy
+│   ├── models.py                  # Entidades ORM
+│   ├── enums.py                   # Enumerações do domínio (AWaRe…)
+│   ├── erros.py                   # Exceções de domínio → HTTP 404/409/422
+│   ├── texto.py                   # Normalização de nomes (RN01)
 │   ├── routers/                   # Camada HTTP (rotas)
-│   └── schemas/                   # Contratos Pydantic
+│   ├── schemas/                   # Contratos Pydantic
+│   └── services/                  # Casos de uso e regras de negócio
 ├── tests/                         # Testes automatizados (pytest)
 ├── .gitignore
 ├── CHANGELOG.md
