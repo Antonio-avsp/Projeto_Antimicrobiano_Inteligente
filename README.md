@@ -61,7 +61,7 @@ Legenda: ✅ implementado · 🚧 em desenvolvimento · 🗓️ planejado
 | API base com `/health` e documentação interativa (Swagger UI) | RNF03 | [#6](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/6) | v0.1.0 | ✅ |
 | Pipeline de CI (pytest em Python 3.11–3.13) | RNF06, RNF08 | [#7](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/7) | v0.1.0 | ✅ |
 | Catálogo de antimicrobianos com classificação AWaRe | RF01, RF02 | [#9](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/9) | v0.2.0 | ✅ |
-| Registro, consulta e atualização de prescrições | RF03, RF04 | [#10](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/10) | v0.2.0 | 🗓️ |
+| Registro, consulta e atualização de prescrições | RF03, RF04 | [#10](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/10) | v0.2.0 | ✅ |
 | Reavaliação (time-out) e encerramento de prescrições | RF05 | [#11](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/11) | v0.2.0 | 🗓️ |
 | Culturas e antibiogramas (S/I/R) | RF06 | [#12](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/12) | v0.2.0 | 🗓️ |
 | Alertas de time-out, duração excedida e profilaxia prolongada | RF07, RF08 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13) | v0.3.0 | 🗓️ |
@@ -182,7 +182,24 @@ curl -X POST http://127.0.0.1:8000/antimicrobianos \
 curl "http://127.0.0.1:8000/antimicrobianos?categoria_aware=WATCH&uso_restrito=true"
 ```
 
-Os exemplos dos demais recursos (prescrições, culturas e alertas) são adicionados a esta seção conforme cada funcionalidade é entregue.
+**Registrar uma prescrição** para um paciente pseudonimizado (RF03):
+
+```bash
+curl -X POST http://127.0.0.1:8000/prescricoes \
+  -H "Content-Type: application/json" \
+  -d '{"paciente_codigo": "PAC-0001", "setor": "UTI Adulto", "antimicrobiano_id": 1,
+       "dose": "1 g", "intervalo_horas": 8, "via": "IV", "indicacao": "EMPIRICA",
+       "diagnostico": "Sepse de foco pulmonar", "data_inicio": "2026-11-03",
+       "duracao_prevista_dias": 7}'
+```
+
+**Listar as prescrições ativas da UTI** (RF04):
+
+```bash
+curl "http://127.0.0.1:8000/prescricoes?status=ATIVA&setor=UTI%20Adulto"
+```
+
+Os exemplos dos demais recursos (culturas e alertas) são adicionados a esta seção conforme cada funcionalidade é entregue.
 
 ## Documentação do projeto
 

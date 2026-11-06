@@ -17,3 +17,27 @@ class CategoriaAware(StrEnum):
 
 
 _NIVEL_AWARE = {CategoriaAware.ACCESS: 1, CategoriaAware.WATCH: 2, CategoriaAware.RESERVE: 3}
+
+
+class Via(StrEnum):
+    """Via de administração."""
+
+    IV = "IV"
+    VO = "VO"
+    IM = "IM"
+
+
+class Indicacao(StrEnum):
+    """Finalidade da prescrição."""
+
+    PROFILAXIA = "PROFILAXIA"
+    EMPIRICA = "EMPIRICA"
+    DIRIGIDA = "DIRIGIDA"
+
+
+class StatusPrescricao(StrEnum):
+    """Situação da prescrição."""
+
+    ATIVA = "ATIVA"
+    CONCLUIDA = "CONCLUIDA"
+    SUSPENSA = "SUSPENSA"
