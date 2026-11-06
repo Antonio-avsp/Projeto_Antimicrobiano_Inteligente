@@ -5,6 +5,7 @@ from collections.abc import Iterable, Sequence
 from antimicrobiano.enums import StatusPrescricao, TipoAlerta
 from antimicrobiano.models import Prescricao
 from antimicrobiano.regras.base import Alerta, ContextoAvaliacao, Regra
+from antimicrobiano.regras.politicas import RegraRestritoSemJustificativa, RegraSemCultura
 from antimicrobiano.regras.temporais import (
     RegraDuracaoExcedida,
     RegraProfilaxiaProlongada,
@@ -43,4 +44,12 @@ class MotorDeRegras:
 
 def criar_motor_padrao() -> MotorDeRegras:
     """Motor com todas as regras clínicas implementadas."""
-    return MotorDeRegras([RegraTimeout(), RegraDuracaoExcedida(), RegraProfilaxiaProlongada()])
+    return MotorDeRegras(
+        [
+            RegraTimeout(),
+            RegraDuracaoExcedida(),
+            RegraProfilaxiaProlongada(),
+            RegraRestritoSemJustificativa(),
+            RegraSemCultura(),
+        ]
+    )
