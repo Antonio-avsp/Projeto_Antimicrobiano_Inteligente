@@ -9,7 +9,7 @@ from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from antimicrobiano.database import Base
-from antimicrobiano.enums import CategoriaAware, Indicacao, StatusPrescricao, Via
+from antimicrobiano.enums import CategoriaAware, Conduta, Indicacao, StatusPrescricao, Via
 
 
 def agora_utc() -> datetime:
@@ -69,8 +69,29 @@ class Prescricao(Auditavel, Base):
     motivo_encerramento: Mapped[str | None] = mapped_column(String(300))
 
     antimicrobiano: Mapped[Antimicrobiano] = relationship(lazy="joined")
+    reavaliacoes: Mapped[list[Reavaliacao]] = relationship(
+        back_populates="prescricao",
+        lazy="selectin",
+        cascade="all, delete-orphan",
+        order_by="(Reavaliacao.data_reavaliacao, Reavaliacao.id)",
+    )
 
     def dia_de_terapia(self, data_referencia: date) -> int:
         """Dia de terapia na data de referência; o dia de início é o dia 1 (RN11)."""
         referencia = min(data_referencia, self.data_fim) if self.data_fim else data_referencia
         return (referencia - self.data_inicio).days + 1
+
+
+class Reavaliacao(Base):
+    """Reavaliação estruturada (time-out) de uma prescrição (RF05)."""
+
+    __tablename__ = "reavaliacoes"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    prescricao_id: Mapped[int] = mapped_column(ForeignKey("prescricoes.id"), index=True)
+    data_reavaliacao: Mapped[date]
+    conduta: Mapped[Conduta] = mapped_column(_enum(Conduta))
+    observacao: Mapped[str | None] = mapped_column(String(500))
+    criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=agora_utc)
+
+    prescricao: Mapped[Prescricao] = relationship(back_populates="reavaliacoes")

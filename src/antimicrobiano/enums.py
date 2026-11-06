@@ -41,3 +41,12 @@ class StatusPrescricao(StrEnum):
     ATIVA = "ATIVA"
     CONCLUIDA = "CONCLUIDA"
     SUSPENSA = "SUSPENSA"
+
+
+class Conduta(StrEnum):
+    """Decisão registrada na reavaliação (time-out)."""
+
+    MANTER = "MANTER"
+    AJUSTAR = "AJUSTAR"
+    DESCALONAR = "DESCALONAR"
+    SUSPENDER = "SUSPENDER"
