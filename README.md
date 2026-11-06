@@ -247,13 +247,14 @@ ci: adicionar workflow de testes com matriz Python 3.11 a 3.13 (#7)
 
 ### Versionamento Semântico
 
-Versões no formato `MAJOR.MINOR.PATCH`, marcadas com **tags anotadas** na `main` ao final de cada marco. Enquanto a versão for `0.y.z`, a API está em desenvolvimento inicial. Detalhes no [Guia de Contribuição](CONTRIBUTING.md).
+Versões no formato `MAJOR.MINOR.PATCH`, marcadas com **tags anotadas** na `main` ao final de cada marco — criadas automaticamente pelo workflow [`tag-versao.yml`](.github/workflows/tag-versao.yml) a partir da versão do pacote e das notas do CHANGELOG. Enquanto a versão for `0.y.z`, a API está em desenvolvimento inicial. Detalhes no [Guia de Contribuição](CONTRIBUTING.md).
 
 ## Roadmap e versões
 
 | Versão | Marco | Issues | Status |
 |---|---|---|---|
-| `v0.1.0` | Documentação de planejamento e fundação técnica (setup, CI, README) | #1 a #8 | 🚧 em preparação |
+| `v0.1.0` | Documentação de planejamento e fundação técnica (setup, CI, README) | #1 a #8 | ✅ lançada em 05/11/2026 |
+| `v0.1.1` | Hotfix: publicação automática das tags anotadas de versão | #35 | ✅ lançada em 05/11/2026 |
 | `v0.2.0` | Cadastros essenciais: catálogo, prescrições, reavaliação/encerramento e culturas | #9 a #12 | 🗓️ |
 | `v0.3.0` | Motor de regras inteligente, painel de alertas, antibiograma cumulativo e dados de demonstração | #13 a #19 | 🗓️ |
 | `v1.0.0` | Gates de qualidade, indicadores DOT, duplicidade terapêutica, autenticação e interface web | #20 a #26 | 🗓️ |
@@ -267,6 +268,7 @@ Projeto_Antimicrobiano_Inteligente/
 ├── .github/
 │   ├── ISSUE_TEMPLATE/            # Templates de issue (funcionalidade, bug, documentação)
 │   ├── workflows/ci.yml           # Pipeline de CI (GitHub Actions)
+│   ├── workflows/tag-versao.yml   # Criação automática das tags de versão
 │   └── pull_request_template.md   # Template de Pull Request
 ├── docs/                          # Documentação de planejamento e engenharia
 │   ├── project-charter.md

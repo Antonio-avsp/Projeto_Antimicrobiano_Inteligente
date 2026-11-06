@@ -72,10 +72,11 @@ refactor(regras): injetar parâmetros clínicos no motor (#18)
 
 - Formato `MAJOR.MINOR.PATCH`: MAJOR para mudanças incompatíveis na API, MINOR para funcionalidades compatíveis e PATCH para correções.
 - Enquanto `MAJOR = 0`, o projeto está em desenvolvimento inicial e a API pode mudar.
-- Cada release recebe uma **tag anotada** na `main`:
+- Cada release recebe uma **tag anotada** na `main`. A tag é criada **automaticamente** pelo workflow [`tag-versao.yml`](.github/workflows/tag-versao.yml) quando a branch `release/*` ou `hotfix/*` é integrada: ele lê a versão de `src/antimicrobiano/__init__.py` e usa as notas da versão no CHANGELOG como mensagem da tag.
+- Para marcar manualmente uma versão anterior, execute o workflow *Tag de versão* (aba **Actions → Run workflow**) informando a versão e o commit. Localmente, o equivalente é:
 
 ```bash
-git tag -a v0.2.0 -m "v0.2.0 — Cadastros essenciais"
+git tag -a v0.2.0 <commit-do-merge> -m "v0.2.0 — Cadastros essenciais"
 git push origin v0.2.0
 ```
 
