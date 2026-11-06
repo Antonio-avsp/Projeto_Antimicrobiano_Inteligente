@@ -66,7 +66,7 @@ Legenda: ✅ implementado · 🚧 em desenvolvimento · 🗓️ planejado
 | Culturas e antibiogramas (S/I/R) | RF06 | [#12](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/12) | v0.2.0 | ✅ |
 | Alertas de time-out, duração excedida e profilaxia prolongada | RF07, RF08 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13) | v0.3.0 | ✅ |
 | Alertas de uso restrito sem justificativa e de amplo espectro sem cultura | RF09, RF12 | [#14](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/14) | v0.3.0 | ✅ |
-| Alertas de resistência e sugestão de descalonamento | RF10, RF11 | [#15](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/15) | v0.3.0 | 🗓️ |
+| Alertas de resistência e sugestão de descalonamento | RF10, RF11 | [#15](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/15) | v0.3.0 | ✅ |
 | Painel de alertas com filtros e resumo | RF13 | [#16](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/16) | v0.3.0 | 🗓️ |
 | Antibiograma cumulativo institucional | RF14 | [#17](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/17) | v0.3.0 | 🗓️ |
 | Parâmetros clínicos configuráveis por ambiente | RNF11 | [#18](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/18) | v0.3.0 | 🗓️ |

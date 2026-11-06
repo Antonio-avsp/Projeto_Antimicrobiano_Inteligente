@@ -135,3 +135,64 @@ def test_access_empirico_nao_exige_cultura(novo_antimicrobiano, nova_prescricao,
     prescricao = nova_prescricao(antimicrobiano_id=amoxicilina["id"])
 
     assert "SEM_CULTURA" not in _tipos(alertas(), prescricao["id"])
+
+
+# --- US10 e US11: microbiologia ----------------------------------------------------------------
+
+
+def _resultado(microrganismo: str, antibiograma: dict[int, str]) -> dict:
+    return {
+        "resultado": "POSITIVA",
+        "microrganismo": microrganismo,
+        "antibiograma": [
+            {"antimicrobiano_id": am_id, "interpretacao": interp}
+            for am_id, interp in antibiograma.items()
+        ],
+    }
+
+
+def test_resistencia_no_painel_lista_alternativa_sensivel(
+    novo_antimicrobiano, nova_prescricao, nova_cultura, alertas
+):
+    ceftriaxona = novo_antimicrobiano(nome="Ceftriaxona")
+    meropenem = novo_antimicrobiano(nome="Meropenem", classe="Carbapenêmico", uso_restrito=True)
+    prescricao = nova_prescricao(antimicrobiano_id=ceftriaxona["id"], data_inicio="2026-11-01")
+    nova_cultura(
+        data_coleta="2026-11-01",
+        resultado=_resultado(
+            "Klebsiella pneumoniae", {ceftriaxona["id"]: "R", meropenem["id"]: "S"}
+        ),
+    )
+
+    painel = alertas(data_referencia="2026-11-04")
+
+    resistencia = next(a for a in painel["alertas"] if a["tipo"] == "RESISTENCIA")
+    assert resistencia["prescricao_id"] == prescricao["id"]
+    assert resistencia["severidade"] == "ALTA"
+    assert "Meropenem" in resistencia["recomendacao"]
+
+
+def test_descalonamento_no_painel_sugere_opcao_access(
+    novo_antimicrobiano, nova_prescricao, nova_cultura, alertas
+):
+    meropenem = novo_antimicrobiano(nome="Meropenem", classe="Carbapenêmico")
+    gentamicina = novo_antimicrobiano(
+        nome="Gentamicina", classe="Aminoglicosídeo", categoria_aware="ACCESS"
+    )
+    prescricao = nova_prescricao(
+        antimicrobiano_id=meropenem["id"], paciente_codigo="PAC-0002", data_inicio="2026-11-01"
+    )
+    nova_cultura(
+        paciente_codigo="PAC-0002",
+        data_coleta="2026-11-01",
+        resultado=_resultado("Escherichia coli", {meropenem["id"]: "S", gentamicina["id"]: "S"}),
+    )
+
+    painel = alertas(data_referencia="2026-11-04")
+
+    descalonamento = next(a for a in painel["alertas"] if a["tipo"] == "DESCALONAMENTO")
+    assert descalonamento["prescricao_id"] == prescricao["id"]
+    assert descalonamento["evidencias"]["opcoes"] == [
+        {"nome": "Gentamicina", "categoria_aware": "ACCESS"}
+    ]
+    assert painel["alertas"][-1]["severidade"] == "BAIXA"
