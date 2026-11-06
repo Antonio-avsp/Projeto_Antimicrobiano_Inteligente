@@ -11,7 +11,7 @@ from antimicrobiano import __version__, models  # noqa: F401 — registra as tab
 from antimicrobiano.config import Configuracao
 from antimicrobiano.database import Base, criar_engine, criar_fabrica_sessoes
 from antimicrobiano.erros import registrar_tratadores_de_erro
-from antimicrobiano.routers import antimicrobianos, culturas, prescricoes, sistema
+from antimicrobiano.routers import alertas, antimicrobianos, culturas, prescricoes, sistema
 
 DESCRICAO = """
 API de apoio ao **Programa de Gerenciamento do Uso de Antimicrobianos (PGA / stewardship)**.
@@ -33,6 +33,10 @@ TAGS = [
     {
         "name": "Microbiologia",
         "description": "Culturas, resultados e antibiogramas S/I/R (RF06).",
+    },
+    {
+        "name": "Alertas",
+        "description": "Motor de regras explicável: painel de alertas do PGA (RF07 a RF13).",
     },
     {"name": "Sistema", "description": "Saúde e versão da API."},
 ]
@@ -64,6 +68,7 @@ def create_app(config: Configuracao | None = None) -> FastAPI:
     app.include_router(antimicrobianos.router)
     app.include_router(prescricoes.router)
     app.include_router(culturas.router)
+    app.include_router(alertas.router)
     app.include_router(sistema.router)
     return app
 

@@ -4,12 +4,8 @@ from fastapi import APIRouter
 from fastapi.responses import RedirectResponse
 
 from antimicrobiano import __version__
+from antimicrobiano.schemas.comum import AVISO_APOIO_A_DECISAO
 from antimicrobiano.schemas.sistema import Saude
-
-AVISO = (
-    "Ferramenta de apoio à decisão para fins acadêmicos: não substitui o julgamento clínico. "
-    "Utilize apenas dados fictícios."
-)
 
 router = APIRouter(tags=["Sistema"])
 
@@ -23,4 +19,4 @@ def raiz() -> RedirectResponse:
 @router.get("/health", response_model=Saude, summary="Verificar a saúde da API")
 def health() -> Saude:
     """Informa se a API está no ar e qual versão está em execução."""
-    return Saude(status="ok", versao=__version__, aviso=AVISO)
+    return Saude(status="ok", versao=__version__, aviso=AVISO_APOIO_A_DECISAO)
