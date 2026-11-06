@@ -4,6 +4,7 @@ from datetime import date
 
 import pytest
 
+from antimicrobiano.config import ParametrosClinicos
 from antimicrobiano.enums import Indicacao, Severidade, StatusPrescricao, TipoAlerta
 from antimicrobiano.regras import ContextoAvaliacao, MotorDeRegras, criar_motor_padrao
 from antimicrobiano.regras.temporais import (
@@ -120,3 +121,16 @@ def test_motor_aceita_novas_regras_sem_alterar_as_existentes(prescricao):
 
     assert alertas == []
     assert len(motor.regras) == 1
+
+
+def test_regras_usam_os_parametros_clinicos_do_contexto(prescricao):
+    parametros = ParametrosClinicos(timeout_dias=2, limite_profilaxia_dias=2)
+    contexto = ContextoAvaliacao(data_referencia=date(2026, 11, 3), parametros=parametros)
+
+    timeout = RegraTimeout().avaliar(prescricao(data_inicio=date(2026, 11, 1)), contexto)
+    profilaxia = RegraProfilaxiaProlongada().avaliar(
+        prescricao(indicacao=Indicacao.PROFILAXIA, duracao_prevista_dias=2), contexto
+    )
+
+    assert timeout[0].evidencias["limite_dias"] == 2
+    assert profilaxia == []
