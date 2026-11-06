@@ -21,7 +21,7 @@ Legenda: ✅ implementado · 🗓️ planejado
 | RF11 | Sugestão de descalonamento | UC05 | US11 | RN18, RN20 | [#15](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/15) | v0.3.0 | `tests/regras/test_regras_microbiologicas.py` | ✅ |
 | RF12 | Alerta de WATCH/RESERVE empírico sem cultura | UC05 | US12 | RN16 | [#14](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/14) | v0.3.0 | `tests/regras/test_regras_politicas.py` | ✅ |
 | RF13 | Painel de alertas com filtros e resumo | UC05 | US13 | RN11, RN21 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13), [#16](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/16) | v0.3.0 | `tests/test_alertas.py`, `tests/test_desempenho.py` | ✅ |
-| RF14 | Antibiograma cumulativo | UC06 | US14 | RN19 | [#17](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/17) | v0.3.0 | `tests/test_relatorios.py` | 🗓️ |
+| RF14 | Antibiograma cumulativo | UC06 | US14 | RN19 | [#17](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/17) | v0.3.0 | `tests/test_relatorios.py` | ✅ |
 | RF15 | Indicadores de consumo (DOT) | UC07 | US15 | — | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) | v1.0.0 | — | 🗓️ |
 | RF16 | Alerta de duplicidade terapêutica | UC05 | US16 | — | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) | v1.0.0 | — | 🗓️ |
 | RF17 | Autenticação e perfis de acesso | UC08 | US17 | — | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) | v1.0.0 | — | 🗓️ |
