@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+from typing import Annotated
 
-from fastapi import Request
+from fastapi import Depends, Request
 from sqlalchemy import Engine, create_engine, event
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -51,3 +52,7 @@ def get_db(request: Request) -> Iterator[Session]:
         yield sessao
     finally:
         sessao.close()
+
+
+SessaoDep = Annotated[Session, Depends(get_db)]
+"""Atalho para injetar a sessão nas rotas."""

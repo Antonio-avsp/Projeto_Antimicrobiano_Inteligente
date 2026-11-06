@@ -8,12 +8,12 @@ Legenda: ✅ implementado · 🗓️ planejado
 
 | RF | Descrição | UC | US | RN | Issue | Release | Testes automatizados | Situação |
 |---|---|---|---|---|---|---|---|---|
-| RF01 | Cadastrar antimicrobiano | UC01 | US01 | RN01 | [#9](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/9) | v0.2.0 | `tests/test_antimicrobianos.py` | 🗓️ |
-| RF02 | Listar, consultar, atualizar e inativar antimicrobianos | UC01 | US02 | RN02, RN03 | [#9](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/9) | v0.2.0 | `tests/test_antimicrobianos.py` | 🗓️ |
-| RF03 | Registrar prescrição | UC02 | US03 | RN02, RN04–RN07 | [#10](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/10) | v0.2.0 | `tests/test_prescricoes.py` | 🗓️ |
-| RF04 | Listar, consultar e atualizar prescrições | UC02 | US04 | RN08 | [#10](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/10) | v0.2.0 | `tests/test_prescricoes.py` | 🗓️ |
-| RF05 | Reavaliar (time-out) e encerrar prescrição | UC03 | US05 | RN08, RN09 | [#11](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/11) | v0.2.0 | `tests/test_intervencoes.py` | 🗓️ |
-| RF06 | Registrar culturas e antibiogramas | UC04 | US06 | RN10 | [#12](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/12) | v0.2.0 | `tests/test_culturas.py` | 🗓️ |
+| RF01 | Cadastrar antimicrobiano | UC01 | US01 | RN01 | [#9](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/9) | v0.2.0 | `tests/test_antimicrobianos.py` | ✅ |
+| RF02 | Listar, consultar, atualizar e inativar antimicrobianos | UC01 | US02 | RN02, RN03 | [#9](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/9) | v0.2.0 | `tests/test_antimicrobianos.py` | ✅ |
+| RF03 | Registrar prescrição | UC02 | US03 | RN02, RN04–RN07 | [#10](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/10) | v0.2.0 | `tests/test_prescricoes.py` | ✅ |
+| RF04 | Listar, consultar e atualizar prescrições | UC02 | US04 | RN08 | [#10](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/10) | v0.2.0 | `tests/test_prescricoes.py` | ✅ |
+| RF05 | Reavaliar (time-out) e encerrar prescrição | UC03 | US05 | RN08, RN09 | [#11](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/11) | v0.2.0 | `tests/test_intervencoes.py` | ✅ |
+| RF06 | Registrar culturas e antibiogramas | UC04 | US06 | RN10 | [#12](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/12) | v0.2.0 | `tests/test_culturas.py` | ✅ |
 | RF07 | Alerta de time-out de 72 horas | UC05 | US07 | RN11, RN12 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13) | v0.3.0 | `tests/regras/test_regras_temporais.py`, `tests/test_alertas.py` | 🗓️ |
 | RF08 | Alertas de duração excedida e profilaxia prolongada | UC05 | US08 | RN13, RN14 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13) | v0.3.0 | `tests/regras/test_regras_temporais.py`, `tests/test_alertas.py` | 🗓️ |
 | RF09 | Alerta de uso restrito sem justificativa | UC05 | US09 | RN15 | [#14](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/14) | v0.3.0 | `tests/regras/test_regras_politicas.py` | 🗓️ |

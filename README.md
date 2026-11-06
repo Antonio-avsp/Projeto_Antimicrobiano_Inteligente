@@ -60,10 +60,10 @@ Legenda: ✅ implementado · 🚧 em desenvolvimento · 🗓️ planejado
 | Documentação de planejamento (termo de abertura, requisitos, casos de uso, histórias, arquitetura) | — | [#1](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/1)–[#5](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/5) | v0.1.0 | ✅ |
 | API base com `/health` e documentação interativa (Swagger UI) | RNF03 | [#6](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/6) | v0.1.0 | ✅ |
 | Pipeline de CI (pytest em Python 3.11–3.13) | RNF06, RNF08 | [#7](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/7) | v0.1.0 | ✅ |
-| Catálogo de antimicrobianos com classificação AWaRe | RF01, RF02 | [#9](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/9) | v0.2.0 | 🗓️ |
-| Registro, consulta e atualização de prescrições | RF03, RF04 | [#10](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/10) | v0.2.0 | 🗓️ |
-| Reavaliação (time-out) e encerramento de prescrições | RF05 | [#11](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/11) | v0.2.0 | 🗓️ |
-| Culturas e antibiogramas (S/I/R) | RF06 | [#12](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/12) | v0.2.0 | 🗓️ |
+| Catálogo de antimicrobianos com classificação AWaRe | RF01, RF02 | [#9](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/9) | v0.2.0 | ✅ |
+| Registro, consulta e atualização de prescrições | RF03, RF04 | [#10](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/10) | v0.2.0 | ✅ |
+| Reavaliação (time-out) e encerramento de prescrições | RF05 | [#11](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/11) | v0.2.0 | ✅ |
+| Culturas e antibiogramas (S/I/R) | RF06 | [#12](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/12) | v0.2.0 | ✅ |
 | Alertas de time-out, duração excedida e profilaxia prolongada | RF07, RF08 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13) | v0.3.0 | 🗓️ |
 | Alertas de uso restrito sem justificativa e de amplo espectro sem cultura | RF09, RF12 | [#14](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/14) | v0.3.0 | 🗓️ |
 | Alertas de resistência e sugestão de descalonamento | RF10, RF11 | [#15](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/15) | v0.3.0 | 🗓️ |
@@ -166,7 +166,55 @@ curl http://127.0.0.1:8000/health
 }
 ```
 
-Os exemplos dos recursos de negócio (antimicrobianos, prescrições, culturas e alertas) são adicionados a esta seção conforme cada funcionalidade é entregue.
+> No Windows, execute os exemplos no **Git Bash** ou use o Swagger UI em `/docs`, que monta as requisições pelo navegador.
+
+**Cadastrar um antimicrobiano no catálogo** (RF01):
+
+```bash
+curl -X POST http://127.0.0.1:8000/antimicrobianos \
+  -H "Content-Type: application/json" \
+  -d '{"nome": "Meropenem", "classe": "Carbapenêmico", "categoria_aware": "WATCH", "uso_restrito": true}'
+```
+
+**Listar antimicrobianos WATCH de uso restrito** (RF02):
+
+```bash
+curl "http://127.0.0.1:8000/antimicrobianos?categoria_aware=WATCH&uso_restrito=true"
+```
+
+**Registrar uma prescrição** para um paciente pseudonimizado (RF03):
+
+```bash
+curl -X POST http://127.0.0.1:8000/prescricoes \
+  -H "Content-Type: application/json" \
+  -d '{"paciente_codigo": "PAC-0001", "setor": "UTI Adulto", "antimicrobiano_id": 1,
+       "dose": "1 g", "intervalo_horas": 8, "via": "IV", "indicacao": "EMPIRICA",
+       "diagnostico": "Sepse de foco pulmonar", "data_inicio": "2026-11-03",
+       "duracao_prevista_dias": 7}'
+```
+
+**Listar as prescrições ativas da UTI** (RF04):
+
+```bash
+curl "http://127.0.0.1:8000/prescricoes?status=ATIVA&setor=UTI%20Adulto"
+```
+
+**Registrar a coleta e o resultado de uma cultura com antibiograma** (RF06):
+
+```bash
+curl -X POST http://127.0.0.1:8000/culturas \
+  -H "Content-Type: application/json" \
+  -d '{"paciente_codigo": "PAC-0001", "setor": "UTI Adulto", "material": "SANGUE"}'
+```
+
+```bash
+curl -X PUT http://127.0.0.1:8000/culturas/1/resultado \
+  -H "Content-Type: application/json" \
+  -d '{"resultado": "POSITIVA", "microrganismo": "Klebsiella pneumoniae",
+       "antibiograma": [{"antimicrobiano_id": 1, "interpretacao": "S"}]}'
+```
+
+Os exemplos do painel de alertas são adicionados a esta seção na versão 0.3.0.
 
 ## Documentação do projeto
 
@@ -192,6 +240,7 @@ Os exemplos dos recursos de negócio (antimicrobianos, prescrições, culturas e
 | `main` | — | — | Produção: apenas versões liberadas, marcadas com tags `vX.Y.Z`. Sem commits diretos. |
 | `develop` | `main` | — | Integração das funcionalidades da próxima versão. |
 | `feature/issue-NN-descricao` | `develop` | `develop` (PR) | Uma branch por issue. Ex.: `feature/issue-09-catalogo-antimicrobianos`. |
+| `bugfix/issue-NN-descricao` | `develop` | `develop` (PR) | Correção não urgente, liberada na próxima versão. |
 | `release/vX.Y.Z` | `develop` | `main` (PR) e `develop` | Preparação da versão: número de versão e CHANGELOG. |
 | `hotfix/vX.Y.Z` | `main` | `main` (PR) e `develop` | Correção urgente em produção. |
 
@@ -255,7 +304,7 @@ Versões no formato `MAJOR.MINOR.PATCH`, marcadas com **tags anotadas** na `main
 |---|---|---|---|
 | `v0.1.0` | Documentação de planejamento e fundação técnica (setup, CI, README) | #1 a #8 | ✅ lançada em 05/11/2026 |
 | `v0.1.1` | Hotfix: publicação automática das tags anotadas de versão | #35 | ✅ lançada em 05/11/2026 |
-| `v0.2.0` | Cadastros essenciais: catálogo, prescrições, reavaliação/encerramento e culturas | #9 a #12 | 🗓️ |
+| `v0.2.0` | Cadastros essenciais: catálogo, prescrições, reavaliação/encerramento e culturas | #9 a #12, #37 | ✅ lançada em 06/11/2026 |
 | `v0.3.0` | Motor de regras inteligente, painel de alertas, antibiograma cumulativo e dados de demonstração | #13 a #19 | 🗓️ |
 | `v1.0.0` | Gates de qualidade, indicadores DOT, duplicidade terapêutica, autenticação e interface web | #20 a #26 | 🗓️ |
 
@@ -283,8 +332,13 @@ Projeto_Antimicrobiano_Inteligente/
 │   ├── main.py                    # Application factory (create_app)
 │   ├── config.py                  # Configuração por variáveis de ambiente
 │   ├── database.py                # Engine e sessões do SQLAlchemy
+│   ├── models.py                  # Entidades ORM
+│   ├── enums.py                   # Enumerações do domínio (AWaRe…)
+│   ├── erros.py                   # Exceções de domínio → HTTP 404/409/422
+│   ├── texto.py                   # Normalização de nomes (RN01)
 │   ├── routers/                   # Camada HTTP (rotas)
-│   └── schemas/                   # Contratos Pydantic
+│   ├── schemas/                   # Contratos Pydantic
+│   └── services/                  # Casos de uso e regras de negócio
 ├── tests/                         # Testes automatizados (pytest)
 ├── .gitignore
 ├── CHANGELOG.md

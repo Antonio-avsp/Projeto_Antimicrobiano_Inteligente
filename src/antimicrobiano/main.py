@@ -7,10 +7,11 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from antimicrobiano import __version__
+from antimicrobiano import __version__, models  # noqa: F401 — registra as tabelas no metadata
 from antimicrobiano.config import Configuracao
 from antimicrobiano.database import Base, criar_engine, criar_fabrica_sessoes
-from antimicrobiano.routers import sistema
+from antimicrobiano.erros import registrar_tratadores_de_erro
+from antimicrobiano.routers import antimicrobianos, culturas, prescricoes, sistema
 
 DESCRICAO = """
 API de apoio ao **Programa de Gerenciamento do Uso de Antimicrobianos (PGA / stewardship)**.
@@ -21,6 +22,18 @@ Centraliza prescrições, culturas e antibiogramas e gera alertas explicáveis p
 """
 
 TAGS = [
+    {
+        "name": "Antimicrobianos",
+        "description": "Catálogo padronizado com classificação AWaRe (RF01, RF02).",
+    },
+    {
+        "name": "Prescrições",
+        "description": "Prescrições de pacientes pseudonimizados (RF03, RF04).",
+    },
+    {
+        "name": "Microbiologia",
+        "description": "Culturas, resultados e antibiogramas S/I/R (RF06).",
+    },
     {"name": "Sistema", "description": "Saúde e versão da API."},
 ]
 
@@ -47,6 +60,10 @@ def create_app(config: Configuracao | None = None) -> FastAPI:
     app.state.engine = engine
     app.state.fabrica_sessoes = criar_fabrica_sessoes(engine)
 
+    registrar_tratadores_de_erro(app)
+    app.include_router(antimicrobianos.router)
+    app.include_router(prescricoes.router)
+    app.include_router(culturas.router)
     app.include_router(sistema.router)
     return app
 
