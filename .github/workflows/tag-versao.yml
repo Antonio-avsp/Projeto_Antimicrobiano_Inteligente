@@ -83,6 +83,7 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "$TAG" "$COMMIT" -F "$RUNNER_TEMP/mensagem.txt"
+          # --cleanup=whitespace preserva linhas iniciadas por "#" (títulos do CHANGELOG).
+          git tag -a "$TAG" "$COMMIT" --cleanup=whitespace -F "$RUNNER_TEMP/mensagem.txt"
           git push origin "refs/tags/$TAG"
           echo "Tag anotada $TAG criada no commit $COMMIT." | tee -a "$GITHUB_STEP_SUMMARY"

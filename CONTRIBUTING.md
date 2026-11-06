@@ -19,6 +19,7 @@ ruff check .        # análise estática
 | `main` | — | — | Produção: contém apenas versões liberadas e marcadas com tag `vX.Y.Z`. **Nunca recebe commits diretos.** |
 | `develop` | `main` | — | Integração das funcionalidades da próxima versão. |
 | `feature/issue-NN-descricao` | `develop` | `develop` (via PR) | Uma branch por issue (funcionalidade, documentação, configuração ou refatoração). |
+| `bugfix/issue-NN-descricao` | `develop` | `develop` (via PR) | Correção de defeito ainda não liberado ou não urgente (entra na próxima versão). |
 | `release/vX.Y.Z` | `develop` | `main` (via PR) e `develop` | Preparação da versão: número de versão, CHANGELOG e ajustes finais. |
 | `hotfix/vX.Y.Z` | `main` | `main` (via PR) e `develop` | Correção urgente de defeito em produção. |
 
