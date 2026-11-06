@@ -64,7 +64,7 @@ Legenda: ✅ implementado · 🚧 em desenvolvimento · 🗓️ planejado
 | Registro, consulta e atualização de prescrições | RF03, RF04 | [#10](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/10) | v0.2.0 | ✅ |
 | Reavaliação (time-out) e encerramento de prescrições | RF05 | [#11](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/11) | v0.2.0 | ✅ |
 | Culturas e antibiogramas (S/I/R) | RF06 | [#12](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/12) | v0.2.0 | ✅ |
-| Alertas de time-out, duração excedida e profilaxia prolongada | RF07, RF08 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13) | v0.3.0 | 🗓️ |
+| Alertas de time-out, duração excedida e profilaxia prolongada | RF07, RF08 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13) | v0.3.0 | ✅ |
 | Alertas de uso restrito sem justificativa e de amplo espectro sem cultura | RF09, RF12 | [#14](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/14) | v0.3.0 | 🗓️ |
 | Alertas de resistência e sugestão de descalonamento | RF10, RF11 | [#15](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/15) | v0.3.0 | 🗓️ |
 | Painel de alertas com filtros e resumo | RF13 | [#16](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/16) | v0.3.0 | 🗓️ |
@@ -214,7 +214,32 @@ curl -X PUT http://127.0.0.1:8000/culturas/1/resultado \
        "antibiograma": [{"antimicrobiano_id": 1, "interpretacao": "S"}]}'
 ```
 
-Os exemplos do painel de alertas são adicionados a esta seção na versão 0.3.0.
+**Consultar o painel de alertas** de uma data de referência (RF07–RF13):
+
+```bash
+curl "http://127.0.0.1:8000/alertas?data_referencia=2026-11-06"
+```
+
+```json
+{
+  "data_referencia": "2026-11-06",
+  "aviso": "Ferramenta de apoio à decisão para fins acadêmicos: não substitui o julgamento clínico. Utilize apenas dados fictícios.",
+  "total": 1,
+  "alertas": [
+    {
+      "tipo": "TIMEOUT_REAVALIACAO",
+      "severidade": "MEDIA",
+      "prescricao_id": 1,
+      "paciente_codigo": "PAC-0001",
+      "setor": "UTI Adulto",
+      "antimicrobiano": "Meropenem",
+      "mensagem": "Meropenem em uso há 3 dias (≥ 72 horas) sem reavaliação registrada.",
+      "recomendacao": "Realizar o time-out: confirmar o diagnóstico, revisar as culturas e definir a conduta (manter, ajustar, descalonar ou suspender).",
+      "evidencias": {"data_inicio": "2026-11-03", "dias_de_uso": 3, "limite_dias": 3}
+    }
+  ]
+}
+```
 
 ## Documentação do projeto
 
@@ -336,6 +361,7 @@ Projeto_Antimicrobiano_Inteligente/
 │   ├── enums.py                   # Enumerações do domínio (AWaRe…)
 │   ├── erros.py                   # Exceções de domínio → HTTP 404/409/422
 │   ├── texto.py                   # Normalização de nomes (RN01)
+│   ├── regras/                    # Motor de regras clínicas (Strategy)
 │   ├── routers/                   # Camada HTTP (rotas)
 │   ├── schemas/                   # Contratos Pydantic
 │   └── services/                  # Casos de uso e regras de negócio
