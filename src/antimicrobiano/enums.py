@@ -78,3 +78,28 @@ class Interpretacao(StrEnum):
     S = "S"
     I = "I"  # noqa: E741 — sigla oficial: sensível, aumentando exposição
     R = "R"
+
+
+class Severidade(StrEnum):
+    """Severidade do alerta (RN21): ALTA = ação imediata; MEDIA = até 24 h; BAIXA = otimização."""
+
+    ALTA = "ALTA"
+    MEDIA = "MEDIA"
+    BAIXA = "BAIXA"
+
+    @property
+    def ordem(self) -> int:
+        """Posição na ordenação do painel (ALTA primeiro)."""
+        return list(Severidade).index(self)
+
+
+class TipoAlerta(StrEnum):
+    """Tipos de alerta gerados pelo motor de regras."""
+
+    TIMEOUT_REAVALIACAO = "TIMEOUT_REAVALIACAO"
+    DURACAO_EXCEDIDA = "DURACAO_EXCEDIDA"
+    PROFILAXIA_PROLONGADA = "PROFILAXIA_PROLONGADA"
+    RESTRITO_SEM_JUSTIFICATIVA = "RESTRITO_SEM_JUSTIFICATIVA"
+    SEM_CULTURA = "SEM_CULTURA"
+    RESISTENCIA = "RESISTENCIA"
+    DESCALONAMENTO = "DESCALONAMENTO"

@@ -64,13 +64,13 @@ Legenda: ✅ implementado · 🚧 em desenvolvimento · 🗓️ planejado
 | Registro, consulta e atualização de prescrições | RF03, RF04 | [#10](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/10) | v0.2.0 | ✅ |
 | Reavaliação (time-out) e encerramento de prescrições | RF05 | [#11](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/11) | v0.2.0 | ✅ |
 | Culturas e antibiogramas (S/I/R) | RF06 | [#12](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/12) | v0.2.0 | ✅ |
-| Alertas de time-out, duração excedida e profilaxia prolongada | RF07, RF08 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13) | v0.3.0 | 🗓️ |
-| Alertas de uso restrito sem justificativa e de amplo espectro sem cultura | RF09, RF12 | [#14](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/14) | v0.3.0 | 🗓️ |
-| Alertas de resistência e sugestão de descalonamento | RF10, RF11 | [#15](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/15) | v0.3.0 | 🗓️ |
-| Painel de alertas com filtros e resumo | RF13 | [#16](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/16) | v0.3.0 | 🗓️ |
-| Antibiograma cumulativo institucional | RF14 | [#17](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/17) | v0.3.0 | 🗓️ |
-| Parâmetros clínicos configuráveis por ambiente | RNF11 | [#18](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/18) | v0.3.0 | 🗓️ |
-| Carga de dados fictícios para demonstração | HT01 | [#19](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/19) | v0.3.0 | 🗓️ |
+| Alertas de time-out, duração excedida e profilaxia prolongada | RF07, RF08 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13) | v0.3.0 | ✅ |
+| Alertas de uso restrito sem justificativa e de amplo espectro sem cultura | RF09, RF12 | [#14](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/14) | v0.3.0 | ✅ |
+| Alertas de resistência e sugestão de descalonamento | RF10, RF11 | [#15](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/15) | v0.3.0 | ✅ |
+| Painel de alertas com filtros e resumo | RF13 | [#16](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/16) | v0.3.0 | ✅ |
+| Antibiograma cumulativo institucional | RF14 | [#17](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/17) | v0.3.0 | ✅ |
+| Parâmetros clínicos configuráveis por ambiente | RNF11 | [#18](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/18) | v0.3.0 | ✅ |
+| Carga de dados fictícios para demonstração | HT01 | [#19](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/19) | v0.3.0 | ✅ |
 | Gates de qualidade no CI (ruff + cobertura mínima) | RNF07, RNF08 | [#20](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/20) | v1.0.0 | 🗓️ |
 | Indicadores de consumo (DOT) | RF15 | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) | v1.0.0 | 🗓️ |
 | Alerta de duplicidade terapêutica | RF16 | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) | v1.0.0 | 🗓️ |
@@ -126,15 +126,23 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
-**4. Iniciar a API**
+**4. (Opcional) Carregar dados fictícios de demonstração**
+
+```bash
+python -m antimicrobiano.seed
+```
+
+O comando cria o catálogo com 21 antimicrobianos classificados pela AWaRe, prescrições que geram **um exemplo de cada tipo de alerta** no dia da execução e um histórico de culturas para o antibiograma cumulativo. Execuções repetidas não duplicam dados; use `--reset` para recriar a base.
+
+**5. Iniciar a API**
 
 ```bash
 uvicorn antimicrobiano.main:app --reload
 ```
 
-**5. Acessar a documentação interativa** em <http://127.0.0.1:8000/docs> (Swagger UI) ou <http://127.0.0.1:8000/redoc>.
+**6. Acessar a documentação interativa** em <http://127.0.0.1:8000/docs> (Swagger UI) ou <http://127.0.0.1:8000/redoc>. Com os dados de demonstração, comece por `GET /alertas`.
 
-**6. Executar os testes e a análise estática**
+**7. Executar os testes e a análise estática**
 
 ```bash
 pytest --cov
@@ -149,6 +157,12 @@ ruff check .
 | Variável | Padrão | Descrição |
 |---|---|---|
 | `AMI_DATABASE_URL` | `sqlite:///./antimicrobiano.db` | URL de conexão do banco. O arquivo SQLite é criado automaticamente na primeira execução. |
+| `AMI_TIMEOUT_DIAS` | `3` | Dias sem reavaliação para o alerta de time-out (3 dias = 72 h). |
+| `AMI_LIMITE_PROFILAXIA_DIAS` | `1` | Duração máxima recomendada de profilaxia (1 dia = 24 h). |
+| `AMI_JANELA_CULTURA_DIAS` | `7` | Dias antes do início da terapia em que uma cultura é considerada relevante. |
+| `AMI_MINIMO_ISOLADOS` | `30` | Mínimo de isolados para amostra suficiente no antibiograma cumulativo. |
+
+Os parâmetros clínicos variam entre protocolos institucionais; valores inválidos impedem a inicialização com uma mensagem que indica a variável.
 
 ## Exemplos de uso
 
@@ -161,7 +175,7 @@ curl http://127.0.0.1:8000/health
 ```json
 {
   "status": "ok",
-  "versao": "0.1.0",
+  "versao": "0.3.0",
   "aviso": "Ferramenta de apoio à decisão para fins acadêmicos: não substitui o julgamento clínico. Utilize apenas dados fictícios."
 }
 ```
@@ -214,7 +228,50 @@ curl -X PUT http://127.0.0.1:8000/culturas/1/resultado \
        "antibiograma": [{"antimicrobiano_id": 1, "interpretacao": "S"}]}'
 ```
 
-Os exemplos do painel de alertas são adicionados a esta seção na versão 0.3.0.
+**Consultar o painel de alertas** de uma data de referência (RF07–RF13):
+
+```bash
+curl "http://127.0.0.1:8000/alertas?data_referencia=2026-11-06"
+```
+
+**Filtrar o painel** — apenas alertas de severidade ALTA da UTI (RF13):
+
+```bash
+curl "http://127.0.0.1:8000/alertas?severidade=ALTA&setor=UTI%20Adulto"
+```
+
+Resposta resumida de uma consulta sem filtros:
+
+```json
+{
+  "data_referencia": "2026-11-06",
+  "aviso": "Ferramenta de apoio à decisão para fins acadêmicos: não substitui o julgamento clínico. Utilize apenas dados fictícios.",
+  "total": 1,
+  "resumo": {
+    "por_severidade": {"ALTA": 0, "MEDIA": 1, "BAIXA": 0},
+    "por_tipo": {"TIMEOUT_REAVALIACAO": 1, "DURACAO_EXCEDIDA": 0, "...": 0}
+  },
+  "alertas": [
+    {
+      "tipo": "TIMEOUT_REAVALIACAO",
+      "severidade": "MEDIA",
+      "prescricao_id": 1,
+      "paciente_codigo": "PAC-0001",
+      "setor": "UTI Adulto",
+      "antimicrobiano": "Meropenem",
+      "mensagem": "Meropenem em uso há 3 dias (≥ 72 horas) sem reavaliação registrada.",
+      "recomendacao": "Realizar o time-out: confirmar o diagnóstico, revisar as culturas e definir a conduta (manter, ajustar, descalonar ou suspender).",
+      "evidencias": {"data_inicio": "2026-11-03", "dias_de_uso": 3, "limite_dias": 3}
+    }
+  ]
+}
+```
+
+**Gerar o antibiograma cumulativo** de um período (RF14):
+
+```bash
+curl "http://127.0.0.1:8000/relatorios/antibiograma-cumulativo?inicio=2026-01-01&fim=2026-10-31&setor=UTI%20Adulto"
+```
 
 ## Documentação do projeto
 
@@ -305,7 +362,7 @@ Versões no formato `MAJOR.MINOR.PATCH`, marcadas com **tags anotadas** na `main
 | `v0.1.0` | Documentação de planejamento e fundação técnica (setup, CI, README) | #1 a #8 | ✅ lançada em 05/11/2026 |
 | `v0.1.1` | Hotfix: publicação automática das tags anotadas de versão | #35 | ✅ lançada em 05/11/2026 |
 | `v0.2.0` | Cadastros essenciais: catálogo, prescrições, reavaliação/encerramento e culturas | #9 a #12, #37 | ✅ lançada em 06/11/2026 |
-| `v0.3.0` | Motor de regras inteligente, painel de alertas, antibiograma cumulativo e dados de demonstração | #13 a #19 | 🗓️ |
+| `v0.3.0` | Motor de regras inteligente, painel de alertas, antibiograma cumulativo e dados de demonstração | #13 a #19 | ✅ lançada em 06/11/2026 |
 | `v1.0.0` | Gates de qualidade, indicadores DOT, duplicidade terapêutica, autenticação e interface web | #20 a #26 | 🗓️ |
 
 Versões publicadas: [tags](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/tags) · histórico: [CHANGELOG](CHANGELOG.md).
@@ -335,7 +392,9 @@ Projeto_Antimicrobiano_Inteligente/
 │   ├── models.py                  # Entidades ORM
 │   ├── enums.py                   # Enumerações do domínio (AWaRe…)
 │   ├── erros.py                   # Exceções de domínio → HTTP 404/409/422
+│   ├── seed.py                    # Carga de dados fictícios (python -m antimicrobiano.seed)
 │   ├── texto.py                   # Normalização de nomes (RN01)
+│   ├── regras/                    # Motor de regras clínicas (Strategy)
 │   ├── routers/                   # Camada HTTP (rotas)
 │   ├── schemas/                   # Contratos Pydantic
 │   └── services/                  # Casos de uso e regras de negócio

@@ -4,6 +4,11 @@ from typing import ClassVar
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
+AVISO_APOIO_A_DECISAO = (
+    "Ferramenta de apoio à decisão para fins acadêmicos: não substitui o julgamento clínico. "
+    "Utilize apenas dados fictícios."
+)
+
 
 class MensagemErro(BaseModel):
     """Erro de negócio (404, 409 ou 422)."""
