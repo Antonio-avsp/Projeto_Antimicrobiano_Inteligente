@@ -1,11 +1,11 @@
 """Contratos de prescrições (RF03, RF04)."""
 
 from datetime import date, datetime
-from typing import Annotated, ClassVar
+from typing import Annotated, ClassVar, Literal
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, computed_field, field_validator
 
-from antimicrobiano.enums import Indicacao, StatusPrescricao, Via
+from antimicrobiano.enums import Conduta, Indicacao, StatusPrescricao, Via
 from antimicrobiano.schemas.antimicrobiano import AntimicrobianoResumo
 from antimicrobiano.schemas.comum import AtualizacaoParcial
 
@@ -70,6 +70,43 @@ class PrescricaoAtualizar(AtualizacaoParcial):
     _justificativa = field_validator("justificativa")(_vazio_para_nulo)
 
 
+class ReavaliacaoCriar(BaseModel):
+    """Dados da reavaliação (time-out)."""
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    data_reavaliacao: DataNaoFutura = Field(default_factory=date.today, description="Padrão: hoje.")
+    conduta: Conduta
+    observacao: str | None = Field(default=None, max_length=500)
+
+    _observacao = field_validator("observacao")(_vazio_para_nulo)
+
+
+class ReavaliacaoResposta(BaseModel):
+    """Reavaliação registrada."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    prescricao_id: int
+    data_reavaliacao: date
+    conduta: Conduta
+    observacao: str | None
+    criado_em: datetime
+
+
+class EncerramentoCriar(BaseModel):
+    """Dados do encerramento da prescrição."""
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    status_final: Literal[StatusPrescricao.CONCLUIDA, StatusPrescricao.SUSPENSA]
+    data_fim: DataNaoFutura = Field(default_factory=date.today, description="Padrão: hoje.")
+    motivo: str | None = Field(default=None, max_length=300)
+
+    _motivo = field_validator("motivo")(_vazio_para_nulo)
+
+
 class PrescricaoResposta(BaseModel):
     """Prescrição com o antimicrobiano e o dia de terapia atual."""
 
@@ -92,6 +129,7 @@ class PrescricaoResposta(BaseModel):
     motivo_encerramento: str | None
     criado_em: datetime
     atualizado_em: datetime
+    reavaliacoes: list[ReavaliacaoResposta] = []
 
     @computed_field
     @property
