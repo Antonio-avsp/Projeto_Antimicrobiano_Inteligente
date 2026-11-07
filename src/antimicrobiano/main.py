@@ -11,6 +11,7 @@ from antimicrobiano import __version__, models  # noqa: F401 — registra as tab
 from antimicrobiano.config import Configuracao
 from antimicrobiano.database import Base, criar_engine, criar_fabrica_sessoes
 from antimicrobiano.erros import registrar_tratadores_de_erro
+from antimicrobiano.observabilidade import registrar_observabilidade
 from antimicrobiano.routers import (
     alertas,
     antimicrobianos,
@@ -75,6 +76,7 @@ def create_app(config: Configuracao | None = None) -> FastAPI:
     app.state.engine = engine
     app.state.fabrica_sessoes = criar_fabrica_sessoes(engine)
 
+    registrar_observabilidade(app, config.log_nivel)
     registrar_tratadores_de_erro(app)
     app.include_router(antimicrobianos.router)
     app.include_router(prescricoes.router)

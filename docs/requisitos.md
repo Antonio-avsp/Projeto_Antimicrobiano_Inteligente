@@ -73,6 +73,7 @@ Documento de requisitos do **Antimicrobiano Inteligente**. Os termos do domínio
 | **[RNF10]** | Transparência clínica | Cada alerta deve informar tipo, severidade, mensagem, recomendação e as **evidências** usadas pela regra; a API deve exibir aviso de que o sistema é apoio à decisão e não substitui o julgamento clínico. | Testes do painel (#13, #16) |
 | **[RNF11]** | Configurabilidade | Os parâmetros clínicos das regras (time-out, limite de profilaxia, janela de culturas e mínimo de isolados) devem ser configuráveis por variáveis de ambiente, com validação dos valores. | Testes de configuração (#18) |
 | **[RNF12]** | Processo (organizacional) | O versionamento deve seguir **Git Flow**, **Conventional Commits** e **SemVer**; toda mudança deve entrar via Pull Request com referência à issue; o CHANGELOG deve ser atualizado a cada release. | Histórico do Git e PRs (todas as issues) |
+| **[RNF13]** | Observabilidade | Cada requisição deve ser registrada em log estruturado (JSON) com identificador único, método, rota, status e duração; o identificador deve ser devolvido no cabeçalho `X-Request-ID` e nas respostas de erro, e erros inesperados não podem expor detalhes internos ao cliente. | `tests/test_observabilidade.py` (#59) |
 
 ---
 

@@ -162,8 +162,17 @@ ruff check .
 | `AMI_LIMITE_PROFILAXIA_DIAS` | `1` | Duração máxima recomendada de profilaxia (1 dia = 24 h). |
 | `AMI_JANELA_CULTURA_DIAS` | `7` | Dias antes do início da terapia em que uma cultura é considerada relevante. |
 | `AMI_MINIMO_ISOLADOS` | `30` | Mínimo de isolados para amostra suficiente no antibiograma cumulativo. |
+| `AMI_LOG_NIVEL` | `INFO` | Nível dos logs JSON (`DEBUG`, `INFO`, `WARNING`, `ERROR` ou `CRITICAL`). |
 
 Os parâmetros clínicos variam entre protocolos institucionais; valores inválidos impedem a inicialização com uma mensagem que indica a variável.
+
+### Logs e diagnóstico
+
+Cada requisição gera uma linha de log em JSON na saída padrão, com método, rota, status, duração e um identificador. Esse identificador também volta no cabeçalho `X-Request-ID` e no campo `id_requisicao` das respostas de erro. Para ver só os logs estruturados, inicie o servidor com `--no-access-log`:
+
+```json
+{"momento": "2026-11-07T14:02:11.418+00:00", "nivel": "WARNING", "logger": "antimicrobiano.http", "mensagem": "GET /antimicrobianos/999 → 404", "id_requisicao": "5f1c…", "metodo": "GET", "rota": "/antimicrobianos/999", "status": 404, "duracao_ms": 3.2}
+```
 
 ## Exemplos de uso
 

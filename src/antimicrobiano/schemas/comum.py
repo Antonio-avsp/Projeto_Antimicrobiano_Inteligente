@@ -26,6 +26,9 @@ class Erro(BaseModel):
     codigo: str = Field(examples=["RECURSO_NAO_ENCONTRADO"])
     mensagem: str = Field(examples=["Antimicrobiano 999 não encontrado."])
     campos: list[CampoComErro] = []
+    id_requisicao: str | None = Field(
+        default=None, description="Mesmo valor do cabeçalho X-Request-ID e do log da requisição."
+    )
 
 
 class AtualizacaoParcial(BaseModel):

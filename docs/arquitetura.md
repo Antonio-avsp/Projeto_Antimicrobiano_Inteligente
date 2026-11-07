@@ -73,18 +73,20 @@ flowchart LR
         subgraph negocio["Camada de negócio"]
             services["<b>services/</b><br/>Casos de uso e regras de negócio (RN01–RN10, RN19)"]
             motor["<b>regras/</b><br/>Motor de regras + 8 regras clínicas (Strategy)"]
-            erros["<b>erros.py</b><br/>Exceções de domínio → HTTP 404/409/422"]
+            erros["<b>erros.py</b><br/>Exceções de domínio e formato único de erro"]
         end
         subgraph dados["Camada de dados"]
             models["<b>models.py</b><br/>Entidades ORM SQLAlchemy"]
             database["<b>database.py</b><br/>Engine e sessão"]
         end
         config["<b>config.py</b><br/>Configuração por variáveis de ambiente"]
+        obs["<b>observabilidade.py</b><br/>Middleware: X-Request-ID e log JSON"]
     end
 
     db[("SQLite")]
 
-    cliente --> routers
+    cliente --> obs
+    obs --> routers
     routers --> schemas
     routers --> services
     services --> erros
@@ -177,7 +179,8 @@ sequenceDiagram
   "mensagem": "Dados inválidos: verifique os campos informados.",
   "campos": [
     {"campo": "categoria_aware", "local": "body", "mensagem": "Valor inválido; use um destes: 'ACCESS', 'WATCH' ou 'RESERVE'."}
-  ]
+  ],
+  "id_requisicao": "5f1c2a…"
 }
 ```
 
@@ -188,6 +191,9 @@ sequenceDiagram
 | `CONFLITO` | 409 | Unicidade ou estado do recurso (ex.: prescrição encerrada) |
 | `REGRA_DE_NEGOCIO` | 422 | Dados bem formados que violam uma regra de negócio |
 | `VALIDACAO` | 422 | Campo ausente, tipo ou formato inválido (`campos` indica cada problema) |
+| `ERRO_INTERNO` | 500 | Falha inesperada: mensagem genérica, sem detalhes internos; o rastreamento fica no log com o mesmo `id_requisicao` |
+
+**Observabilidade:** o middleware `MiddlewareDeObservabilidade` atribui a cada requisição um identificador (o `X-Request-ID` enviado pelo cliente, se válido, ou um UUID), devolve-o no cabeçalho da resposta e registra a requisição em JSON (`antimicrobiano.http`). Erros inesperados são registrados em `antimicrobiano.erros` com o rastreamento completo. O nível é definido por `AMI_LOG_NIVEL`.
 
 ## 8. Decisões de arquitetura
 

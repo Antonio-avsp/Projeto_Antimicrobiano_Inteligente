@@ -3,11 +3,15 @@
 Os serviços lançam exceções de domínio sem conhecer HTTP; a camada de apresentação converte
 estas exceções, os erros de validação e os erros HTTP do framework no mesmo corpo JSON:
 
-``{"codigo": "...", "mensagem": "...", "campos": [{"campo", "local", "mensagem"}]}``
+``{"codigo": "...", "mensagem": "...", "campos": [...], "id_requisicao": "..."}``
+
+Erros inesperados viram ``500`` com mensagem genérica (sem detalhes internos) e são registrados
+no log com o rastreamento completo e o identificador da requisição.
 """
 
 from __future__ import annotations
 
+import logging
 from http import HTTPStatus
 from typing import Any
 
@@ -16,6 +20,10 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+
+from antimicrobiano.observabilidade import CABECALHO_ID, id_da_requisicao
+
+logger = logging.getLogger("antimicrobiano.erros")
 
 
 class ErroDeDominio(Exception):
@@ -97,9 +105,19 @@ MENSAGENS_VALIDACAO = {
 MENSAGEM_VALIDACAO = "Dados inválidos: verifique os campos informados."
 
 
-def corpo_de_erro(codigo: str, mensagem: str, campos: list[dict] | None = None) -> dict:
+MENSAGEM_ERRO_INTERNO = "Erro interno inesperado. Informe o identificador da requisição ao suporte."
+
+
+def corpo_de_erro(
+    codigo: str, mensagem: str, campos: list[dict] | None = None, id_requisicao: str | None = None
+) -> dict:
     """Corpo JSON padronizado de todas as respostas de erro."""
-    return {"codigo": codigo, "mensagem": mensagem, "campos": campos or []}
+    return {
+        "codigo": codigo,
+        "mensagem": mensagem,
+        "campos": campos or [],
+        "id_requisicao": id_requisicao,
+    }
 
 
 def traduzir_erro_de_validacao(erro: dict[str, Any]) -> dict[str, str]:
@@ -125,19 +143,38 @@ def registrar_tratadores_de_erro(app: FastAPI) -> None:
     """Registra os tratadores que produzem o formato único de erro."""
 
     @app.exception_handler(ErroDeDominio)
-    async def _erro_de_dominio(_request: Request, erro: ErroDeDominio) -> JSONResponse:
-        return _resposta(erro.status_code, corpo_de_erro(erro.codigo, erro.mensagem))
+    async def _erro_de_dominio(request: Request, erro: ErroDeDominio) -> JSONResponse:
+        corpo = corpo_de_erro(erro.codigo, erro.mensagem, id_requisicao=id_da_requisicao(request))
+        return _resposta(erro.status_code, corpo)
 
     @app.exception_handler(RequestValidationError)
-    async def _erro_de_validacao(_request: Request, erro: RequestValidationError) -> JSONResponse:
+    async def _erro_de_validacao(request: Request, erro: RequestValidationError) -> JSONResponse:
         campos = [traduzir_erro_de_validacao(item) for item in erro.errors()]
-        return _resposta(422, corpo_de_erro("VALIDACAO", MENSAGEM_VALIDACAO, campos))
+        corpo = corpo_de_erro(
+            "VALIDACAO", MENSAGEM_VALIDACAO, campos, id_requisicao=id_da_requisicao(request)
+        )
+        return _resposta(422, corpo)
+
+    @app.exception_handler(Exception)
+    async def _erro_inesperado(request: Request, erro: Exception) -> JSONResponse:
+        identificador = id_da_requisicao(request)
+        logger.error(
+            "Erro inesperado em %s %s",
+            request.method,
+            request.url.path,
+            exc_info=erro,
+            extra={"id_requisicao": identificador, "rota": request.url.path},
+        )
+        corpo = corpo_de_erro("ERRO_INTERNO", MENSAGEM_ERRO_INTERNO, id_requisicao=identificador)
+        cabecalhos = {CABECALHO_ID: identificador} if identificador else None
+        return _resposta(500, corpo, cabecalhos)
 
     @app.exception_handler(StarletteHTTPException)
-    async def _erro_http(_request: Request, erro: StarletteHTTPException) -> JSONResponse:
+    async def _erro_http(request: Request, erro: StarletteHTTPException) -> JSONResponse:
         codigo = CODIGOS_HTTP.get(erro.status_code, "ERRO_HTTP")
         padrao = MENSAGENS_HTTP.get(erro.status_code) or HTTPStatus(erro.status_code).phrase
         mensagem = erro.detail if isinstance(erro.detail, str) else padrao
         if mensagem in {"Not Found", "Method Not Allowed", "Unauthorized", "Forbidden"}:
             mensagem = padrao
-        return _resposta(erro.status_code, corpo_de_erro(codigo, mensagem), erro.headers)
+        corpo = corpo_de_erro(codigo, mensagem, id_requisicao=id_da_requisicao(request))
+        return _resposta(erro.status_code, corpo, erro.headers)
