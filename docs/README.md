@@ -14,6 +14,7 @@
 | [Arquitetura](arquitetura.md) | Modelo C4, camadas, motor de regras, autenticação, rotas da API, formato de erro e índice dos ADRs | v1.0.0 | 07/11/2026 |
 | [Modelo de Dados](modelo-de-dados.md) | DER, dicionário de dados, diagrama de classes e enumerações | v1.0.0 | 07/11/2026 |
 | [Decisões de arquitetura (ADRs)](adr/README.md) | Um registro por decisão: contexto, decisão, alternativas e consequências (ADR 0001–0011) | v1.0.0 | 07/11/2026 |
+| [Validação clínica](validacao-clinica.md) | Checklist de revisão das regras por especialista: fonte, parâmetro, perguntas, responsável, data e parecer (pendente) | v1.0.0 | 07/11/2026 |
 | [Rastreabilidade](rastreabilidade.md) | Matriz requisito → caso de uso → história → regra → issue → release → teste | v1.0.0 | 07/11/2026 |
 
 Fora desta pasta: [README](../README.md) (visão geral, execução e exemplos), [Guia de Contribuição](../CONTRIBUTING.md) (Git Flow, commits, PRs e Definição de Pronto) e [CHANGELOG](../CHANGELOG.md).

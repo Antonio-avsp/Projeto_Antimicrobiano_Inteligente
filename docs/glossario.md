@@ -31,4 +31,5 @@ Termos do domínio utilizados na especificação e no código do **Antimicrobian
 | **Severidade do alerta** | `ALTA` (ação imediata), `MEDIA` (ação em até 24 horas) ou `BAIXA` (oportunidade de otimização). |
 | **Token de acesso (JWT)** | Credencial assinada e com validade limitada, obtida em `POST /auth/login` e enviada no cabeçalho `Authorization: Bearer <token>`. |
 | **Time-out (reavaliação)** | Revisão estruturada da terapia entre 48 e 72 horas após o início, quando os resultados de cultura costumam estar disponíveis: manter, ajustar, descalonar ou suspender. |
+| **Validação clínica** | Revisão de cada regra do motor por especialista (infectologista ou farmacêutico do PGA), com fonte, responsável, data e parecer registrados em [validacao-clinica.md](validacao-clinica.md). Obrigatória antes de qualquer uso assistencial; pendente até a v1.0.0. |
 | **Uso restrito** | Antimicrobiano cuja prescrição exige justificativa e/ou autorização da equipe do PGA (geralmente carbapenêmicos, glicopeptídeos, polimixinas e antimicrobianos RESERVE). |

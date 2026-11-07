@@ -40,7 +40,7 @@ Legenda: ✅ implementado · 🗓️ planejado
 | RNF07 | Manutenibilidade | #13, #18, #20, #65 | Motor Strategy; `ruff check` e `ruff format --check` no job Qualidade do CI; dependências atualizadas pelo Dependabot |
 | RNF08 | Testabilidade | #6, #20, #63 | `pytest --cov` (meta ≥ 80%) e teste ponta a ponta do fluxo principal em `tests/test_ponta_a_ponta.py` |
 | RNF09 | Integridade | #9 | Testes de inativação lógica e chaves estrangeiras |
-| RNF10 | Transparência clínica | #13, #16 | `tests/test_alertas.py` verifica mensagem, recomendação e evidências |
+| RNF10 | Transparência clínica | #13, #16, #68 | `tests/test_alertas.py` verifica mensagem, recomendação e evidências; fontes e revisão por especialista em `docs/validacao-clinica.md` (pendente) |
 | RNF11 | Configurabilidade | #18 | `tests/test_config.py` |
 | RNF12 | Processo | todas | Histórico do Git, PRs com `Closes #N`, tags SemVer e CHANGELOG |
 | RNF13 | Observabilidade | [#59](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/59) | `tests/test_observabilidade.py` |
