@@ -6,6 +6,32 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [1.0.0] - 2026-11-07
+
+Iteração 2, guiada pela Avaliação Técnica Week_01: indicadores de consumo, duplicidade terapêutica, autenticação com perfis, interface web, gates de qualidade e segurança no CI e documentação operacional.
+
+### Adicionado
+
+- Alerta de duplicidade terapêutica entre prescrições ativas da mesma classe para o mesmo paciente (RF16, RN22 — [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22)).
+- Indicadores de consumo em dias de terapia (DOT) por antimicrobiano, categoria AWaRe e setor, com percentual ACCESS e meta de 60% da OMS, em `GET /relatorios/indicadores` (RF15, RN23 — [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21)).
+- Autenticação com token JWT (`POST /auth/login`, `GET /auth/me`), perfis FARMACEUTICO, INFECTOLOGISTA, LABORATORIO e GESTOR, cadastro de usuários em `/usuarios`, comando `python -m antimicrobiano.usuarios` e registro do autor de prescrições, reavaliações e encerramentos (RF17, RN24, RN25 — [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24)).
+- Interface web do painel de alertas em `/painel`, com login, filtros, agrupamento por severidade e detalhe das evidências (RF18 — [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26)).
+- Logs estruturados em JSON com identificador da requisição (`X-Request-ID`) e nível configurável por `AMI_LOG_NIVEL` (RNF13 — #59).
+- Arquivo `.env.example` e leitura do `.env` pela aplicação (#60).
+- `Dockerfile` e `docker-compose.yml` para execução reprodutível (#61).
+- Teste ponta a ponta do fluxo principal do PGA (#63).
+- Workflow Segurança com gitleaks e pip-audit, e Dependabot para pip, GitHub Actions e Docker (#64, #65).
+- Índice da documentação com regra de sincronização documentação × código, ADRs e checklist de validação clínica (#66, #67, #68).
+- Usuários fictícios de cada perfil na carga de demonstração.
+
+### Alterado
+
+- **Incompatível:** todas as rotas de dados passam a exigir o cabeçalho `Authorization: Bearer <token>`; as operações de escrita dependem do perfil ([#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24)).
+- **Incompatível:** as respostas de erro passam a usar o formato único `{codigo, mensagem, campos, id_requisicao}` no lugar de `{"detail": ...}`, com mensagens de validação em português (#58).
+- **Incompatível:** novas colunas e a tabela `usuarios` exigem recriar bases criadas em versões anteriores (`python -m antimicrobiano.seed --reset` para a demonstração).
+- CI com gates de qualidade: `ruff check`, `ruff format --check`, bandit, cobertura mínima de 80% e relatório de cobertura como artefato, além do build da imagem Docker ([#20](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/20)).
+- A versão do pacote passa a ser declarada no `pyproject.toml`.
+
 ## [0.3.0] - 2026-11-06
 
 Motor de regras inteligente, painel de alertas, antibiograma cumulativo e dados de demonstração.
@@ -62,7 +88,8 @@ Documentação de planejamento e fundação técnica do projeto.
 - Pipeline de CI no GitHub Actions com testes em Python 3.11, 3.12 e 3.13 ([#7](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/7)).
 - README com badges, guia de execução, quadro de funcionalidades e fluxo Git Flow ([#8](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/8)).
 
-[Não lançado]: https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/compare/v0.3.0...develop
+[Não lançado]: https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/compare/v1.0.0...develop
+[1.0.0]: https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/compare/v0.1.0...v0.1.1

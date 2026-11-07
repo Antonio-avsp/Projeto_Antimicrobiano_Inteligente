@@ -85,7 +85,7 @@ def test_operacoes_em_prescricao_encerrada_retornam_409(
     resposta = getattr(client, metodo)(url, json=corpo)
 
     assert resposta.status_code == 409
-    assert "CONCLUIDA" in resposta.json()["detail"]
+    assert "CONCLUIDA" in resposta.json()["mensagem"]
 
 
 @pytest.mark.parametrize(
@@ -101,7 +101,7 @@ def test_data_anterior_ao_inicio_retorna_422(client, nova_prescricao, rota, corp
     resposta = client.post(f"/prescricoes/{prescricao['id']}/{rota}", json=corpo)
 
     assert resposta.status_code == 422
-    assert "anterior ao início da prescrição" in resposta.json()["detail"]
+    assert "anterior ao início da prescrição" in resposta.json()["mensagem"]
 
 
 @pytest.mark.parametrize(

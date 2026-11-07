@@ -2,11 +2,18 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, Depends, Query, status
 
 from antimicrobiano.database import SessaoDep
 from antimicrobiano.enums import StatusPrescricao
-from antimicrobiano.schemas.comum import RESPOSTA_404, RESPOSTA_409
+from antimicrobiano.routers.dependencias import EditorPrescricoesDep, usuario_atual
+from antimicrobiano.schemas.comum import (
+    RESPOSTA_401,
+    RESPOSTA_403,
+    RESPOSTA_404,
+    RESPOSTA_409,
+    RESPOSTA_422,
+)
 from antimicrobiano.schemas.prescricao import (
     PADRAO_CODIGO_PACIENTE,
     EncerramentoCriar,
@@ -18,19 +25,24 @@ from antimicrobiano.schemas.prescricao import (
 )
 from antimicrobiano.services import prescricoes as servico
 
-router = APIRouter(prefix="/prescricoes", tags=["Prescrições"])
+router = APIRouter(
+    prefix="/prescricoes",
+    tags=["Prescrições"],
+    dependencies=[Depends(usuario_atual)],
+    responses={**RESPOSTA_401, **RESPOSTA_422},
+)
 
 
 @router.post(
     "",
     status_code=status.HTTP_201_CREATED,
     response_model=PrescricaoResposta,
-    responses=RESPOSTA_404,
+    responses={**RESPOSTA_403, **RESPOSTA_404},
     summary="Registrar prescrição",
 )
-def registrar(dados: PrescricaoCriar, sessao: SessaoDep):
+def registrar(dados: PrescricaoCriar, sessao: SessaoDep, autor: EditorPrescricoesDep):
     """Registra a prescrição de um antimicrobiano ativo para um paciente pseudonimizado."""
-    return servico.registrar(sessao, dados)
+    return servico.registrar(sessao, dados, autor=autor.login)
 
 
 @router.get("", response_model=list[PrescricaoResposta], summary="Listar prescrições")
@@ -58,10 +70,12 @@ def consultar(prescricao_id: int, sessao: SessaoDep):
 @router.patch(
     "/{prescricao_id}",
     response_model=PrescricaoResposta,
-    responses={**RESPOSTA_404, **RESPOSTA_409},
+    responses={**RESPOSTA_403, **RESPOSTA_404, **RESPOSTA_409},
     summary="Atualizar prescrição ativa",
 )
-def atualizar(prescricao_id: int, dados: PrescricaoAtualizar, sessao: SessaoDep):
+def atualizar(
+    prescricao_id: int, dados: PrescricaoAtualizar, sessao: SessaoDep, _editor: EditorPrescricoesDep
+):
     """Atualiza setor, dose, intervalo, via, duração prevista ou justificativa."""
     return servico.atualizar(sessao, prescricao_id, dados)
 
@@ -70,12 +84,14 @@ def atualizar(prescricao_id: int, dados: PrescricaoAtualizar, sessao: SessaoDep)
     "/{prescricao_id}/reavaliacoes",
     status_code=status.HTTP_201_CREATED,
     response_model=ReavaliacaoResposta,
-    responses={**RESPOSTA_404, **RESPOSTA_409},
+    responses={**RESPOSTA_403, **RESPOSTA_404, **RESPOSTA_409},
     summary="Registrar reavaliação (time-out)",
 )
-def registrar_reavaliacao(prescricao_id: int, dados: ReavaliacaoCriar, sessao: SessaoDep):
+def registrar_reavaliacao(
+    prescricao_id: int, dados: ReavaliacaoCriar, sessao: SessaoDep, autor: EditorPrescricoesDep
+):
     """Registra a reavaliação estruturada da terapia; encerra o alerta de time-out."""
-    return servico.registrar_reavaliacao(sessao, prescricao_id, dados)
+    return servico.registrar_reavaliacao(sessao, prescricao_id, dados, autor=autor.login)
 
 
 @router.get(
@@ -92,9 +108,11 @@ def listar_reavaliacoes(prescricao_id: int, sessao: SessaoDep):
 @router.post(
     "/{prescricao_id}/encerramento",
     response_model=PrescricaoResposta,
-    responses={**RESPOSTA_404, **RESPOSTA_409},
+    responses={**RESPOSTA_403, **RESPOSTA_404, **RESPOSTA_409},
     summary="Encerrar prescrição",
 )
-def encerrar(prescricao_id: int, dados: EncerramentoCriar, sessao: SessaoDep):
+def encerrar(
+    prescricao_id: int, dados: EncerramentoCriar, sessao: SessaoDep, autor: EditorPrescricoesDep
+):
     """Encerra a prescrição como CONCLUIDA ou SUSPENSA."""
-    return servico.encerrar(sessao, prescricao_id, dados)
+    return servico.encerrar(sessao, prescricao_id, dados, autor=autor.login)

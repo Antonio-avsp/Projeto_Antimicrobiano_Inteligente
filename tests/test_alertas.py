@@ -258,3 +258,38 @@ def test_filtro_por_tipo_e_paciente(cenario_painel, alertas):
 )
 def test_filtros_invalidos_retornam_422(client, params):
     assert client.get("/alertas", params=params).status_code == 422
+
+
+def test_duplicidade_terapeutica_considera_prescricoes_de_outro_setor(
+    client, novo_antimicrobiano, nova_prescricao
+):
+    """RN22: o filtro de setor não esconde a outra prescrição da mesma classe."""
+    cefazolina = novo_antimicrobiano(
+        nome="Cefazolina", classe="Cefalosporina de 1ª geração", categoria_aware="ACCESS"
+    )
+    cefalexina = novo_antimicrobiano(
+        nome="Cefalexina", classe="Cefalosporina de 1ª geração", categoria_aware="ACCESS"
+    )
+    iv = nova_prescricao(cefazolina["id"], setor="UTI Adulto", indicacao="DIRIGIDA")
+    vo = nova_prescricao(cefalexina["id"], setor="Clínica Médica", indicacao="DIRIGIDA", via="VO")
+
+    painel = client.get(
+        "/alertas", params={"tipo": "DUPLICIDADE_TERAPEUTICA", "setor": "UTI Adulto"}
+    ).json()
+
+    assert [a["prescricao_id"] for a in painel["alertas"]] == [iv["id"]]
+    assert painel["alertas"][0]["evidencias"]["prescricoes_da_mesma_classe"] == [vo["id"]]
+    assert painel["resumo"]["por_tipo"]["DUPLICIDADE_TERAPEUTICA"] == 1
+
+
+def test_encerrar_uma_das_prescricoes_resolve_a_duplicidade(
+    client, novo_antimicrobiano, nova_prescricao
+):
+    classe = "Cefalosporina de 1ª geração"
+    iv = nova_prescricao(novo_antimicrobiano(nome="Cefazolina", classe=classe)["id"])
+    nova_prescricao(novo_antimicrobiano(nome="Cefalexina", classe=classe)["id"], via="VO")
+    client.post(f"/prescricoes/{iv['id']}/encerramento", json={"status_final": "SUSPENSA"})
+
+    painel = client.get("/alertas", params={"tipo": "DUPLICIDADE_TERAPEUTICA"}).json()
+
+    assert painel["total"] == 0

@@ -92,6 +92,7 @@ class ReavaliacaoResposta(BaseModel):
     data_reavaliacao: date
     conduta: Conduta
     observacao: str | None
+    registrado_por: str | None = Field(description="Login de quem registrou (RF17).")
     criado_em: datetime
 
 
@@ -127,6 +128,8 @@ class PrescricaoResposta(BaseModel):
     status: StatusPrescricao
     data_fim: date | None
     motivo_encerramento: str | None
+    registrado_por: str | None
+    encerrado_por: str | None
     criado_em: datetime
     atualizado_em: datetime
     reavaliacoes: list[ReavaliacaoResposta] = []

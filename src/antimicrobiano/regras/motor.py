@@ -6,7 +6,11 @@ from antimicrobiano.enums import StatusPrescricao, TipoAlerta
 from antimicrobiano.models import Prescricao
 from antimicrobiano.regras.base import Alerta, ContextoAvaliacao, Regra
 from antimicrobiano.regras.microbiologicas import RegraDescalonamento, RegraResistencia
-from antimicrobiano.regras.politicas import RegraRestritoSemJustificativa, RegraSemCultura
+from antimicrobiano.regras.politicas import (
+    RegraDuplicidadeTerapeutica,
+    RegraRestritoSemJustificativa,
+    RegraSemCultura,
+)
 from antimicrobiano.regras.temporais import (
     RegraDuracaoExcedida,
     RegraProfilaxiaProlongada,
@@ -54,5 +58,6 @@ def criar_motor_padrao() -> MotorDeRegras:
             RegraSemCultura(),
             RegraResistencia(),
             RegraDescalonamento(),
+            RegraDuplicidadeTerapeutica(),
         ]
     )

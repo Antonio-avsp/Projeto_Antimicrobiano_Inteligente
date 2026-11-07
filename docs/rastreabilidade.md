@@ -22,10 +22,10 @@ Legenda: ✅ implementado · 🗓️ planejado
 | RF12 | Alerta de WATCH/RESERVE empírico sem cultura | UC05 | US12 | RN16 | [#14](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/14) | v0.3.0 | `tests/regras/test_regras_politicas.py` | ✅ |
 | RF13 | Painel de alertas com filtros e resumo | UC05 | US13 | RN11, RN21 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13), [#16](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/16) | v0.3.0 | `tests/test_alertas.py`, `tests/test_desempenho.py` | ✅ |
 | RF14 | Antibiograma cumulativo | UC06 | US14 | RN19 | [#17](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/17) | v0.3.0 | `tests/test_relatorios.py` | ✅ |
-| RF15 | Indicadores de consumo (DOT) | UC07 | US15 | — | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) | v1.0.0 | — | 🗓️ |
-| RF16 | Alerta de duplicidade terapêutica | UC05 | US16 | — | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) | v1.0.0 | — | 🗓️ |
-| RF17 | Autenticação e perfis de acesso | UC08 | US17 | — | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) | v1.0.0 | — | 🗓️ |
-| RF18 | Interface web do painel | UC05 | US18 | — | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) | v1.0.0 | — | 🗓️ |
+| RF15 | Indicadores de consumo (DOT) | UC07 | US15 | RN23 | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) | v1.0.0 | `tests/test_indicadores.py` | ✅ |
+| RF16 | Alerta de duplicidade terapêutica | UC05 | US16 | RN22 | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) | v1.0.0 | `tests/regras/test_regras_politicas.py`, `tests/test_alertas.py` | ✅ |
+| RF17 | Autenticação e perfis de acesso | UC08 | US17 | RN24, RN25 | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) | v1.0.0 | `tests/test_autenticacao.py` | ✅ |
+| RF18 | Interface web do painel | UC05 | US18 | RN21, RN24 | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) | v1.0.0 | `tests/test_interface_web.py` | ✅ |
 
 ## 2. Requisitos não funcionais
 
@@ -33,16 +33,17 @@ Legenda: ✅ implementado · 🗓️ planejado
 |---|---|---|---|
 | RNF01 | Desempenho | #16 | `tests/test_desempenho.py` (1.000 prescrições ativas em até 2 s) |
 | RNF02 | Persistência | #6 | Configuração `AMI_DATABASE_URL` e testes com banco em memória |
-| RNF03 | Usabilidade | #6, #8 | OpenAPI em `/docs`; mensagens de erro em português nos testes de API |
+| RNF03 | Usabilidade | #6, #8, #58 | OpenAPI em `/docs`; formato único de erro com mensagens em português em `tests/test_erros.py` |
 | RNF04 | Privacidade (LGPD) | #10, #19 | Validação de `paciente_codigo` em `tests/test_prescricoes.py` e `tests/test_culturas.py`; seed apenas fictício |
-| RNF05 | Segurança | #6, #24 | Testes de validação (422); `.gitignore`; revisão de PR |
-| RNF06 | Portabilidade | #6, #7 | Pipeline de CI em Python 3.11, 3.12 e 3.13 |
-| RNF07 | Manutenibilidade | #13, #18, #20 | Motor Strategy; ruff |
-| RNF08 | Testabilidade | #6, #20 | `pytest --cov` (meta ≥ 80%) |
+| RNF05 | Segurança | #6, #20, #24, #60, #64 | Testes de validação (422), `tests/test_autenticacao.py`, `.gitignore` com `.env.example` versionado (`tests/test_config.py`), bandit no CI, workflow Segurança (gitleaks e pip-audit) e revisão de PR |
+| RNF06 | Portabilidade | #6, #7, #61 | Pipeline de CI em Python 3.11, 3.12 e 3.13 e job de build da imagem Docker |
+| RNF07 | Manutenibilidade | #13, #18, #20, #65 | Motor Strategy; `ruff check` e `ruff format --check` no job Qualidade do CI; dependências atualizadas pelo Dependabot |
+| RNF08 | Testabilidade | #6, #20, #63 | `pytest --cov` (meta ≥ 80%) e teste ponta a ponta do fluxo principal em `tests/test_ponta_a_ponta.py` |
 | RNF09 | Integridade | #9 | Testes de inativação lógica e chaves estrangeiras |
-| RNF10 | Transparência clínica | #13, #16 | `tests/test_alertas.py` verifica mensagem, recomendação e evidências |
+| RNF10 | Transparência clínica | #13, #16, #68 | `tests/test_alertas.py` verifica mensagem, recomendação e evidências; fontes e revisão por especialista em `docs/validacao-clinica.md` (pendente) |
 | RNF11 | Configurabilidade | #18 | `tests/test_config.py` |
 | RNF12 | Processo | todas | Histórico do Git, PRs com `Closes #N`, tags SemVer e CHANGELOG |
+| RNF13 | Observabilidade | [#59](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/59) | `tests/test_observabilidade.py` |
 
 ## 3. Issues de suporte (documentação, configuração e qualidade)
 
@@ -58,13 +59,13 @@ Legenda: ✅ implementado · 🗓️ planejado
 | [#8](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/8) | documentation | `README.md` | v0.1.0 |
 | [#18](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/18) | refactor | `ParametrosClinicos` em `config.py` | v0.3.0 |
 | [#19](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/19) | enhancement | `src/antimicrobiano/seed.py` | v0.3.0 |
-| [#20](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/20) | ci, enhancement | Gates de qualidade no pipeline | v1.0.0 |
+| [#20](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/20) | ci, enhancement | Gates de qualidade no pipeline (ruff, formatação, bandit, cobertura ≥ 80% e relatório como artefato) | v1.0.0 |
 
 ## 4. Objetivos SMART → evidências
 
 | Objetivo ([Termo de Abertura](project-charter.md#2-objetivos-smart-do-software)) | Evidência |
 |---|---|
-| OBJ-01 — 7 regras de alerta testadas | `src/antimicrobiano/regras/` e `tests/regras/` |
+| OBJ-01 — 7 regras de alerta testadas (8 com a duplicidade terapêutica da v1.0.0) | `src/antimicrobiano/regras/` e `tests/regras/` |
 | OBJ-02 — cobertura ≥ 80% | Relatório do `pytest --cov` no CI |
 | OBJ-03 — painel ≤ 2 s com 1.000 prescrições | `tests/test_desempenho.py` |
 | OBJ-04 — 100% dos RFs do MVP rastreados | Seção 1 deste documento |

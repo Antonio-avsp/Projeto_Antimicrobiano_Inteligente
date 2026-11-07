@@ -1,0 +1,25 @@
+# Sobe a API com o banco SQLite em volume persistente.
+#   cp .env.example .env
+#   docker compose up --build
+# Dados de demonstração (opcional, em outro terminal):
+#   docker compose exec api python -m antimicrobiano.seed
+# Primeiro GESTOR de uma base sem demonstração:
+#   docker compose exec api python -m antimicrobiano.usuarios criar --login ana.souza --nome "Ana Souza" --perfil GESTOR
+
+services:
+  api:
+    build: .
+    image: antimicrobiano-inteligente:local
+    env_file:
+      - .env
+    environment:
+      # O banco fica no volume, independentemente do AMI_DATABASE_URL do .env local.
+      AMI_DATABASE_URL: sqlite:////dados/antimicrobiano.db
+    ports:
+      - "8000:8000"
+    volumes:
+      - dados:/dados
+    restart: unless-stopped
+
+volumes:
+  dados:

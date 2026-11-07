@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+import secrets
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -11,19 +13,24 @@ from antimicrobiano import __version__, models  # noqa: F401 — registra as tab
 from antimicrobiano.config import Configuracao
 from antimicrobiano.database import Base, criar_engine, criar_fabrica_sessoes
 from antimicrobiano.erros import registrar_tratadores_de_erro
+from antimicrobiano.observabilidade import registrar_observabilidade
 from antimicrobiano.routers import (
     alertas,
     antimicrobianos,
+    autenticacao,
     culturas,
     prescricoes,
     relatorios,
     sistema,
 )
+from antimicrobiano.routers.web import registrar_interface_web
 
 DESCRICAO = """
 API de apoio ao **Programa de Gerenciamento do Uso de Antimicrobianos (PGA / stewardship)**.
 
 Centraliza prescrições, culturas e antibiogramas e gera alertas explicáveis para a equipe do PGA.
+O painel para uso no dia a dia fica em [/painel](/painel); nesta documentação, faça login em
+`POST /auth/login` e use o botão **Authorize** com o token recebido.
 
 > ⚠️ Ferramenta de apoio à decisão para fins acadêmicos — não substitui o julgamento clínico.
 """
@@ -47,10 +54,23 @@ TAGS = [
     },
     {
         "name": "Relatórios",
-        "description": "Antibiograma cumulativo institucional (RF14).",
+        "description": "Antibiograma cumulativo (RF14) e indicadores de consumo DOT (RF15).",
+    },
+    {
+        "name": "Autenticação",
+        "description": "Login com token JWT e cadastro de usuários por perfil (RF17).",
     },
     {"name": "Sistema", "description": "Saúde e versão da API."},
 ]
+
+
+def _segredo_temporario() -> str:
+    """Segredo aleatório usado quando AMI_JWT_SEGREDO não está definido (apenas desenvolvimento)."""
+    logging.getLogger("antimicrobiano.seguranca").warning(
+        "AMI_JWT_SEGREDO não definido: usando um segredo temporário; os tokens deixam de valer "
+        "quando a API reiniciar. Defina a variável em produção."
+    )
+    return secrets.token_urlsafe(48)
 
 
 def create_app(config: Configuracao | None = None) -> FastAPI:
@@ -72,16 +92,20 @@ def create_app(config: Configuracao | None = None) -> FastAPI:
         lifespan=lifespan,
     )
     app.state.config = config
+    app.state.jwt_segredo = config.jwt_segredo or _segredo_temporario()
     app.state.engine = engine
     app.state.fabrica_sessoes = criar_fabrica_sessoes(engine)
 
+    registrar_observabilidade(app, config.log_nivel)
     registrar_tratadores_de_erro(app)
+    app.include_router(autenticacao.router)
     app.include_router(antimicrobianos.router)
     app.include_router(prescricoes.router)
     app.include_router(culturas.router)
     app.include_router(alertas.router)
     app.include_router(relatorios.router)
     app.include_router(sistema.router)
+    registrar_interface_web(app)
     return app
 
 

@@ -1,0 +1,93 @@
+"""Sincronização documentação × código (regra em docs/README.md)."""
+
+import re
+import tomllib
+from pathlib import Path
+
+import pytest
+
+from antimicrobiano import __version__
+from antimicrobiano.enums import TipoAlerta
+
+RAIZ = Path(__file__).resolve().parent.parent
+DOCS = RAIZ / "docs"
+
+
+def _ler(caminho: Path) -> str:
+    return caminho.read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize(
+    "documento", sorted(p.name for p in DOCS.glob("*.md") if p.name != "README.md")
+)
+def test_todo_documento_esta_no_indice(documento):
+    assert f"]({documento})" in _ler(DOCS / "README.md")
+
+
+def test_indice_informa_versao_e_data_de_cada_documento():
+    linhas = [
+        linha
+        for linha in _ler(DOCS / "README.md").splitlines()
+        if re.match(r"\| \[[^]]+\]\([\w./-]+\.md\)", linha)
+    ]
+    assert linhas
+    for linha in linhas:
+        assert re.search(r"\| v\d+\.\d+\.\d+ \| \d{2}/\d{2}/\d{4} \|$", linha), linha
+
+
+def test_todo_requisito_funcional_esta_na_matriz_de_rastreabilidade():
+    requisitos = set(re.findall(r"\*\*\[(RF\d{2})\]\*\*", _ler(DOCS / "requisitos.md")))
+    matriz = set(re.findall(r"^\| (RF\d{2}) \|", _ler(DOCS / "rastreabilidade.md"), re.M))
+
+    assert requisitos
+    assert requisitos == matriz
+
+
+def test_requisitos_implementados_apontam_testes_existentes():
+    for linha in _ler(DOCS / "rastreabilidade.md").splitlines():
+        if linha.startswith("| RF") and linha.rstrip().endswith("✅ |"):
+            for teste in re.findall(r"`(tests/[\w/]+\.py)`", linha):
+                assert (RAIZ / teste).is_file(), f"{teste} citado na matriz não existe"
+
+
+def test_todo_tipo_de_alerta_esta_documentado():
+    requisitos = _ler(DOCS / "requisitos.md")
+    readme = _ler(RAIZ / "README.md")
+
+    for tipo in TipoAlerta:
+        assert f"`{tipo.value}`" in requisitos
+        assert f"`{tipo.value}`" in readme
+
+
+def test_versao_do_pacote_registrada_no_changelog():
+    assert f"## [{__version__}]" in _ler(RAIZ / "CHANGELOG.md")
+
+
+ADRS = sorted((DOCS / "adr").glob("[0-9][0-9][0-9][0-9]-*.md"))
+
+
+@pytest.mark.parametrize("adr", ADRS, ids=[adr.stem for adr in ADRS])
+def test_adr_tem_as_secoes_e_esta_nos_indices(adr):
+    texto = _ler(adr)
+
+    for secao in ("## Contexto", "## Decisão", "## Alternativas consideradas", "## Consequências"):
+        assert secao in texto, f"{adr.name} sem a seção {secao}"
+    assert re.search(r"- \*\*Situação:\*\* (Proposta|Aceita|Substituída)", texto)
+    assert f"]({adr.name})" in _ler(DOCS / "adr" / "README.md")
+    assert f"](adr/{adr.name})" in _ler(DOCS / "arquitetura.md")
+
+
+def test_checklist_clinico_cobre_todas_as_regras_do_motor():
+    checklist = _ler(DOCS / "validacao-clinica.md")
+
+    for tipo in TipoAlerta:
+        assert f"`{tipo.value}`" in checklist
+
+
+def test_versao_declarada_no_manifesto_de_build_igual_a_do_pacote():
+    """A versão fica explícita no pyproject.toml (manifesto de build) e no pacote, sincronizadas."""
+    with (RAIZ / "pyproject.toml").open("rb") as arquivo:
+        projeto = tomllib.load(arquivo)["project"]
+
+    assert projeto["version"] == __version__
+    assert "version" not in projeto.get("dynamic", [])

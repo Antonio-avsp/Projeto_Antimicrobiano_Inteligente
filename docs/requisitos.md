@@ -46,14 +46,14 @@ Documento de requisitos do **Antimicrobiano Inteligente**. Os termos do domínio
 | **[RF13]** | O sistema deve disponibilizar o **painel de alertas** de uma data de referência, ordenado por severidade, com filtros (tipo, severidade, setor e paciente) e resumo de quantidades por severidade e por tipo. | Must | v0.3.0 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13), [#16](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/16) |
 | **[RF14]** | O sistema deve gerar o **antibiograma cumulativo** de um período (com filtro opcional por setor), contando o primeiro isolado por paciente e sinalizando combinações com menos de 30 isolados. | Should | v0.3.0 | [#17](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/17) |
 
-### 1.5 Planejados para a iteração 2
+### 1.5 Iteração 2 (entregues na v1.0.0)
 
 | ID | Requisito | Prioridade | Release | Issue |
 |---|---|---|---|---|
 | **[RF15]** | O sistema deve calcular **indicadores de consumo** em dias de terapia (DOT) por antimicrobiano e por categoria AWaRe. | Could | v1.0.0 | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) |
 | **[RF16]** | O sistema deve gerar alerta de **duplicidade terapêutica** (duas prescrições ativas da mesma classe para o mesmo paciente). | Could | v1.0.0 | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) |
-| **[RF17]** | O sistema deve exigir **autenticação** e controlar o acesso por perfil (farmacêutico, infectologista, laboratório e gestor). | Should | v1.0.0 | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) |
-| **[RF18]** | O sistema deve oferecer **interface web** para o painel de alertas. | Could | v1.0.0 | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) |
+| **[RF17]** | O sistema deve exigir **autenticação** (login com token JWT de validade limitada) e controlar o acesso por perfil (farmacêutico, infectologista, laboratório e gestor), registrando o autor das prescrições e das intervenções. | Should | v1.0.0 | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) |
+| **[RF18]** | O sistema deve oferecer **interface web** para o painel de alertas, com login, filtro por setor e data, alertas agrupados por severidade (indicada por cor, ícone e texto) e o detalhe da recomendação e das evidências. | Could | v1.0.0 | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) |
 
 ---
 
@@ -63,16 +63,17 @@ Documento de requisitos do **Antimicrobiano Inteligente**. Os termos do domínio
 |---|---|---|---|
 | **[RNF01]** | Desempenho | O painel de alertas deve responder em até **2 s** com **1.000 prescrições ativas**; operações de cadastro e consulta em até 500 ms, em ambiente local. | Teste automatizado de desempenho (#16) |
 | **[RNF02]** | Persistência | Os dados devem ser persistidos em banco relacional **SQLite** via ORM **SQLAlchemy**, sobrevivendo a reinicializações. A troca de SGBD (ex.: PostgreSQL) deve exigir apenas a alteração da variável `AMI_DATABASE_URL`. | Inspeção da configuração e testes (#6) |
-| **[RNF03]** | Usabilidade | A API deve ser documentada automaticamente (OpenAPI) em `/docs` e `/redoc`; recursos, campos e mensagens de erro de negócio devem estar em português; respostas em JSON padronizado. | Inspeção e testes de API (#6, #8) |
+| **[RNF03]** | Usabilidade | A API deve ser documentada automaticamente (OpenAPI) em `/docs` e `/redoc`; recursos, campos e todas as mensagens de erro (negócio e validação) devem estar em português; respostas em JSON padronizado. | Inspeção e testes de API (#6, #8) |
 | **[RNF04]** | Privacidade (LGPD) | O sistema não deve armazenar dados pessoais identificáveis: o paciente é referenciado exclusivamente por **código pseudonimizado** (`PAC-` + 4 a 10 dígitos) e somente dados fictícios são utilizados. | Teste de validação do código do paciente (#10, #19) |
-| **[RNF05]** | Segurança | Validação estrita das entradas (Pydantic), consultas parametrizadas via ORM (prevenção de *SQL injection*) e nenhum segredo versionado (`.env` ignorado). Autenticação planejada no RF17. | Testes de validação e revisão de PR (#6, #24) |
-| **[RNF06]** | Portabilidade | Executar em Windows, Linux e macOS com **Python 3.11 ou superior**, sem dependência de serviços externos. | Pipeline de CI em Python 3.11, 3.12 e 3.13 (#7) |
-| **[RNF07]** | Manutenibilidade | Arquitetura em camadas (rotas → serviços → modelos) e motor de regras extensível: uma nova regra é uma nova classe, sem alterar as existentes (princípio aberto/fechado). Código no padrão PEP 8 (ruff). | Revisão de PR e ruff (#13, #18, #20) |
+| **[RNF05]** | Segurança | Validação estrita das entradas (Pydantic), consultas parametrizadas via ORM (prevenção de *SQL injection*) e nenhum segredo versionado (`.env` ignorado). Acesso somente com token JWT assinado e de validade limitada, perfis com o mínimo de permissões necessário (RN24) e senhas armazenadas apenas como hash scrypt com sal. | Testes de validação, `tests/test_autenticacao.py`, bandit, gitleaks, pip-audit e revisão de PR (#6, #20, #24, #64) |
+| **[RNF06]** | Portabilidade | Executar em Windows, Linux e macOS com **Python 3.11 ou superior**, sem dependência de serviços externos, ou em contêiner Docker (`docker compose up`). | Pipeline de CI em Python 3.11, 3.12 e 3.13 (#7) e build da imagem Docker com verificação do `/health` (#61) |
+| **[RNF07]** | Manutenibilidade | Arquitetura em camadas (rotas → serviços → modelos) e motor de regras extensível: uma nova regra é uma nova classe, sem alterar as existentes (princípio aberto/fechado). Código no padrão PEP 8 (ruff). | Revisão de PR, `ruff check` e `ruff format --check` no CI (#13, #18, #20) |
 | **[RNF08]** | Testabilidade | Cobertura de testes automatizados **≥ 80%**; regras testáveis isoladamente, com data de referência injetável. | `pytest --cov` (#6, #20) |
 | **[RNF09]** | Integridade | Integridade referencial entre entidades; antimicrobianos nunca são excluídos fisicamente (inativação lógica); registros com data de criação e de atualização. | Testes de API (#9) |
 | **[RNF10]** | Transparência clínica | Cada alerta deve informar tipo, severidade, mensagem, recomendação e as **evidências** usadas pela regra; a API deve exibir aviso de que o sistema é apoio à decisão e não substitui o julgamento clínico. | Testes do painel (#13, #16) |
 | **[RNF11]** | Configurabilidade | Os parâmetros clínicos das regras (time-out, limite de profilaxia, janela de culturas e mínimo de isolados) devem ser configuráveis por variáveis de ambiente, com validação dos valores. | Testes de configuração (#18) |
 | **[RNF12]** | Processo (organizacional) | O versionamento deve seguir **Git Flow**, **Conventional Commits** e **SemVer**; toda mudança deve entrar via Pull Request com referência à issue; o CHANGELOG deve ser atualizado a cada release. | Histórico do Git e PRs (todas as issues) |
+| **[RNF13]** | Observabilidade | Cada requisição deve ser registrada em log estruturado (JSON) com identificador único, método, rota, status e duração; o identificador deve ser devolvido no cabeçalho `X-Request-ID` e nas respostas de erro, e erros inesperados não podem expor detalhes internos ao cliente. | `tests/test_observabilidade.py` (#59) |
 
 ---
 
@@ -120,6 +121,7 @@ Cada regra a seguir gera um alerta com tipo, severidade, mensagem, recomendaçã
 | **[RN16]** | `SEM_CULTURA` | MEDIA | Indicação `EMPIRICA`, antimicrobiano `WATCH` ou `RESERVE` e **nenhuma cultura relevante** do paciente. | Coletar culturas pertinentes ao sítio de infecção, idealmente antes da próxima dose. |
 | **[RN17]** | `RESISTENCIA` | ALTA | Existe cultura positiva relevante com interpretação **`R`** para o antimicrobiano prescrito. | Revisar a terapia. Alternativas: antimicrobianos ativos com `S` em todas as culturas positivas relevantes, ordenados por categoria AWaRe (ACCESS primeiro). |
 | **[RN18]** | `DESCALONAMENTO` | BAIXA | Antimicrobiano prescrito `WATCH` ou `RESERVE`, nenhuma cultura relevante com `R` para ele e ao menos um antimicrobiano ativo com `S` em **todas** as culturas positivas relevantes e de **categoria AWaRe inferior**. | Considerar o descalonamento para as opções listadas. |
+| **[RN22]** | `DUPLICIDADE_TERAPEUTICA` | MEDIA | O paciente tem outra prescrição `ATIVA`, iniciada até a data de referência, de antimicrobiano da **mesma classe** (comparação sem diferenciar maiúsculas e acentos). Um alerta para cada prescrição envolvida, mesmo que estejam em setores diferentes. | Manter apenas um antimicrobiano da classe, salvo indicação documentada (ex.: transição IV → VO, que exige suspender a via anterior). |
 
 ### 3.5 Relatórios e apresentação
 
@@ -128,5 +130,13 @@ Cada regra a seguir gera um alerta com tipo, severidade, mensagem, recomendaçã
 | **[RN19]** | **Antibiograma cumulativo:** considera culturas `POSITIVA` coletadas no período (e setor, se informado); conta apenas o **primeiro isolado** (coleta mais antiga) por paciente e microrganismo, comparando o nome do microrganismo sem diferenciar maiúsculas/minúsculas; percentual de sensibilidade = `S` ÷ testados × 100 (uma casa decimal); combinações com **menos de 30 isolados** testados recebem `amostra_suficiente = false` (CLSI M39). |
 | **[RN20]** | **Hierarquia AWaRe** usada nas comparações: `ACCESS` (1) < `WATCH` (2) < `RESERVE` (3). |
 | **[RN21]** | **Severidades:** `ALTA` = ação imediata; `MEDIA` = ação em até 24 horas; `BAIXA` = oportunidade de otimização. O painel ordena os alertas de `ALTA` para `BAIXA`, depois por tipo e por prescrição. |
+| **[RN23]** | **Indicadores de consumo (DOT):** cada dia de calendário em que o paciente recebeu o antimicrobiano conta 1 dia de terapia, independentemente do número de doses. Contam os dias entre o início e o término da prescrição (ou hoje, se ainda `ATIVA`) que caem no período (padrão: últimos 30 dias); o mesmo antimicrobiano para o mesmo paciente no mesmo dia conta uma vez. Percentual ACCESS = DOT `ACCESS` ÷ DOT total × 100 (uma casa decimal), comparado à meta de **60%** da OMS. Exemplo de cálculo manual (período D1–D7): PAC-0001 com Ceftriaxona de D1 a D5 = 5; PAC-0002 com Amoxicilina de D0 a D3 = 3 (D0 fica fora); PAC-0003 com Ceftriaxona ativa desde D6 = 2 e Gentamicina ativa desde D7 = 1 → total 11 DOT, ACCESS 4 (36,4%), WATCH 7. |
+
+### 3.6 Acesso
+
+| ID | Regra |
+|---|---|
+| **[RN24]** | **Perfis de acesso:** todas as rotas de dados exigem token válido (`401` sem token, com token inválido ou expirado, ou de usuário inativo). Consultas (`GET`) são permitidas a qualquer perfil. Operações de escrita: **catálogo** — `FARMACEUTICO` e `GESTOR`; **prescrições, reavaliações e encerramentos** — `FARMACEUTICO`, `INFECTOLOGISTA` e `GESTOR`; **culturas e resultados** — `LABORATORIO` e `GESTOR`; **usuários** — somente `GESTOR`. Os demais perfis recebem `403`. `/health`, `/docs`, `/redoc`, `/painel` e `POST /auth/login` são públicos. |
+| **[RN25]** | **Autoria:** prescrições, reavaliações e encerramentos guardam o login de quem os registrou (`registrado_por`, `encerrado_por`). |
 
 > Os limites de 3 dias, 1 dia, 7 dias e 30 isolados são **parâmetros clínicos** configuráveis (RNF11), pois variam entre protocolos institucionais.

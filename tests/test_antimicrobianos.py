@@ -36,7 +36,7 @@ def test_nome_duplicado_ignorando_maiusculas_acentos_e_espacos_retorna_409(
     )
 
     assert resposta.status_code == 409
-    assert resposta.json()["detail"] == "Já existe um antimicrobiano com este nome."
+    assert resposta.json()["mensagem"] == "Já existe um antimicrobiano com este nome."
 
 
 def test_categoria_aware_invalida_retorna_422_indicando_o_campo(client):
@@ -46,7 +46,7 @@ def test_categoria_aware_invalida_retorna_422_indicando_o_campo(client):
     )
 
     assert resposta.status_code == 422
-    assert resposta.json()["detail"][0]["loc"] == ["body", "categoria_aware"]
+    assert resposta.json()["campos"][0]["campo"] == "categoria_aware"
 
 
 @pytest.mark.parametrize("campo", ["nome", "classe", "categoria_aware"])
@@ -163,4 +163,4 @@ def test_antimicrobiano_inexistente_retorna_404(client, metodo):
     resposta = getattr(client, metodo)("/antimicrobianos/999", **kwargs)
 
     assert resposta.status_code == 404
-    assert resposta.json()["detail"] == "Antimicrobiano 999 não encontrado."
+    assert resposta.json()["mensagem"] == "Antimicrobiano 999 não encontrado."

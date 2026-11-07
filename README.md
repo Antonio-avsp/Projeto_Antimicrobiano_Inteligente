@@ -48,6 +48,7 @@ O **Antimicrobiano Inteligente** cruza automaticamente prescrições, culturas e
 | `SEM_CULTURA` | Antimicrobiano WATCH/RESERVE empírico sem cultura coletada | 🟡 MEDIA |
 | `RESISTENCIA` | Cultura do paciente resistente (`R`) ao antimicrobiano prescrito | 🔴 ALTA |
 | `DESCALONAMENTO` | Antibiograma permite opção de categoria AWaRe inferior | 🔵 BAIXA |
+| `DUPLICIDADE_TERAPEUTICA` | Paciente com duas prescrições ativas da mesma classe | 🟡 MEDIA |
 
 As regras seguem diretrizes reconhecidas — classificação **AWaRe** da OMS, diretriz nacional de PGA da **ANVISA**, recomendações **IDSA/SHEA** e norma **CLSI M39** — e estão detalhadas nas [regras de negócio](docs/requisitos.md#3-regras-de-negócio-rn).
 
@@ -71,11 +72,21 @@ Legenda: ✅ implementado · 🚧 em desenvolvimento · 🗓️ planejado
 | Antibiograma cumulativo institucional | RF14 | [#17](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/17) | v0.3.0 | ✅ |
 | Parâmetros clínicos configuráveis por ambiente | RNF11 | [#18](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/18) | v0.3.0 | ✅ |
 | Carga de dados fictícios para demonstração | HT01 | [#19](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/19) | v0.3.0 | ✅ |
-| Gates de qualidade no CI (ruff + cobertura mínima) | RNF07, RNF08 | [#20](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/20) | v1.0.0 | 🗓️ |
-| Indicadores de consumo (DOT) | RF15 | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) | v1.0.0 | 🗓️ |
-| Alerta de duplicidade terapêutica | RF16 | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) | v1.0.0 | 🗓️ |
-| Autenticação e perfis de acesso | RF17 | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) | v1.0.0 | 🗓️ |
-| Interface web do painel de alertas | RF18 | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) | v1.0.0 | 🗓️ |
+| Gates de qualidade no CI (ruff, formatação, bandit e cobertura mínima de 80%) | RNF05, RNF07, RNF08 | [#20](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/20) | v1.0.0 | ✅ |
+| Indicadores de consumo (DOT) por antimicrobiano, categoria AWaRe e setor | RF15 | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) | v1.0.0 | ✅ |
+| Alerta de duplicidade terapêutica | RF16 | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) | v1.0.0 | ✅ |
+| Autenticação JWT e perfis de acesso (farmacêutico, infectologista, laboratório e gestor) | RF17 | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) | v1.0.0 | ✅ |
+| Interface web do painel de alertas (`/painel`) | RF18 | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) | v1.0.0 | ✅ |
+| Formato único de erro com mensagens em português | RNF03 | [#58](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/58) | v1.0.0 | ✅ |
+| Logs estruturados em JSON com identificador da requisição | RNF13 | [#59](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/59) | v1.0.0 | ✅ |
+| Configuração por arquivo `.env` (modelo `.env.example`) | RNF05, RNF11 | [#60](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/60) | v1.0.0 | ✅ |
+| Execução com Docker e docker-compose | RNF06 | [#61](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/61) | v1.0.0 | ✅ |
+| Teste ponta a ponta do fluxo principal | RNF08 | [#63](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/63) | v1.0.0 | ✅ |
+| Varredura de segredos (gitleaks) e auditoria de dependências (pip-audit) | RNF05 | [#64](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/64) | v1.0.0 | ✅ |
+| Dependabot para dependências, actions e imagem Docker | RNF05, RNF07 | [#65](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/65) | v1.0.0 | ✅ |
+| Índice da documentação e regra de sincronização | RNF12 | [#66](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/66) | v1.0.0 | ✅ |
+| Decisões de arquitetura em ADRs | RNF07 | [#67](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/67) | v1.0.0 | ✅ |
+| Checklist de validação clínica das regras (fontes e campos de revisão) | RNF10 | [#68](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/68) | v1.0.0 | 🚧 aguarda revisão por especialista |
 
 O detalhamento de cada requisito está em [docs/requisitos.md](docs/requisitos.md) e a ligação requisito → issue → teste em [docs/rastreabilidade.md](docs/rastreabilidade.md).
 
@@ -88,8 +99,11 @@ O detalhamento de cada requisito está em [docs/requisitos.md](docs/requisitos.m
 | Validação | Pydantic v2 | Contratos de entrada e saída tipados |
 | Persistência | SQLite + SQLAlchemy 2.0 | Zero configuração; troca para PostgreSQL apenas por variável de ambiente |
 | Testes | pytest, pytest-cov, httpx | Testes de unidade e de API com relatório de cobertura |
-| Qualidade | ruff | Lint e formatação no padrão PEP 8 |
-| CI | GitHub Actions | Testes automáticos em cada push e pull request |
+| Autenticação | PyJWT + scrypt (biblioteca padrão) | Token Bearer com expiração e senhas apenas em hash |
+| Interface web | HTML, CSS e JavaScript puros | Painel servido pela própria API, sem etapa de build |
+| Qualidade | ruff, bandit | Lint, formatação no padrão PEP 8 e análise de segurança do código |
+| CI e segurança | GitHub Actions, gitleaks, pip-audit, Dependabot | Testes, gates de qualidade, varredura de segredos e de vulnerabilidades em cada push e pull request |
+| Execução | Docker + docker-compose | Ambiente reprodutível com o banco em volume |
 | Documentação | Markdown + Mermaid | Diagramas versionados junto com o código e renderizados pelo GitHub |
 
 ## Como executar localmente
@@ -126,13 +140,40 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
-**4. (Opcional) Carregar dados fictícios de demonstração**
+**3.1. Criar o arquivo de configuração** a partir do modelo (os valores padrão já funcionam; veja [Variáveis de ambiente](#variáveis-de-ambiente)):
+
+```bash
+cp .env.example .env
+```
+
+No Windows (cmd), use `copy .env.example .env`. O `.env` não é versionado; defina nele o `AMI_JWT_SEGREDO` para que os tokens continuem válidos após reiniciar a API.
+
+**4. Criar os usuários: carga de demonstração ou primeiro GESTOR**
+
+Todas as rotas de dados exigem login. Para explorar o projeto, carregue os dados fictícios de demonstração:
 
 ```bash
 python -m antimicrobiano.seed
 ```
 
-O comando cria o catálogo com 21 antimicrobianos classificados pela AWaRe, prescrições que geram **um exemplo de cada tipo de alerta** no dia da execução e um histórico de culturas para o antibiograma cumulativo. Execuções repetidas não duplicam dados; use `--reset` para recriar a base.
+O comando cria um **usuário fictício de cada perfil**, o catálogo com 21 antimicrobianos classificados pela AWaRe, prescrições que geram **um exemplo de cada tipo de alerta** no dia da execução e um histórico de culturas para o antibiograma cumulativo. Execuções repetidas não duplicam dados; use `--reset` para recriar a base.
+
+| Login | Perfil | Pode alterar |
+|---|---|---|
+| `gestor.demo` | GESTOR | Tudo, inclusive usuários |
+| `farmaceutico.demo` | FARMACEUTICO | Catálogo, prescrições e intervenções |
+| `infectologista.demo` | INFECTOLOGISTA | Prescrições e intervenções |
+| `laboratorio.demo` | LABORATORIO | Culturas e resultados |
+
+A senha de todos é `senha-demo` (ou o valor de `AMI_SENHA_DEMO`). Todos os perfis consultam o painel e os relatórios. **Use esses usuários apenas em demonstração.**
+
+Para uma base sem dados de demonstração, crie o primeiro GESTOR; ele cadastra os demais usuários em `POST /usuarios`:
+
+```bash
+python -m antimicrobiano.usuarios criar --login ana.souza --nome "Ana Souza" --perfil GESTOR
+```
+
+> Bases criadas antes da v1.0.0 não têm a tabela de usuários: recrie a base de demonstração com `python -m antimicrobiano.seed --reset`.
 
 **5. Iniciar a API**
 
@@ -140,19 +181,45 @@ O comando cria o catálogo com 21 antimicrobianos classificados pela AWaRe, pres
 uvicorn antimicrobiano.main:app --reload
 ```
 
-**6. Acessar a documentação interativa** em <http://127.0.0.1:8000/docs> (Swagger UI) ou <http://127.0.0.1:8000/redoc>. Com os dados de demonstração, comece por `GET /alertas`.
+**6. Acessar a documentação interativa** em <http://127.0.0.1:8000/docs> (Swagger UI) ou <http://127.0.0.1:8000/redoc>. Faça login em `POST /auth/login`, copie o `access_token`, clique em **Authorize** e cole o token; depois comece por `GET /alertas`.
 
-**7. Executar os testes e a análise estática**
+**7. Abrir o painel de alertas** em <http://127.0.0.1:8000/painel> e entrar com um dos usuários de demonstração. O painel mostra o resumo por severidade, os alertas agrupados de ALTA para BAIXA e, ao clicar em um alerta, a recomendação e as evidências usadas pela regra; é possível filtrar por setor e por data de referência.
+
+![Painel de alertas com o resumo por severidade e um alerta aberto mostrando a recomendação e as evidências](docs/img/painel-de-alertas.png)
+
+**8. Executar os testes e a análise estática**
 
 ```bash
 pytest --cov
 ```
 
+A suíte inclui testes unitários das regras (sem banco), testes de cada rota da API e um teste ponta a ponta (`tests/test_ponta_a_ponta.py`) que percorre o fluxo principal do PGA com login real de cada perfil: catálogo, prescrição, alertas, cultura, reavaliação, encerramento e relatórios.
+
 ```bash
 ruff check .
 ```
 
+```bash
+ruff format --check .
+```
+
+```bash
+bandit -c pyproject.toml -r src
+```
+
+O CI executa as mesmas verificações e **bloqueia** o pull request se o lint, a formatação ou a análise de segurança falharem ou se a cobertura ficar abaixo de 80%; o relatório de cobertura fica disponível como artefato do workflow.
+
+O workflow **Segurança** também roda a cada push, pull request e semanalmente: o [gitleaks](https://github.com/gitleaks/gitleaks) procura segredos versionados nos commits e o [pip-audit](https://pypi.org/project/pip-audit/) falha se alguma dependência tiver vulnerabilidade conhecida. Para auditar localmente:
+
+```bash
+pip install pip-audit && pip-audit --skip-editable
+```
+
+O **Dependabot** verifica toda segunda-feira as dependências Python, as actions do GitHub e a imagem base do Docker e abre pull requests para `develop` (`build(deps): …` / `ci(deps): …`), que só entram com o CI e o workflow Segurança verdes.
+
 ### Variáveis de ambiente
+
+As variáveis podem ser definidas no sistema ou no arquivo `.env` (modelo comentado em [`.env.example`](.env.example)); as do sistema têm prioridade. `AMI_ARQUIVO_ENV` aponta para outro arquivo, e vazio desliga a leitura.
 
 | Variável | Padrão | Descrição |
 |---|---|---|
@@ -161,8 +228,41 @@ ruff check .
 | `AMI_LIMITE_PROFILAXIA_DIAS` | `1` | Duração máxima recomendada de profilaxia (1 dia = 24 h). |
 | `AMI_JANELA_CULTURA_DIAS` | `7` | Dias antes do início da terapia em que uma cultura é considerada relevante. |
 | `AMI_MINIMO_ISOLADOS` | `30` | Mínimo de isolados para amostra suficiente no antibiograma cumulativo. |
+| `AMI_LOG_NIVEL` | `INFO` | Nível dos logs JSON (`DEBUG`, `INFO`, `WARNING`, `ERROR` ou `CRITICAL`). |
+| `AMI_JWT_SEGREDO` | *(gerado a cada início)* | Segredo de assinatura dos tokens, com **pelo menos 32 caracteres**. Sem ele, a API gera um segredo temporário e os tokens deixam de valer quando ela reinicia. **Obrigatório fora do ambiente de desenvolvimento.** |
+| `AMI_JWT_EXPIRACAO_MINUTOS` | `60` | Validade do token de acesso, em minutos. |
+| `AMI_SENHA_DEMO` | `senha-demo` | Senha dos usuários fictícios criados por `python -m antimicrobiano.seed`. |
 
 Os parâmetros clínicos variam entre protocolos institucionais; valores inválidos impedem a inicialização com uma mensagem que indica a variável.
+
+### Executar com Docker
+
+Alternativa ao passo a passo acima, sem instalar Python: requer [Docker](https://docs.docker.com/get-docker/) com o Compose.
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+A API fica em <http://127.0.0.1:8000> (painel em `/painel`). O banco SQLite é guardado no volume `dados` e sobrevive à recriação do contêiner, que roda com um usuário sem privilégios. Em outro terminal, carregue os dados de demonstração ou crie o primeiro GESTOR:
+
+```bash
+docker compose exec api python -m antimicrobiano.seed
+```
+
+```bash
+docker compose exec api python -m antimicrobiano.usuarios criar --login ana.souza --nome "Ana Souza" --perfil GESTOR
+```
+
+Para apagar os dados, use `docker compose down -v`.
+
+### Logs e diagnóstico
+
+Cada requisição gera uma linha de log em JSON na saída padrão, com método, rota, status, duração e um identificador. Esse identificador também volta no cabeçalho `X-Request-ID` e no campo `id_requisicao` das respostas de erro. Para ver só os logs estruturados, inicie o servidor com `--no-access-log`:
+
+```json
+{"momento": "2026-11-07T14:02:11.418+00:00", "nivel": "WARNING", "logger": "antimicrobiano.http", "mensagem": "GET /antimicrobianos/999 → 404", "id_requisicao": "5f1c…", "metodo": "GET", "rota": "/antimicrobianos/999", "status": 404, "duracao_ms": 3.2}
+```
 
 ## Exemplos de uso
 
@@ -175,17 +275,29 @@ curl http://127.0.0.1:8000/health
 ```json
 {
   "status": "ok",
-  "versao": "0.3.0",
+  "versao": "1.0.0",
   "aviso": "Ferramenta de apoio à decisão para fins acadêmicos: não substitui o julgamento clínico. Utilize apenas dados fictícios."
 }
 ```
 
 > No Windows, execute os exemplos no **Git Bash** ou use o Swagger UI em `/docs`, que monta as requisições pelo navegador.
 
+**Entrar e guardar o token** (RF17) — os exemplos abaixo usam o usuário de demonstração `farmaceutico.demo`:
+
+```bash
+TOKEN=$(curl -s -X POST http://127.0.0.1:8000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"login": "farmaceutico.demo", "senha": "senha-demo"}' \
+  | python -c "import json, sys; print(json.load(sys.stdin)['access_token'])")
+```
+
+Sem o token a API responde `401`; com um perfil sem permissão para a operação, `403`. Culturas e resultados são registrados pelo perfil LABORATORIO; obtenha o token dele da mesma forma, trocando o login para `laboratorio.demo` e guardando em `TOKEN_LAB`.
+
 **Cadastrar um antimicrobiano no catálogo** (RF01):
 
 ```bash
 curl -X POST http://127.0.0.1:8000/antimicrobianos \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"nome": "Meropenem", "classe": "Carbapenêmico", "categoria_aware": "WATCH", "uso_restrito": true}'
 ```
@@ -193,13 +305,14 @@ curl -X POST http://127.0.0.1:8000/antimicrobianos \
 **Listar antimicrobianos WATCH de uso restrito** (RF02):
 
 ```bash
-curl "http://127.0.0.1:8000/antimicrobianos?categoria_aware=WATCH&uso_restrito=true"
+curl -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:8000/antimicrobianos?categoria_aware=WATCH&uso_restrito=true"
 ```
 
 **Registrar uma prescrição** para um paciente pseudonimizado (RF03):
 
 ```bash
 curl -X POST http://127.0.0.1:8000/prescricoes \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"paciente_codigo": "PAC-0001", "setor": "UTI Adulto", "antimicrobiano_id": 1,
        "dose": "1 g", "intervalo_horas": 8, "via": "IV", "indicacao": "EMPIRICA",
@@ -210,19 +323,21 @@ curl -X POST http://127.0.0.1:8000/prescricoes \
 **Listar as prescrições ativas da UTI** (RF04):
 
 ```bash
-curl "http://127.0.0.1:8000/prescricoes?status=ATIVA&setor=UTI%20Adulto"
+curl -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:8000/prescricoes?status=ATIVA&setor=UTI%20Adulto"
 ```
 
 **Registrar a coleta e o resultado de uma cultura com antibiograma** (RF06):
 
 ```bash
 curl -X POST http://127.0.0.1:8000/culturas \
+  -H "Authorization: Bearer $TOKEN_LAB" \
   -H "Content-Type: application/json" \
   -d '{"paciente_codigo": "PAC-0001", "setor": "UTI Adulto", "material": "SANGUE"}'
 ```
 
 ```bash
 curl -X PUT http://127.0.0.1:8000/culturas/1/resultado \
+  -H "Authorization: Bearer $TOKEN_LAB" \
   -H "Content-Type: application/json" \
   -d '{"resultado": "POSITIVA", "microrganismo": "Klebsiella pneumoniae",
        "antibiograma": [{"antimicrobiano_id": 1, "interpretacao": "S"}]}'
@@ -231,13 +346,13 @@ curl -X PUT http://127.0.0.1:8000/culturas/1/resultado \
 **Consultar o painel de alertas** de uma data de referência (RF07–RF13):
 
 ```bash
-curl "http://127.0.0.1:8000/alertas?data_referencia=2026-11-06"
+curl -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:8000/alertas?data_referencia=2026-11-06"
 ```
 
 **Filtrar o painel** — apenas alertas de severidade ALTA da UTI (RF13):
 
 ```bash
-curl "http://127.0.0.1:8000/alertas?severidade=ALTA&setor=UTI%20Adulto"
+curl -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:8000/alertas?severidade=ALTA&setor=UTI%20Adulto"
 ```
 
 Resposta resumida de uma consulta sem filtros:
@@ -270,13 +385,20 @@ Resposta resumida de uma consulta sem filtros:
 **Gerar o antibiograma cumulativo** de um período (RF14):
 
 ```bash
-curl "http://127.0.0.1:8000/relatorios/antibiograma-cumulativo?inicio=2026-01-01&fim=2026-10-31&setor=UTI%20Adulto"
+curl -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:8000/relatorios/antibiograma-cumulativo?inicio=2026-01-01&fim=2026-10-31&setor=UTI%20Adulto"
+```
+
+**Consultar os indicadores de consumo** (dias de terapia — DOT) por antimicrobiano, categoria AWaRe e setor, com o percentual de uso ACCESS comparado à meta de 60% da OMS (RF15):
+
+```bash
+curl -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:8000/relatorios/indicadores?inicio=2026-10-01&fim=2026-10-31"
 ```
 
 ## Documentação do projeto
 
 | Documento | Conteúdo |
 |---|---|
+| [🗂️ Índice da documentação](docs/README.md) | Versão e data de revisão de cada documento e regra de sincronização documentação × código |
 | [📋 Termo de Abertura](docs/project-charter.md) | Justificativa, visão do produto, objetivos SMART, escopo, stakeholders, riscos e marcos |
 | [📐 Requisitos](docs/requisitos.md) | Requisitos funcionais (RF), não funcionais (RNF) e regras de negócio (RN) |
 | [🎭 Casos de Uso](docs/casos-de-uso.md) | Atores, diagrama e fluxos principal, alternativos e de exceção |
@@ -363,7 +485,7 @@ Versões no formato `MAJOR.MINOR.PATCH`, marcadas com **tags anotadas** na `main
 | `v0.1.1` | Hotfix: publicação automática das tags anotadas de versão | #35 | ✅ lançada em 05/11/2026 |
 | `v0.2.0` | Cadastros essenciais: catálogo, prescrições, reavaliação/encerramento e culturas | #9 a #12, #37 | ✅ lançada em 06/11/2026 |
 | `v0.3.0` | Motor de regras inteligente, painel de alertas, antibiograma cumulativo e dados de demonstração | #13 a #19 | ✅ lançada em 06/11/2026 |
-| `v1.0.0` | Gates de qualidade, indicadores DOT, duplicidade terapêutica, autenticação e interface web | #20 a #26 | 🗓️ |
+| `v1.0.0` | Feedback da Avaliação Técnica Week_01: indicadores DOT, duplicidade terapêutica, autenticação, interface web, gates de qualidade e segurança, Docker e documentação operacional | #20 a #26, #58 a #68 | ✅ lançada em 07/11/2026 |
 
 Versões publicadas: [tags](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/tags) · histórico: [CHANGELOG](CHANGELOG.md).
 
@@ -373,10 +495,15 @@ Versões publicadas: [tags](https://github.com/Antonio-avsp/Projeto_Antimicrobia
 Projeto_Antimicrobiano_Inteligente/
 ├── .github/
 │   ├── ISSUE_TEMPLATE/            # Templates de issue (funcionalidade, bug, documentação)
-│   ├── workflows/ci.yml           # Pipeline de CI (GitHub Actions)
+│   ├── workflows/ci.yml           # CI: qualidade (ruff, bandit), testes com cobertura e imagem Docker
+│   ├── workflows/seguranca.yml    # Segurança: gitleaks e pip-audit
 │   ├── workflows/tag-versao.yml   # Criação automática das tags de versão
+│   ├── dependabot.yml             # Atualização automática de dependências
 │   └── pull_request_template.md   # Template de Pull Request
 ├── docs/                          # Documentação de planejamento e engenharia
+│   ├── README.md                  # Índice e regra de sincronização documentação × código
+│   ├── adr/                       # Decisões de arquitetura (um arquivo por decisão)
+│   ├── img/                       # Capturas de tela
 │   ├── project-charter.md
 │   ├── requisitos.md
 │   ├── casos-de-uso.md
@@ -384,6 +511,7 @@ Projeto_Antimicrobiano_Inteligente/
 │   ├── arquitetura.md
 │   ├── modelo-de-dados.md
 │   ├── rastreabilidade.md
+│   ├── validacao-clinica.md
 │   └── glossario.md
 ├── src/antimicrobiano/            # Código-fonte da API
 │   ├── main.py                    # Application factory (create_app)
@@ -391,17 +519,25 @@ Projeto_Antimicrobiano_Inteligente/
 │   ├── database.py                # Engine e sessões do SQLAlchemy
 │   ├── models.py                  # Entidades ORM
 │   ├── enums.py                   # Enumerações do domínio (AWaRe…)
-│   ├── erros.py                   # Exceções de domínio → HTTP 404/409/422
+│   ├── erros.py                   # Exceções de domínio e formato único de erro
+│   ├── observabilidade.py         # Logs JSON e X-Request-ID
+│   ├── seguranca.py               # Hash de senhas e tokens JWT
 │   ├── seed.py                    # Carga de dados fictícios (python -m antimicrobiano.seed)
+│   ├── usuarios.py                # Cadastro de usuários (python -m antimicrobiano.usuarios)
 │   ├── texto.py                   # Normalização de nomes (RN01)
 │   ├── regras/                    # Motor de regras clínicas (Strategy)
 │   ├── routers/                   # Camada HTTP (rotas)
 │   ├── schemas/                   # Contratos Pydantic
-│   └── services/                  # Casos de uso e regras de negócio
+│   ├── services/                  # Casos de uso e regras de negócio
+│   └── web/                       # Interface web do painel (/painel)
 ├── tests/                         # Testes automatizados (pytest)
+├── .dockerignore
+├── .env.example                   # Modelo de configuração (copie para .env)
 ├── .gitignore
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
+├── Dockerfile
+├── docker-compose.yml
 ├── LICENSE
 ├── pyproject.toml                 # Metadados, dependências e configuração das ferramentas
 └── README.md

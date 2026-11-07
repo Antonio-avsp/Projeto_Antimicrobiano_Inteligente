@@ -30,6 +30,8 @@ flowchart LR
         UC04(["UC04 Registrar cultura e antibiograma"])
         UC05(["UC05 Consultar painel de alertas"])
         UC06(["UC06 Gerar antibiograma cumulativo"])
+        UC07(["UC07 Consultar indicadores de consumo"])
+        UC08(["UC08 Autenticar usuário e administrar acessos"])
         AVAL(["Avaliar regras clínicas"])
     end
 
@@ -44,6 +46,11 @@ flowchart LR
     lab --- UC04
     gestor --- UC01
     gestor --- UC06
+    gestor --- UC07
+    gestor --- UC08
+    farm --- UC08
+    infecto --- UC08
+    lab --- UC08
     UC05 -. "«include»" .-> AVAL
     AVAL --- motor
 ```
@@ -58,8 +65,8 @@ flowchart LR
 | UC04 | Registrar cultura e antibiograma | Analista de microbiologia | RF06 | #12 |
 | UC05 | Consultar painel de alertas inteligentes | Farmacêutico clínico, Médico infectologista | RF07 a RF13 | #13 a #16 |
 | UC06 | Gerar antibiograma cumulativo | Gestor da CCIH, Médico infectologista | RF14 | #17 |
-| UC07 | Consultar indicadores de consumo (planejado) | Gestor da CCIH | RF15 | #21 |
-| UC08 | Autenticar usuário (planejado) | Todos | RF17 | #24 |
+| UC07 | Consultar indicadores de consumo | Gestor da CCIH | RF15 | #21 |
+| UC08 | Autenticar usuário e administrar acessos | Todos (cadastro de usuários: Gestor da CCIH) | RF17 | #24 |
 
 ---
 
@@ -205,7 +212,7 @@ flowchart LR
 |---|---|
 | **Objetivo** | Obter a lista priorizada de intervenções do dia, gerada pelo motor de regras. |
 | **Atores** | Farmacêutico clínico e Médico infectologista (primários); Motor de regras (secundário) |
-| **Requisitos** | RF07 a RF13 · RN11 a RN18, RN21 · RNF01, RNF10 |
+| **Requisitos** | RF07 a RF13, RF16 · RN11 a RN18, RN21, RN22 · RNF01, RNF10 |
 | **Pré-condições** | Prescrições registradas (UC02). |
 | **Pós-condições** | Nenhum dado é alterado (consulta). A equipe executa as intervenções em UC02 e UC03. |
 
@@ -256,9 +263,68 @@ flowchart LR
 
 - **FE01 — Período inválido** (início posterior ao fim ou datas mal formatadas): `422`.
 
+### UC07 — Consultar indicadores de consumo
+
+| Item | Descrição |
+|---|---|
+| **Objetivo** | Acompanhar o consumo de antimicrobianos em dias de terapia (DOT) e a meta de uso ACCESS da OMS. |
+| **Atores** | Gestor da CCIH (primário), Farmacêutico clínico |
+| **Requisitos** | RF15 · RN20, RN23 |
+| **Pré-condições** | Prescrições registradas (UC02). |
+| **Pós-condições** | Relatório gerado (consulta, sem alteração de dados). |
+
+**Fluxo principal**
+
+1. O ator envia `GET /relatorios/indicadores?inicio=2026-10-01&fim=2026-10-31`.
+2. O sistema seleciona as prescrições que tiveram dias de uso no período, considerando o término (ou hoje, se ainda ativas).
+3. O sistema conta 1 DOT por paciente, antimicrobiano e dia (RN23).
+4. O sistema agrega por antimicrobiano, por categoria AWaRe e por setor e calcula o percentual ACCESS.
+5. O sistema responde `200` com o total, o percentual ACCESS, a comparação com a meta de 60% e as quebras.
+
+**Fluxos alternativos**
+
+- **FA01 — Filtro por setor (unidade):** com `setor=UTI Adulto`, apenas prescrições desse setor são consideradas.
+- **FA02 — Período omitido:** o sistema usa os últimos 30 dias.
+- **FA03 — Nenhum consumo no período:** o sistema responde `200` com total 0 e percentual ACCESS nulo.
+
+**Fluxos de exceção**
+
+- **FE01 — Período inválido** (início posterior ao fim ou datas mal formatadas): `422`.
+
 ---
 
-## 5. Casos de uso planejados (iteração 2)
+### UC08 — Autenticar usuário e administrar acessos
 
-- **UC07 — Consultar indicadores de consumo:** o gestor consulta os dias de terapia (DOT) por antimicrobiano e por categoria AWaRe em um período ([#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21)).
-- **UC08 — Autenticar usuário:** o usuário informa credenciais, recebe um token com expiração e passa a ter acesso conforme o perfil ([#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24)).
+| Item | Descrição |
+|---|---|
+| **Objetivo** | Garantir que apenas usuários autenticados acessem os dados e que cada um execute somente as operações do seu perfil, registrando a autoria das intervenções. |
+| **Atores** | Todos (autenticação); Gestor da CCIH (cadastro de usuários) |
+| **Requisitos** | RF17 · RN24, RN25 · RNF05 |
+| **Pré-condições** | Usuário cadastrado e ativo. O primeiro GESTOR é criado com `python -m antimicrobiano.usuarios criar` (ou pela carga de demonstração). |
+| **Pós-condições** | Token de acesso emitido; as requisições seguintes são atendidas conforme o perfil. |
+
+**Fluxo principal**
+
+1. O usuário envia `POST /auth/login` com login e senha.
+2. O sistema confere a senha com o hash armazenado e emite um token JWT assinado com o login, o perfil e a expiração (padrão: 60 minutos).
+3. O usuário envia as próximas requisições com o cabeçalho `Authorization: Bearer <token>`.
+4. Para cada requisição, o sistema valida o token, carrega o usuário ativo e verifica se o perfil permite a operação (RN24).
+5. Nas prescrições, reavaliações e encerramentos, o sistema grava o login do usuário como autor (RN25).
+
+**Fluxos alternativos**
+
+- **FA01 — Cadastro de usuário:** o GESTOR envia `POST /usuarios` com login, nome, perfil e senha; o sistema guarda apenas o hash da senha e responde `201`.
+- **FA02 — Consultar o próprio usuário:** `GET /auth/me` devolve os dados do dono do token.
+
+**Fluxos de exceção**
+
+- **FE01 — Credenciais inválidas:** login inexistente, senha errada ou usuário inativo → `401` com a mesma mensagem genérica.
+- **FE02 — Token ausente, inválido ou expirado:** `401` com `WWW-Authenticate: Bearer`.
+- **FE03 — Perfil sem permissão:** ex.: LABORATORIO tentando prescrever ou inativar um antimicrobiano → `403`.
+- **FE04 — Login já cadastrado:** `409`.
+
+---
+
+## 5. Casos de uso planejados
+
+Todos os casos de uso especificados foram implementados até a v1.0.0. Novos casos de uso entram nesta seção quando forem planejados.

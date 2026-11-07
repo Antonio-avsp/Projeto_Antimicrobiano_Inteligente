@@ -2,7 +2,7 @@
 
 from typing import ClassVar
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 AVISO_APOIO_A_DECISAO = (
     "Ferramenta de apoio à decisão para fins acadêmicos: não substitui o julgamento clínico. "
@@ -10,10 +10,25 @@ AVISO_APOIO_A_DECISAO = (
 )
 
 
-class MensagemErro(BaseModel):
-    """Erro de negócio (404, 409 ou 422)."""
+class CampoComErro(BaseModel):
+    """Campo rejeitado na validação da requisição."""
 
-    detail: str
+    campo: str = Field(examples=["categoria_aware"])
+    local: str = Field(examples=["body"], description="body, query, path ou header.")
+    mensagem: str = Field(
+        examples=["Valor inválido; use um destes: 'ACCESS', 'WATCH' ou 'RESERVE'."]
+    )
+
+
+class Erro(BaseModel):
+    """Formato único das respostas de erro da API."""
+
+    codigo: str = Field(examples=["RECURSO_NAO_ENCONTRADO"])
+    mensagem: str = Field(examples=["Antimicrobiano 999 não encontrado."])
+    campos: list[CampoComErro] = []
+    id_requisicao: str | None = Field(
+        default=None, description="Mesmo valor do cabeçalho X-Request-ID e do log da requisição."
+    )
 
 
 class AtualizacaoParcial(BaseModel):
@@ -31,8 +46,8 @@ class AtualizacaoParcial(BaseModel):
         return self
 
 
-RESPOSTA_404 = {404: {"model": MensagemErro, "description": "Recurso não encontrado"}}
-RESPOSTA_409 = {409: {"model": MensagemErro, "description": "Conflito de unicidade ou de estado"}}
-RESPOSTA_422_NEGOCIO = {
-    422: {"description": "Dados inválidos ou regra de negócio violada"},
-}
+RESPOSTA_401 = {401: {"model": Erro, "description": "Token ausente, inválido ou expirado"}}
+RESPOSTA_403 = {403: {"model": Erro, "description": "Perfil sem permissão para a operação"}}
+RESPOSTA_404 = {404: {"model": Erro, "description": "Recurso não encontrado"}}
+RESPOSTA_409 = {409: {"model": Erro, "description": "Conflito de unicidade ou de estado"}}
+RESPOSTA_422 = {422: {"model": Erro, "description": "Dados inválidos ou regra de negócio violada"}}
