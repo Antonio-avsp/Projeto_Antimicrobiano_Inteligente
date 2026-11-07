@@ -28,8 +28,13 @@ def app() -> FastAPI:
 
 
 def criar_usuario(app: FastAPI, login: str, perfil: Perfil) -> None:
-    """Cadastra um usuário (senha ``SENHA_TESTE``) direto no banco, sem depender de um GESTOR."""
+    """Cadastra um usuário (senha ``SENHA_TESTE``) direto no banco, sem depender de um GESTOR.
+
+    Não faz nada se o login já existir.
+    """
     with app.state.fabrica_sessoes() as sessao:
+        if sessao.query(Usuario.id).filter_by(login=login).scalar():
+            return
         sessao.add(
             Usuario(
                 login=login, nome=f"Usuário {login}", perfil=perfil, senha_hash=HASH_SENHA_TESTE
