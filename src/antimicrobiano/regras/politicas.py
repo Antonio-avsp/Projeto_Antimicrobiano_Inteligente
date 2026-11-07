@@ -1,8 +1,9 @@
-"""Regras de política de uso de antimicrobianos (RF09, RF12 — RN15, RN16)."""
+"""Regras de política de uso de antimicrobianos (RF09, RF12, RF16 — RN15, RN16, RN22)."""
 
 from antimicrobiano.enums import CategoriaAware, Indicacao, Severidade, TipoAlerta
 from antimicrobiano.models import Prescricao
 from antimicrobiano.regras.base import Alerta, ContextoAvaliacao, Regra
+from antimicrobiano.texto import normalizar
 
 CATEGORIAS_AMPLO_ESPECTRO = frozenset({CategoriaAware.WATCH, CategoriaAware.RESERVE})
 
@@ -60,5 +61,39 @@ class RegraSemCultura(Regra):
                 ),
                 categoria_aware=categoria.value,
                 janela_de_culturas_dias=contexto.parametros.janela_cultura_dias,
+            )
+        ]
+
+
+class RegraDuplicidadeTerapeutica(Regra):
+    """RN22: o paciente tem outra prescrição ativa de antimicrobiano da mesma classe."""
+
+    tipo = TipoAlerta.DUPLICIDADE_TERAPEUTICA
+    severidade = Severidade.MEDIA
+
+    def avaliar(self, prescricao: Prescricao, contexto: ContextoAvaliacao) -> list[Alerta]:
+        classe = normalizar(prescricao.antimicrobiano.classe)
+        duplicadas = [
+            outra
+            for outra in contexto.outras_prescricoes_ativas(prescricao)
+            if normalizar(outra.antimicrobiano.classe) == classe
+        ]
+        if not duplicadas:
+            return []
+        nomes = ", ".join(f"{outra.antimicrobiano.nome} (#{outra.id})" for outra in duplicadas)
+        return [
+            self._alerta(
+                prescricao,
+                mensagem=(
+                    f"O paciente também recebe {nomes}, da mesma classe "
+                    f"({prescricao.antimicrobiano.classe})."
+                ),
+                recomendacao=(
+                    "Revisar a associação: manter apenas um antimicrobiano da classe, salvo "
+                    "indicação clínica documentada (ex.: transição IV → VO, que exige suspender "
+                    "a via anterior)."
+                ),
+                classe=prescricao.antimicrobiano.classe,
+                prescricoes_da_mesma_classe=[outra.id for outra in duplicadas],
             )
         ]

@@ -23,7 +23,7 @@ Legenda: ✅ implementado · 🗓️ planejado
 | RF13 | Painel de alertas com filtros e resumo | UC05 | US13 | RN11, RN21 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13), [#16](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/16) | v0.3.0 | `tests/test_alertas.py`, `tests/test_desempenho.py` | ✅ |
 | RF14 | Antibiograma cumulativo | UC06 | US14 | RN19 | [#17](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/17) | v0.3.0 | `tests/test_relatorios.py` | ✅ |
 | RF15 | Indicadores de consumo (DOT) | UC07 | US15 | — | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) | v1.0.0 | — | 🗓️ |
-| RF16 | Alerta de duplicidade terapêutica | UC05 | US16 | — | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) | v1.0.0 | — | 🗓️ |
+| RF16 | Alerta de duplicidade terapêutica | UC05 | US16 | RN22 | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) | v1.0.0 | `tests/regras/test_regras_politicas.py`, `tests/test_alertas.py` | ✅ |
 | RF17 | Autenticação e perfis de acesso | UC08 | US17 | — | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) | v1.0.0 | — | 🗓️ |
 | RF18 | Interface web do painel | UC05 | US18 | — | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) | v1.0.0 | — | 🗓️ |
 
@@ -64,7 +64,7 @@ Legenda: ✅ implementado · 🗓️ planejado
 
 | Objetivo ([Termo de Abertura](project-charter.md#2-objetivos-smart-do-software)) | Evidência |
 |---|---|
-| OBJ-01 — 7 regras de alerta testadas | `src/antimicrobiano/regras/` e `tests/regras/` |
+| OBJ-01 — 7 regras de alerta testadas (8 com a duplicidade terapêutica da v1.0.0) | `src/antimicrobiano/regras/` e `tests/regras/` |
 | OBJ-02 — cobertura ≥ 80% | Relatório do `pytest --cov` no CI |
 | OBJ-03 — painel ≤ 2 s com 1.000 prescrições | `tests/test_desempenho.py` |
 | OBJ-04 — 100% dos RFs do MVP rastreados | Seção 1 deste documento |

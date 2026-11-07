@@ -35,6 +35,9 @@ class ContextoAvaliacao:
     data_referencia: date
     culturas_por_paciente: Mapping[str, Sequence[Cultura]] = field(default_factory=dict)
     parametros: ParametrosClinicos = field(default_factory=ParametrosClinicos)
+    prescricoes_ativas_por_paciente: Mapping[str, Sequence[Prescricao]] = field(
+        default_factory=dict
+    )
 
     def culturas_relevantes(self, prescricao: Prescricao) -> list[Cultura]:
         """Culturas do paciente coletadas na janela de relevância da prescrição (RN11)."""
@@ -43,6 +46,14 @@ class ContextoAvaliacao:
             cultura
             for cultura in self.culturas_por_paciente.get(prescricao.paciente_codigo, ())
             if inicio_janela <= cultura.data_coleta <= self.data_referencia
+        ]
+
+    def outras_prescricoes_ativas(self, prescricao: Prescricao) -> list[Prescricao]:
+        """Demais prescrições ativas do mesmo paciente iniciadas até a data de referência."""
+        return [
+            outra
+            for outra in self.prescricoes_ativas_por_paciente.get(prescricao.paciente_codigo, ())
+            if outra.id != prescricao.id and outra.data_inicio <= self.data_referencia
         ]
 
 

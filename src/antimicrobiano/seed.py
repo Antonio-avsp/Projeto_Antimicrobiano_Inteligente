@@ -251,6 +251,21 @@ def _cenarios_do_painel(sessao: Session, am: dict[str, Antimicrobiano], hoje: da
     )
     prolongada.reavaliacoes.append(Reavaliacao(data_reavaliacao=dias(6), conduta=Conduta.MANTER))
     sessao.add(prolongada)
+    # DUPLICIDADE_TERAPEUTICA: transição IV → VO sem suspender a cefalosporina IV
+    for nome, via, dose in (("Cefazolina", Via.IV, "1 g"), ("Cefalexina", Via.VO, "500 mg")):
+        sessao.add(
+            _prescricao(
+                am[nome],
+                paciente_codigo="PAC-1009",
+                setor="Clínica Médica",
+                indicacao=Indicacao.DIRIGIDA,
+                diagnostico="Celulite em membro inferior",
+                data_inicio=dias(1),
+                via=via,
+                dose=dose,
+                intervalo_horas=6,
+            )
+        )
     # Sem alertas: ACCESS empírico recente e uma prescrição já concluída
     sessao.add(
         _prescricao(

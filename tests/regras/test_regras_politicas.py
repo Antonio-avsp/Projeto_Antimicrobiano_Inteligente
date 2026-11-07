@@ -1,4 +1,4 @@
-"""Regras de política — US09 e US12 (RN15, RN16), testadas sem banco de dados."""
+"""Regras de política — US09, US12 e US16 (RN15, RN16, RN22), testadas sem banco de dados."""
 
 from datetime import date
 
@@ -6,8 +6,12 @@ import pytest
 
 from antimicrobiano.enums import CategoriaAware, Indicacao, Severidade, TipoAlerta
 from antimicrobiano.regras import ContextoAvaliacao
-from antimicrobiano.regras.politicas import RegraRestritoSemJustificativa, RegraSemCultura
-from tests.regras.fabricas import fabricar_antimicrobiano, fabricar_cultura
+from antimicrobiano.regras.politicas import (
+    RegraDuplicidadeTerapeutica,
+    RegraRestritoSemJustificativa,
+    RegraSemCultura,
+)
+from tests.regras.fabricas import fabricar_antimicrobiano, fabricar_cultura, fabricar_prescricao
 
 REFERENCIA = date(2026, 11, 5)
 
@@ -88,3 +92,75 @@ def test_access_ou_indicacao_nao_empirica_nao_exige_cultura(prescricao):
 
     for p in (prescricao(amoxicilina), profilaxia, dirigida):
         assert RegraSemCultura().avaliar(p, _contexto()) == []
+
+
+# --- RN22: duplicidade terapêutica --------------------------------------------------------------
+
+
+def _contexto_com(*prescricoes) -> ContextoAvaliacao:
+    por_paciente: dict[str, list] = {}
+    for item in prescricoes:
+        por_paciente.setdefault(item.paciente_codigo, []).append(item)
+    return ContextoAvaliacao(
+        data_referencia=REFERENCIA, prescricoes_ativas_por_paciente=por_paciente
+    )
+
+
+def _cefalosporinas():
+    classe = "Cefalosporina de 3ª geração"
+    return (
+        fabricar_antimicrobiano(nome="Ceftriaxona", classe=classe),
+        fabricar_antimicrobiano(nome="Cefotaxima", classe=classe),
+    )
+
+
+def test_mesma_classe_para_o_mesmo_paciente_alerta_cada_prescricao():
+    ceftriaxona, cefotaxima = _cefalosporinas()
+    primeira, segunda = fabricar_prescricao(ceftriaxona), fabricar_prescricao(cefotaxima)
+    contexto = _contexto_com(primeira, segunda)
+    regra = RegraDuplicidadeTerapeutica()
+
+    alertas = regra.avaliar(primeira, contexto) + regra.avaliar(segunda, contexto)
+
+    assert [(a.tipo, a.severidade) for a in alertas] == [
+        (TipoAlerta.DUPLICIDADE_TERAPEUTICA, Severidade.MEDIA)
+    ] * 2
+    assert alertas[0].evidencias["prescricoes_da_mesma_classe"] == [segunda.id]
+    assert alertas[1].evidencias["prescricoes_da_mesma_classe"] == [primeira.id]
+    assert "Cefotaxima" in alertas[0].mensagem
+
+
+def test_classe_comparada_sem_diferenciar_maiusculas_e_acentos():
+    primeira = fabricar_prescricao(fabricar_antimicrobiano(classe="Aminoglicosídeo"))
+    segunda = fabricar_prescricao(
+        fabricar_antimicrobiano(nome="Amicacina", classe="AMINOGLICOSIDEO")
+    )
+
+    alertas = RegraDuplicidadeTerapeutica().avaliar(primeira, _contexto_com(primeira, segunda))
+
+    assert len(alertas) == 1
+
+
+def test_classes_diferentes_nao_geram_alerta():
+    primeira = fabricar_prescricao(fabricar_antimicrobiano(classe="Cefalosporina de 3ª geração"))
+    segunda = fabricar_prescricao(
+        fabricar_antimicrobiano(nome="Gentamicina", classe="Aminoglicosídeo")
+    )
+
+    assert RegraDuplicidadeTerapeutica().avaliar(primeira, _contexto_com(primeira, segunda)) == []
+
+
+def test_pacientes_diferentes_nao_geram_alerta():
+    ceftriaxona, cefotaxima = _cefalosporinas()
+    primeira = fabricar_prescricao(ceftriaxona, paciente_codigo="PAC-0001")
+    segunda = fabricar_prescricao(cefotaxima, paciente_codigo="PAC-0002")
+
+    assert RegraDuplicidadeTerapeutica().avaliar(primeira, _contexto_com(primeira, segunda)) == []
+
+
+def test_prescricao_iniciada_apos_a_data_de_referencia_nao_conta():
+    ceftriaxona, cefotaxima = _cefalosporinas()
+    primeira = fabricar_prescricao(ceftriaxona)
+    futura = fabricar_prescricao(cefotaxima, data_inicio=date(2026, 11, 20))
+
+    assert RegraDuplicidadeTerapeutica().avaliar(primeira, _contexto_com(primeira, futura)) == []

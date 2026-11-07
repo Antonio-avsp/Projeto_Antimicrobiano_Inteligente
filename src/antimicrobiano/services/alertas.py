@@ -37,6 +37,7 @@ def avaliar(
         data_referencia=data_referencia,
         culturas_por_paciente=_culturas_por_paciente(sessao, prescricoes),
         parametros=parametros or ParametrosClinicos(),
+        prescricoes_ativas_por_paciente=_prescricoes_ativas_por_paciente(sessao, prescricoes),
     )
     alertas = (motor or criar_motor_padrao()).avaliar(prescricoes, contexto)
     return [
@@ -67,4 +68,19 @@ def _culturas_por_paciente(
         consulta = select(Cultura).where(Cultura.paciente_codigo.in_(codigos))
         for cultura in sessao.scalars(consulta):
             agrupadas[cultura.paciente_codigo].append(cultura)
+    return dict(agrupadas)
+
+
+def _prescricoes_ativas_por_paciente(
+    sessao: Session, prescricoes: list[Prescricao]
+) -> dict[str, list[Prescricao]]:
+    """Todas as prescrições ativas dos pacientes avaliados, mesmo fora do filtro de setor (RN22)."""
+    codigos = {prescricao.paciente_codigo for prescricao in prescricoes}
+    agrupadas: dict[str, list[Prescricao]] = defaultdict(list)
+    if codigos:
+        consulta = select(Prescricao).where(
+            Prescricao.status == StatusPrescricao.ATIVA, Prescricao.paciente_codigo.in_(codigos)
+        )
+        for prescricao in sessao.scalars(consulta):
+            agrupadas[prescricao.paciente_codigo].append(prescricao)
     return dict(agrupadas)

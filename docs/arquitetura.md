@@ -72,7 +72,7 @@ flowchart LR
         end
         subgraph negocio["Camada de negócio"]
             services["<b>services/</b><br/>Casos de uso e regras de negócio (RN01–RN10, RN19)"]
-            motor["<b>regras/</b><br/>Motor de regras + 7 regras clínicas (Strategy)"]
+            motor["<b>regras/</b><br/>Motor de regras + 8 regras clínicas (Strategy)"]
             erros["<b>erros.py</b><br/>Exceções de domínio → HTTP 404/409/422"]
         end
         subgraph dados["Camada de dados"]
@@ -112,7 +112,7 @@ As regras do motor **não acessam o banco**: recebem a prescrição e um context
 
 - Cada regra é uma classe que implementa `avaliar(prescricao, contexto) -> list[Alerta]`.
 - O `MotorDeRegras` recebe a lista de regras e as aplica a cada prescrição ativa.
-- Incluir uma regra (ex.: duplicidade terapêutica, #22) é criar uma nova classe e registrá-la no motor, **sem alterar as demais** (princípio aberto/fechado — RNF07).
+- Incluir uma regra é criar uma nova classe e registrá-la no motor, **sem alterar as demais** (princípio aberto/fechado — RNF07). Foi assim que a duplicidade terapêutica (#22, RN22) entrou na v1.0.0: `RegraDuplicidadeTerapeutica` em `regras/politicas.py`, com o contexto passando a expor as prescrições ativas do paciente.
 - Cada alerta carrega **evidências** (datas, dia de terapia, culturas, interpretações) para que a recomendação seja auditável (RNF10).
 
 ## 6. Fluxo de geração do painel de alertas
