@@ -209,11 +209,18 @@ sequenceDiagram
 
 ## 8. Decisões de arquitetura
 
-| Decisão | Alternativas consideradas | Motivo |
-|---|---|---|
-| **Python + FastAPI** | Flask, Django REST, Node.js/Express | Validação declarativa com Pydantic, OpenAPI/Swagger automático (RNF03) e tipagem que facilita testes. |
-| **SQLite + SQLAlchemy 2.0** | PostgreSQL, arquivos JSON | Zero configuração e portabilidade (RNF06); o ORM permite migrar para PostgreSQL só trocando `AMI_DATABASE_URL` (RNF02). |
-| **Motor de regras próprio (Strategy)** | Motor de regras de terceiros, aprendizado de máquina | Regras clínicas simples, explicáveis e testáveis; não há dados reais para treinar modelos. |
-| **Alertas calculados sob demanda** | Persistir alertas em tabela | Os alertas sempre refletem o estado atual; resolver a causa (ex.: registrar reavaliação) encerra o alerta automaticamente. |
-| **Paciente apenas por código** | Cadastro de pacientes | Minimização de dados (LGPD — RNF04); a identificação fica no prontuário de origem. |
-| **pytest + GitHub Actions** | unittest, outros serviços de CI | Padrão de mercado, gratuito e integrado ao GitHub (RNF08, RNF12). |
+As decisões são registradas em [ADRs](adr/README.md), um arquivo por decisão, com contexto, alternativas e consequências:
+
+| ADR | Decisão |
+|---|---|
+| [0001](adr/0001-python-e-fastapi.md) | Python e FastAPI na API REST |
+| [0002](adr/0002-sqlite-e-sqlalchemy.md) | SQLite com SQLAlchemy 2.0 |
+| [0003](adr/0003-motor-de-regras-strategy.md) | Motor de regras próprio no padrão Strategy |
+| [0004](adr/0004-alertas-calculados-sob-demanda.md) | Alertas calculados sob demanda |
+| [0005](adr/0005-paciente-por-codigo.md) | Paciente identificado apenas por código |
+| [0006](adr/0006-pytest-e-github-actions.md) | pytest e GitHub Actions com gates de qualidade |
+| [0007](adr/0007-autenticacao-jwt-e-perfis.md) | Autenticação por token JWT e perfis de acesso |
+| [0008](adr/0008-formato-unico-de-erro.md) | Formato único de erro com mensagens em português |
+| [0009](adr/0009-logs-estruturados.md) | Logs estruturados em JSON com identificador da requisição |
+| [0010](adr/0010-interface-web-estatica.md) | Interface web estática servida pela própria API |
+| [0011](adr/0011-execucao-em-docker.md) | Execução reprodutível com Docker |
