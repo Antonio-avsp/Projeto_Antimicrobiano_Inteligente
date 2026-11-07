@@ -41,3 +41,23 @@ jobs:
 
       - name: Executar testes com cobertura
         run: pytest --cov --cov-report=term-missing
+
+  docker:
+    name: Imagem Docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obter o código
+        uses: actions/checkout@v5
+
+      - name: Construir a imagem
+        run: docker build -t antimicrobiano-inteligente:ci .
+
+      - name: Verificar se a API sobe no contêiner
+        run: |
+          docker run -d --name ami -p 8000:8000 antimicrobiano-inteligente:ci
+          for tentativa in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/health; then exit 0; fi
+            sleep 1
+          done
+          docker logs ami
+          exit 1
