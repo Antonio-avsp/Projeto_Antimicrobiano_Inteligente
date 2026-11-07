@@ -22,6 +22,7 @@ ruff check .        # análise estática
 | `bugfix/issue-NN-descricao` | `develop` | `develop` (via PR) | Correção de defeito ainda não liberado ou não urgente (entra na próxima versão). |
 | `release/vX.Y.Z` | `develop` | `main` (via PR) e `develop` | Preparação da versão: número de versão, CHANGELOG e ajustes finais. |
 | `hotfix/vX.Y.Z` | `main` | `main` (via PR) e `develop` | Correção urgente de defeito em produção. |
+| `dependabot/*` | `develop` | `develop` (via PR) | Criada automaticamente pelo Dependabot toda segunda-feira para atualizar dependências (pip, GitHub Actions e imagem Docker). Revise o changelog da dependência e só faça o merge com o CI e o workflow Segurança verdes. |
 
 ### Passo a passo para resolver uma issue
 
@@ -64,7 +65,7 @@ refactor(regras): injetar parâmetros clínicos no motor (#18)
 
 - Base: `develop` para branches `feature/*`; `main` para `release/*` e `hotfix/*`.
 - Título no padrão Conventional Commits; descrição com `Closes #N`.
-- O pipeline de CI deve estar verde.
+- Os workflows **CI** (qualidade, testes e imagem Docker) e **Segurança** (gitleaks e pip-audit) devem estar verdes.
 - Merge com *merge commit* (`--no-ff`), preservando os commits atômicos e a topologia do Git Flow.
 
 > **Fechamento automático de issues:** o GitHub só interpreta `Closes #N` em PRs cuja base é a branch padrão (`main`). Por isso, os PRs de feature para `develop` registram a referência (rastreabilidade) e o PR de release `release/vX.Y.Z → main` lista `Closes #N` de todas as issues da versão, fechando-as no momento em que chegam à produção.
@@ -87,6 +88,6 @@ git push origin v0.2.0
 
 - [ ] Critérios de aceite da issue atendidos
 - [ ] Testes automatizados cobrindo os cenários Gherkin da história
-- [ ] `pytest` e `ruff check .` sem erros
+- [ ] `pytest --cov` (cobertura ≥ 80%), `ruff check .`, `ruff format --check .` e `bandit -c pyproject.toml -r src` sem erros
 - [ ] README e documentação em `docs/` atualizados (incluindo a matriz de rastreabilidade)
 - [ ] PR mesclado em `develop` com referência à issue

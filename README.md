@@ -202,6 +202,8 @@ O workflow **Segurança** também roda a cada push, pull request e semanalmente:
 pip install pip-audit && pip-audit --skip-editable
 ```
 
+O **Dependabot** verifica toda segunda-feira as dependências Python, as actions do GitHub e a imagem base do Docker e abre pull requests para `develop` (`build(deps): …` / `ci(deps): …`), que só entram com o CI e o workflow Segurança verdes.
+
 ### Variáveis de ambiente
 
 As variáveis podem ser definidas no sistema ou no arquivo `.env` (modelo comentado em [`.env.example`](.env.example)); as do sistema têm prioridade. `AMI_ARQUIVO_ENV` aponta para outro arquivo, e vazio desliga a leitura.
