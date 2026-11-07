@@ -180,6 +180,8 @@ uvicorn antimicrobiano.main:app --reload
 pytest --cov
 ```
 
+A suíte inclui testes unitários das regras (sem banco), testes de cada rota da API e um teste ponta a ponta (`tests/test_ponta_a_ponta.py`) que percorre o fluxo principal do PGA com login real de cada perfil: catálogo, prescrição, alertas, cultura, reavaliação, encerramento e relatórios.
+
 ```bash
 ruff check .
 ```

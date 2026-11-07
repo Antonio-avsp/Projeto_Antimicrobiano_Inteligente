@@ -38,7 +38,7 @@ Legenda: ✅ implementado · 🗓️ planejado
 | RNF05 | Segurança | #6, #24, #60 | Testes de validação (422), `tests/test_autenticacao.py`, `.gitignore` com `.env.example` versionado (`tests/test_config.py`) e revisão de PR |
 | RNF06 | Portabilidade | #6, #7, #61 | Pipeline de CI em Python 3.11, 3.12 e 3.13 e job de build da imagem Docker |
 | RNF07 | Manutenibilidade | #13, #18, #20 | Motor Strategy; ruff |
-| RNF08 | Testabilidade | #6, #20 | `pytest --cov` (meta ≥ 80%) |
+| RNF08 | Testabilidade | #6, #20, #63 | `pytest --cov` (meta ≥ 80%) e teste ponta a ponta do fluxo principal em `tests/test_ponta_a_ponta.py` |
 | RNF09 | Integridade | #9 | Testes de inativação lógica e chaves estrangeiras |
 | RNF10 | Transparência clínica | #13, #16 | `tests/test_alertas.py` verifica mensagem, recomendação e evidências |
 | RNF11 | Configurabilidade | #18 | `tests/test_config.py` |
