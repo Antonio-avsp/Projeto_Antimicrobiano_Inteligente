@@ -169,7 +169,25 @@ sequenceDiagram
 | `GET` | `/relatorios/antibiograma-cumulativo` | Antibiograma cumulativo | RF14 |
 | `GET` | `/relatorios/indicadores` | Indicadores de consumo (DOT) por antimicrobiano, categoria AWaRe e setor | RF15 |
 
-**Convenção de erros:** `404` recurso inexistente · `409` conflito de estado ou de unicidade · `422` dados inválidos ou regra de negócio violada. Os erros de negócio retornam `{"detail": "mensagem em português"}`.
+**Convenção de erros:** `404` recurso inexistente · `405` método não permitido · `409` conflito de estado ou de unicidade · `422` dados inválidos ou regra de negócio violada. Todas as respostas de erro — de negócio, de validação e do próprio framework — seguem o esquema único `Erro` (`erros.py`), com mensagens em português:
+
+```json
+{
+  "codigo": "VALIDACAO",
+  "mensagem": "Dados inválidos: verifique os campos informados.",
+  "campos": [
+    {"campo": "categoria_aware", "local": "body", "mensagem": "Valor inválido; use um destes: 'ACCESS', 'WATCH' ou 'RESERVE'."}
+  ]
+}
+```
+
+| `codigo` | Status | Quando |
+|---|---|---|
+| `RECURSO_NAO_ENCONTRADO` | 404 | Recurso ou rota inexistente |
+| `METODO_NAO_PERMITIDO` | 405 | Método HTTP não aceito pela rota |
+| `CONFLITO` | 409 | Unicidade ou estado do recurso (ex.: prescrição encerrada) |
+| `REGRA_DE_NEGOCIO` | 422 | Dados bem formados que violam uma regra de negócio |
+| `VALIDACAO` | 422 | Campo ausente, tipo ou formato inválido (`campos` indica cada problema) |
 
 ## 8. Decisões de arquitetura
 
