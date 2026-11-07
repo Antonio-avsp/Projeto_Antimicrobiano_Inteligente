@@ -1,6 +1,7 @@
 """Sincronização documentação × código (regra em docs/README.md)."""
 
 import re
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -81,3 +82,12 @@ def test_checklist_clinico_cobre_todas_as_regras_do_motor():
 
     for tipo in TipoAlerta:
         assert f"`{tipo.value}`" in checklist
+
+
+def test_versao_declarada_no_manifesto_de_build_igual_a_do_pacote():
+    """A versão fica explícita no pyproject.toml (manifesto de build) e no pacote, sincronizadas."""
+    with (RAIZ / "pyproject.toml").open("rb") as arquivo:
+        projeto = tomllib.load(arquivo)["project"]
+
+    assert projeto["version"] == __version__
+    assert "version" not in projeto.get("dynamic", [])

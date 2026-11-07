@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "antimicrobiano-inteligente"
-dynamic = ["version"]
+version = "1.0.0"
 description = "API de apoio ao gerenciamento do uso de antimicrobianos (stewardship) com motor de regras explicável."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -32,9 +32,6 @@ dev = [
     "ruff>=0.6",
     "bandit[toml]>=1.7",
 ]
-
-[tool.setuptools.dynamic]
-version = { attr = "antimicrobiano.__version__" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
