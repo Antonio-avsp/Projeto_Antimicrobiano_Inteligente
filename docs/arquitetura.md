@@ -56,6 +56,8 @@ flowchart TB
     class db banco
 ```
 
+**Implantação:** a API roda como um único processo Uvicorn. Para execução reprodutível, o `Dockerfile` gera uma imagem `python:3.12-slim` com usuário sem privilégios, e o `docker-compose.yml` monta o banco SQLite no volume `dados` e lê a configuração do `.env`. O CI constrói a imagem e verifica o `/health` a cada push e pull request.
+
 ## 3. Nível 3 — Diagrama de componentes da API
 
 ```mermaid

@@ -202,6 +202,27 @@ As variáveis podem ser definidas no sistema ou no arquivo `.env` (modelo coment
 
 Os parâmetros clínicos variam entre protocolos institucionais; valores inválidos impedem a inicialização com uma mensagem que indica a variável.
 
+### Executar com Docker
+
+Alternativa ao passo a passo acima, sem instalar Python: requer [Docker](https://docs.docker.com/get-docker/) com o Compose.
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+A API fica em <http://127.0.0.1:8000> (painel em `/painel`). O banco SQLite é guardado no volume `dados` e sobrevive à recriação do contêiner, que roda com um usuário sem privilégios. Em outro terminal, carregue os dados de demonstração ou crie o primeiro GESTOR:
+
+```bash
+docker compose exec api python -m antimicrobiano.seed
+```
+
+```bash
+docker compose exec api python -m antimicrobiano.usuarios criar --login ana.souza --nome "Ana Souza" --perfil GESTOR
+```
+
+Para apagar os dados, use `docker compose down -v`.
+
 ### Logs e diagnóstico
 
 Cada requisição gera uma linha de log em JSON na saída padrão, com método, rota, status, duração e um identificador. Esse identificador também volta no cabeçalho `X-Request-ID` e no campo `id_requisicao` das respostas de erro. Para ver só os logs estruturados, inicie o servidor com `--no-access-log`:
