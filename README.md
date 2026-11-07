@@ -77,6 +77,16 @@ Legenda: ✅ implementado · 🚧 em desenvolvimento · 🗓️ planejado
 | Alerta de duplicidade terapêutica | RF16 | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) | v1.0.0 | ✅ |
 | Autenticação JWT e perfis de acesso (farmacêutico, infectologista, laboratório e gestor) | RF17 | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) | v1.0.0 | ✅ |
 | Interface web do painel de alertas (`/painel`) | RF18 | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) | v1.0.0 | ✅ |
+| Formato único de erro com mensagens em português | RNF03 | [#58](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/58) | v1.0.0 | ✅ |
+| Logs estruturados em JSON com identificador da requisição | RNF13 | [#59](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/59) | v1.0.0 | ✅ |
+| Configuração por arquivo `.env` (modelo `.env.example`) | RNF05, RNF11 | [#60](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/60) | v1.0.0 | ✅ |
+| Execução com Docker e docker-compose | RNF06 | [#61](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/61) | v1.0.0 | ✅ |
+| Teste ponta a ponta do fluxo principal | RNF08 | [#63](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/63) | v1.0.0 | ✅ |
+| Varredura de segredos (gitleaks) e auditoria de dependências (pip-audit) | RNF05 | [#64](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/64) | v1.0.0 | ✅ |
+| Dependabot para dependências, actions e imagem Docker | RNF05, RNF07 | [#65](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/65) | v1.0.0 | ✅ |
+| Índice da documentação e regra de sincronização | RNF12 | [#66](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/66) | v1.0.0 | ✅ |
+| Decisões de arquitetura em ADRs | RNF07 | [#67](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/67) | v1.0.0 | ✅ |
+| Checklist de validação clínica das regras (fontes e campos de revisão) | RNF10 | [#68](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/68) | v1.0.0 | 🚧 aguarda revisão por especialista |
 
 O detalhamento de cada requisito está em [docs/requisitos.md](docs/requisitos.md) e a ligação requisito → issue → teste em [docs/rastreabilidade.md](docs/rastreabilidade.md).
 
@@ -89,8 +99,11 @@ O detalhamento de cada requisito está em [docs/requisitos.md](docs/requisitos.m
 | Validação | Pydantic v2 | Contratos de entrada e saída tipados |
 | Persistência | SQLite + SQLAlchemy 2.0 | Zero configuração; troca para PostgreSQL apenas por variável de ambiente |
 | Testes | pytest, pytest-cov, httpx | Testes de unidade e de API com relatório de cobertura |
-| Qualidade | ruff | Lint e formatação no padrão PEP 8 |
-| CI | GitHub Actions | Testes automáticos em cada push e pull request |
+| Autenticação | PyJWT + scrypt (biblioteca padrão) | Token Bearer com expiração e senhas apenas em hash |
+| Interface web | HTML, CSS e JavaScript puros | Painel servido pela própria API, sem etapa de build |
+| Qualidade | ruff, bandit | Lint, formatação no padrão PEP 8 e análise de segurança do código |
+| CI e segurança | GitHub Actions, gitleaks, pip-audit, Dependabot | Testes, gates de qualidade, varredura de segredos e de vulnerabilidades em cada push e pull request |
+| Execução | Docker + docker-compose | Ambiente reprodutível com o banco em volume |
 | Documentação | Markdown + Mermaid | Diagramas versionados junto com o código e renderizados pelo GitHub |
 
 ## Como executar localmente
@@ -262,7 +275,7 @@ curl http://127.0.0.1:8000/health
 ```json
 {
   "status": "ok",
-  "versao": "0.3.0",
+  "versao": "1.0.0",
   "aviso": "Ferramenta de apoio à decisão para fins acadêmicos: não substitui o julgamento clínico. Utilize apenas dados fictícios."
 }
 ```
@@ -472,7 +485,7 @@ Versões no formato `MAJOR.MINOR.PATCH`, marcadas com **tags anotadas** na `main
 | `v0.1.1` | Hotfix: publicação automática das tags anotadas de versão | #35 | ✅ lançada em 05/11/2026 |
 | `v0.2.0` | Cadastros essenciais: catálogo, prescrições, reavaliação/encerramento e culturas | #9 a #12, #37 | ✅ lançada em 06/11/2026 |
 | `v0.3.0` | Motor de regras inteligente, painel de alertas, antibiograma cumulativo e dados de demonstração | #13 a #19 | ✅ lançada em 06/11/2026 |
-| `v1.0.0` | Gates de qualidade, indicadores DOT, duplicidade terapêutica, autenticação e interface web | #20 a #26 | 🗓️ |
+| `v1.0.0` | Feedback da Avaliação Técnica Week_01: indicadores DOT, duplicidade terapêutica, autenticação, interface web, gates de qualidade e segurança, Docker e documentação operacional | #20 a #26, #58 a #68 | ✅ lançada em 07/11/2026 |
 
 Versões publicadas: [tags](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/tags) · histórico: [CHANGELOG](CHANGELOG.md).
 
@@ -482,10 +495,15 @@ Versões publicadas: [tags](https://github.com/Antonio-avsp/Projeto_Antimicrobia
 Projeto_Antimicrobiano_Inteligente/
 ├── .github/
 │   ├── ISSUE_TEMPLATE/            # Templates de issue (funcionalidade, bug, documentação)
-│   ├── workflows/ci.yml           # Pipeline de CI (GitHub Actions)
+│   ├── workflows/ci.yml           # CI: qualidade (ruff, bandit), testes com cobertura e imagem Docker
+│   ├── workflows/seguranca.yml    # Segurança: gitleaks e pip-audit
 │   ├── workflows/tag-versao.yml   # Criação automática das tags de versão
+│   ├── dependabot.yml             # Atualização automática de dependências
 │   └── pull_request_template.md   # Template de Pull Request
 ├── docs/                          # Documentação de planejamento e engenharia
+│   ├── README.md                  # Índice e regra de sincronização documentação × código
+│   ├── adr/                       # Decisões de arquitetura (um arquivo por decisão)
+│   ├── img/                       # Capturas de tela
 │   ├── project-charter.md
 │   ├── requisitos.md
 │   ├── casos-de-uso.md
@@ -493,6 +511,7 @@ Projeto_Antimicrobiano_Inteligente/
 │   ├── arquitetura.md
 │   ├── modelo-de-dados.md
 │   ├── rastreabilidade.md
+│   ├── validacao-clinica.md
 │   └── glossario.md
 ├── src/antimicrobiano/            # Código-fonte da API
 │   ├── main.py                    # Application factory (create_app)
@@ -500,17 +519,25 @@ Projeto_Antimicrobiano_Inteligente/
 │   ├── database.py                # Engine e sessões do SQLAlchemy
 │   ├── models.py                  # Entidades ORM
 │   ├── enums.py                   # Enumerações do domínio (AWaRe…)
-│   ├── erros.py                   # Exceções de domínio → HTTP 404/409/422
+│   ├── erros.py                   # Exceções de domínio e formato único de erro
+│   ├── observabilidade.py         # Logs JSON e X-Request-ID
+│   ├── seguranca.py               # Hash de senhas e tokens JWT
 │   ├── seed.py                    # Carga de dados fictícios (python -m antimicrobiano.seed)
+│   ├── usuarios.py                # Cadastro de usuários (python -m antimicrobiano.usuarios)
 │   ├── texto.py                   # Normalização de nomes (RN01)
 │   ├── regras/                    # Motor de regras clínicas (Strategy)
 │   ├── routers/                   # Camada HTTP (rotas)
 │   ├── schemas/                   # Contratos Pydantic
-│   └── services/                  # Casos de uso e regras de negócio
+│   ├── services/                  # Casos de uso e regras de negócio
+│   └── web/                       # Interface web do painel (/painel)
 ├── tests/                         # Testes automatizados (pytest)
+├── .dockerignore
+├── .env.example                   # Modelo de configuração (copie para .env)
 ├── .gitignore
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
+├── Dockerfile
+├── docker-compose.yml
 ├── LICENSE
 ├── pyproject.toml                 # Metadados, dependências e configuração das ferramentas
 └── README.md
