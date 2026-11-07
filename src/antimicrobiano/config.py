@@ -1,10 +1,17 @@
-"""Configuração da aplicação lida de variáveis de ambiente (prefixo ``AMI_``)."""
+"""Configuração da aplicação lida de variáveis de ambiente (prefixo ``AMI_``).
+
+Além das variáveis do sistema, é lido o arquivo ``.env`` do diretório atual (copie o
+``.env.example``). As variáveis já definidas no sistema têm prioridade sobre o arquivo.
+``AMI_ARQUIVO_ENV`` indica outro arquivo; vazio desliga a leitura.
+"""
 
 from __future__ import annotations
 
 import os
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass, field
+from pathlib import Path
 
 DATABASE_URL_PADRAO = "sqlite:///./antimicrobiano.db"
 NIVEIS_DE_LOG = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
@@ -20,6 +27,44 @@ VARIAVEIS_PARAMETROS = {
 
 class ConfiguracaoInvalida(ValueError):
     """Valor de configuração inválido; a mensagem indica a variável de ambiente."""
+
+
+ARQUIVO_ENV_PADRAO = ".env"
+_NOME_DE_VARIAVEL = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def ler_arquivo_env(caminho: str | Path) -> dict[str, str]:
+    """Lê um arquivo ``CHAVE=valor`` (uma por linha); ``#`` inicia comentário.
+
+    Aceita ``export CHAVE=valor`` e valores entre aspas simples ou duplas. Arquivo inexistente
+    resulta em dicionário vazio.
+    """
+    arquivo = Path(caminho)
+    if not arquivo.is_file():
+        return {}
+    valores: dict[str, str] = {}
+    for numero, linha in enumerate(arquivo.read_text(encoding="utf-8").splitlines(), start=1):
+        linha = linha.strip()
+        if not linha or linha.startswith("#"):
+            continue
+        chave, separador, valor = linha.removeprefix("export ").partition("=")
+        chave, valor = chave.strip(), valor.strip()
+        if not separador or not _NOME_DE_VARIAVEL.match(chave):
+            raise ConfiguracaoInvalida(
+                f"Linha {numero} de {arquivo} inválida: use o formato CHAVE=valor."
+            )
+        if len(valor) >= 2 and valor[0] == valor[-1] and valor[0] in "\"'":
+            valor = valor[1:-1]
+        elif " #" in valor:
+            valor = valor.split(" #", 1)[0].rstrip()
+        valores[chave] = valor
+    return valores
+
+
+def ambiente_completo() -> dict[str, str]:
+    """Variáveis do arquivo ``.env`` sobrepostas pelas variáveis do sistema."""
+    caminho = os.environ.get("AMI_ARQUIVO_ENV", ARQUIVO_ENV_PADRAO)
+    return {**(ler_arquivo_env(caminho) if caminho else {}), **os.environ}
 
 
 @dataclass(frozen=True)
@@ -52,7 +97,7 @@ class ParametrosClinicos:
     def do_ambiente(cls, ambiente: Mapping[str, str] | None = None) -> ParametrosClinicos:
         """Lê ``AMI_TIMEOUT_DIAS``, ``AMI_LIMITE_PROFILAXIA_DIAS``, ``AMI_JANELA_CULTURA_DIAS``
         e ``AMI_MINIMO_ISOLADOS``; variáveis ausentes mantêm o valor padrão."""
-        ambiente = os.environ if ambiente is None else ambiente
+        ambiente = ambiente_completo() if ambiente is None else ambiente
         valores: dict[str, int] = {}
         for nome, variavel in VARIAVEIS_PARAMETROS.items():
             bruto = ambiente.get(variavel, "").strip()
@@ -106,17 +151,18 @@ class Configuracao:
 
         ``AMI_DATABASE_URL`` permite trocar o banco (ex.: PostgreSQL) sem alterar código (RNF02).
         """
+        ambiente = ambiente_completo()
         return cls(
-            database_url=os.getenv("AMI_DATABASE_URL", DATABASE_URL_PADRAO),
-            parametros=ParametrosClinicos.do_ambiente(),
-            log_nivel=os.getenv("AMI_LOG_NIVEL", "INFO").strip().upper() or "INFO",
-            jwt_segredo=os.getenv("AMI_JWT_SEGREDO") or None,
-            jwt_expiracao_minutos=_inteiro_do_ambiente("AMI_JWT_EXPIRACAO_MINUTOS", 60),
+            database_url=ambiente.get("AMI_DATABASE_URL") or DATABASE_URL_PADRAO,
+            parametros=ParametrosClinicos.do_ambiente(ambiente),
+            log_nivel=ambiente.get("AMI_LOG_NIVEL", "").strip().upper() or "INFO",
+            jwt_segredo=ambiente.get("AMI_JWT_SEGREDO") or None,
+            jwt_expiracao_minutos=_inteiro_do_ambiente(ambiente, "AMI_JWT_EXPIRACAO_MINUTOS", 60),
         )
 
 
-def _inteiro_do_ambiente(variavel: str, padrao: int) -> int:
-    bruto = os.getenv(variavel, "").strip()
+def _inteiro_do_ambiente(ambiente: Mapping[str, str], variavel: str, padrao: int) -> int:
+    bruto = ambiente.get(variavel, "").strip()
     if not bruto:
         return padrao
     try:

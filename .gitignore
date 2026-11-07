@@ -22,9 +22,10 @@ coverage.xml
 *.db
 *.sqlite3
 
-# Variáveis de ambiente e segredos
+# Variáveis de ambiente e segredos (o modelo .env.example é versionado)
 .env
 .env.*
+!.env.example
 
 # IDEs e sistema operacional
 .vscode/

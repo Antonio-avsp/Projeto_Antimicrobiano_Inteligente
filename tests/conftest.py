@@ -21,6 +21,12 @@ HASH_SENHA_TESTE = gerar_hash_de_senha(
 )  # calculado uma vez: o scrypt é lento de propósito
 
 
+@pytest.fixture(autouse=True)
+def sem_arquivo_env(monkeypatch):
+    """Isola os testes de um .env local do desenvolvedor."""
+    monkeypatch.setenv("AMI_ARQUIVO_ENV", "")
+
+
 @pytest.fixture
 def app() -> FastAPI:
     """Aplicação isolada por teste, com banco em memória."""

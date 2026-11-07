@@ -15,14 +15,13 @@ servem apenas para demonstração e não devem existir em um ambiente real.
 from __future__ import annotations
 
 import argparse
-import os
 import random
 from datetime import date, timedelta
 
 from sqlalchemy import Engine, func, select
 from sqlalchemy.orm import Session
 
-from antimicrobiano.config import Configuracao
+from antimicrobiano.config import Configuracao, ambiente_completo
 from antimicrobiano.database import Base, criar_engine, criar_fabrica_sessoes
 from antimicrobiano.enums import (
     CategoriaAware,
@@ -372,7 +371,8 @@ def _usuarios_demo(sessao: Session, senha: str) -> None:
 def carregar(sessao: Session, hoje: date | None = None, senha: str | None = None) -> dict[str, int]:
     """Insere usuários, catálogo, cenários do painel e histórico microbiológico."""
     hoje = hoje or date.today()
-    _usuarios_demo(sessao, senha or os.getenv("AMI_SENHA_DEMO") or SENHA_DEMO_PADRAO)
+    senha = senha or ambiente_completo().get("AMI_SENHA_DEMO") or SENHA_DEMO_PADRAO
+    _usuarios_demo(sessao, senha)
     antimicrobianos = _catalogo(sessao)
     _cenarios_do_painel(sessao, antimicrobianos, hoje)
     _historico_microbiologico(sessao, antimicrobianos, hoje)
