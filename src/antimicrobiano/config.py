@@ -7,6 +7,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 
 DATABASE_URL_PADRAO = "sqlite:///./antimicrobiano.db"
+NIVEIS_DE_LOG = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
 
 VARIAVEIS_PARAMETROS = {
     "timeout_dias": "AMI_TIMEOUT_DIAS",
@@ -75,6 +76,14 @@ class Configuracao:
 
     database_url: str = DATABASE_URL_PADRAO
     parametros: ParametrosClinicos = field(default_factory=ParametrosClinicos)
+    log_nivel: str = "INFO"
+
+    def __post_init__(self) -> None:
+        if self.log_nivel not in NIVEIS_DE_LOG:
+            raise ConfiguracaoInvalida(
+                f"A variável AMI_LOG_NIVEL deve ser um destes: {', '.join(NIVEIS_DE_LOG)} "
+                f"(recebido: {self.log_nivel!r})."
+            )
 
     @classmethod
     def do_ambiente(cls) -> Configuracao:
@@ -85,4 +94,5 @@ class Configuracao:
         return cls(
             database_url=os.getenv("AMI_DATABASE_URL", DATABASE_URL_PADRAO),
             parametros=ParametrosClinicos.do_ambiente(),
+            log_nivel=os.getenv("AMI_LOG_NIVEL", "INFO").strip().upper() or "INFO",
         )
