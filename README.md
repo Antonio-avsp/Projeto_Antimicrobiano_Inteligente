@@ -73,7 +73,7 @@ Legenda: ✅ implementado · 🚧 em desenvolvimento · 🗓️ planejado
 | Parâmetros clínicos configuráveis por ambiente | RNF11 | [#18](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/18) | v0.3.0 | ✅ |
 | Carga de dados fictícios para demonstração | HT01 | [#19](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/19) | v0.3.0 | ✅ |
 | Gates de qualidade no CI (ruff + cobertura mínima) | RNF07, RNF08 | [#20](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/20) | v1.0.0 | 🗓️ |
-| Indicadores de consumo (DOT) | RF15 | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) | v1.0.0 | 🗓️ |
+| Indicadores de consumo (DOT) por antimicrobiano, categoria AWaRe e setor | RF15 | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) | v1.0.0 | ✅ |
 | Alerta de duplicidade terapêutica | RF16 | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) | v1.0.0 | ✅ |
 | Autenticação e perfis de acesso | RF17 | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) | v1.0.0 | 🗓️ |
 | Interface web do painel de alertas | RF18 | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) | v1.0.0 | 🗓️ |
@@ -272,6 +272,12 @@ Resposta resumida de uma consulta sem filtros:
 
 ```bash
 curl "http://127.0.0.1:8000/relatorios/antibiograma-cumulativo?inicio=2026-01-01&fim=2026-10-31&setor=UTI%20Adulto"
+```
+
+**Consultar os indicadores de consumo** (dias de terapia — DOT) por antimicrobiano, categoria AWaRe e setor, com o percentual de uso ACCESS comparado à meta de 60% da OMS (RF15):
+
+```bash
+curl "http://127.0.0.1:8000/relatorios/indicadores?inicio=2026-10-01&fim=2026-10-31"
 ```
 
 ## Documentação do projeto

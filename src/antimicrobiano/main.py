@@ -47,7 +47,7 @@ TAGS = [
     },
     {
         "name": "Relatórios",
-        "description": "Antibiograma cumulativo institucional (RF14).",
+        "description": "Antibiograma cumulativo (RF14) e indicadores de consumo DOT (RF15).",
     },
     {"name": "Sistema", "description": "Saúde e versão da API."},
 ]
