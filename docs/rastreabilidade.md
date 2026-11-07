@@ -37,7 +37,7 @@ Legenda: ✅ implementado · 🗓️ planejado
 | RNF04 | Privacidade (LGPD) | #10, #19 | Validação de `paciente_codigo` em `tests/test_prescricoes.py` e `tests/test_culturas.py`; seed apenas fictício |
 | RNF05 | Segurança | #6, #24, #60 | Testes de validação (422), `tests/test_autenticacao.py`, `.gitignore` com `.env.example` versionado (`tests/test_config.py`) e revisão de PR |
 | RNF06 | Portabilidade | #6, #7, #61 | Pipeline de CI em Python 3.11, 3.12 e 3.13 e job de build da imagem Docker |
-| RNF07 | Manutenibilidade | #13, #18, #20 | Motor Strategy; ruff |
+| RNF07 | Manutenibilidade | #13, #18, #20 | Motor Strategy; `ruff check` e `ruff format --check` no job Qualidade do CI |
 | RNF08 | Testabilidade | #6, #20, #63 | `pytest --cov` (meta ≥ 80%) e teste ponta a ponta do fluxo principal em `tests/test_ponta_a_ponta.py` |
 | RNF09 | Integridade | #9 | Testes de inativação lógica e chaves estrangeiras |
 | RNF10 | Transparência clínica | #13, #16 | `tests/test_alertas.py` verifica mensagem, recomendação e evidências |
@@ -59,7 +59,7 @@ Legenda: ✅ implementado · 🗓️ planejado
 | [#8](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/8) | documentation | `README.md` | v0.1.0 |
 | [#18](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/18) | refactor | `ParametrosClinicos` em `config.py` | v0.3.0 |
 | [#19](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/19) | enhancement | `src/antimicrobiano/seed.py` | v0.3.0 |
-| [#20](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/20) | ci, enhancement | Gates de qualidade no pipeline | v1.0.0 |
+| [#20](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/20) | ci, enhancement | Gates de qualidade no pipeline (ruff, formatação, bandit, cobertura ≥ 80% e relatório como artefato) | v1.0.0 |
 
 ## 4. Objetivos SMART → evidências
 
