@@ -32,6 +32,8 @@ class ErroDeDominio(Exception):
     status_code = 400
     codigo = "ERRO_DE_NEGOCIO"
 
+    cabecalhos: dict[str, str] | None = None
+
     def __init__(self, mensagem: str) -> None:
         super().__init__(mensagem)
         self.mensagem = mensagem
@@ -49,6 +51,21 @@ class ConflitoDeEstado(ErroDeDominio):
 
     status_code = 409
     codigo = "CONFLITO"
+
+
+class NaoAutenticado(ErroDeDominio):
+    """Token ausente, inválido ou expirado, ou credenciais incorretas (HTTP 401)."""
+
+    status_code = 401
+    codigo = "NAO_AUTENTICADO"
+    cabecalhos = {"WWW-Authenticate": "Bearer"}
+
+
+class AcessoNegado(ErroDeDominio):
+    """O perfil do usuário não permite a operação (HTTP 403)."""
+
+    status_code = 403
+    codigo = "ACESSO_NEGADO"
 
 
 class RegraDeNegocioViolada(ErroDeDominio):
@@ -145,7 +162,7 @@ def registrar_tratadores_de_erro(app: FastAPI) -> None:
     @app.exception_handler(ErroDeDominio)
     async def _erro_de_dominio(request: Request, erro: ErroDeDominio) -> JSONResponse:
         corpo = corpo_de_erro(erro.codigo, erro.mensagem, id_requisicao=id_da_requisicao(request))
-        return _resposta(erro.status_code, corpo)
+        return _resposta(erro.status_code, corpo, erro.cabecalhos)
 
     @app.exception_handler(RequestValidationError)
     async def _erro_de_validacao(request: Request, erro: RequestValidationError) -> JSONResponse:

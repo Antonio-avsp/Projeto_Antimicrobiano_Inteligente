@@ -17,12 +17,12 @@ from antimicrobiano.schemas.prescricao import (
 from antimicrobiano.services import antimicrobianos as servico_antimicrobianos
 
 
-def registrar(sessao: Session, dados: PrescricaoCriar) -> Prescricao:
+def registrar(sessao: Session, dados: PrescricaoCriar, autor: str | None = None) -> Prescricao:
     """Registra a prescrição como ATIVA; o antimicrobiano deve existir e estar ativo (RN02)."""
     antimicrobiano = servico_antimicrobianos.obter(sessao, dados.antimicrobiano_id)
     if not antimicrobiano.ativo:
         raise RegraDeNegocioViolada("Antimicrobiano inativo não pode ser prescrito.")
-    prescricao = Prescricao(**dados.model_dump())
+    prescricao = Prescricao(**dados.model_dump(), registrado_por=autor)
     sessao.add(prescricao)
     sessao.commit()
     sessao.refresh(prescricao)
@@ -83,13 +83,13 @@ def _validar_data_no_tratamento(prescricao: Prescricao, data_informada: date, ro
 
 
 def registrar_reavaliacao(
-    sessao: Session, prescricao_id: int, dados: ReavaliacaoCriar
+    sessao: Session, prescricao_id: int, dados: ReavaliacaoCriar, autor: str | None = None
 ) -> Reavaliacao:
     """Registra o time-out de uma prescrição ativa (RF05)."""
     prescricao = obter(sessao, prescricao_id)
     garantir_ativa(prescricao)
     _validar_data_no_tratamento(prescricao, dados.data_reavaliacao, "reavaliação")
-    reavaliacao = Reavaliacao(**dados.model_dump())
+    reavaliacao = Reavaliacao(**dados.model_dump(), registrado_por=autor)
     prescricao.reavaliacoes.append(reavaliacao)
     sessao.commit()
     sessao.refresh(reavaliacao)
@@ -101,7 +101,9 @@ def listar_reavaliacoes(sessao: Session, prescricao_id: int) -> list[Reavaliacao
     return list(obter(sessao, prescricao_id).reavaliacoes)
 
 
-def encerrar(sessao: Session, prescricao_id: int, dados: EncerramentoCriar) -> Prescricao:
+def encerrar(
+    sessao: Session, prescricao_id: int, dados: EncerramentoCriar, autor: str | None = None
+) -> Prescricao:
     """Encerra a prescrição como concluída ou suspensa (RF05); ela deixa de gerar alertas."""
     prescricao = obter(sessao, prescricao_id)
     garantir_ativa(prescricao)
@@ -109,6 +111,7 @@ def encerrar(sessao: Session, prescricao_id: int, dados: EncerramentoCriar) -> P
     prescricao.status = StatusPrescricao(dados.status_final)
     prescricao.data_fim = dados.data_fim
     prescricao.motivo_encerramento = dados.motivo
+    prescricao.encerrado_por = autor
     sessao.commit()
     sessao.refresh(prescricao)
     return prescricao

@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 
 DATABASE_URL_PADRAO = "sqlite:///./antimicrobiano.db"
 NIVEIS_DE_LOG = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
+TAMANHO_MINIMO_SEGREDO = 32
 
 VARIAVEIS_PARAMETROS = {
     "timeout_dias": "AMI_TIMEOUT_DIAS",
@@ -77,8 +78,22 @@ class Configuracao:
     database_url: str = DATABASE_URL_PADRAO
     parametros: ParametrosClinicos = field(default_factory=ParametrosClinicos)
     log_nivel: str = "INFO"
+    jwt_segredo: str | None = None
+    """Segredo de assinatura dos tokens (AMI_JWT_SEGREDO). Sem ele, um segredo temporário é
+    gerado na inicialização e os tokens deixam de valer quando a API reinicia."""
+    jwt_expiracao_minutos: int = 60
 
     def __post_init__(self) -> None:
+        if self.jwt_segredo is not None and len(self.jwt_segredo) < TAMANHO_MINIMO_SEGREDO:
+            raise ConfiguracaoInvalida(
+                f"A variável AMI_JWT_SEGREDO deve ter pelo menos {TAMANHO_MINIMO_SEGREDO} "
+                "caracteres."
+            )
+        if self.jwt_expiracao_minutos < 1:
+            raise ConfiguracaoInvalida(
+                "A variável AMI_JWT_EXPIRACAO_MINUTOS deve ser um número inteiro maior ou igual "
+                f"a 1 (recebido: {self.jwt_expiracao_minutos!r})."
+            )
         if self.log_nivel not in NIVEIS_DE_LOG:
             raise ConfiguracaoInvalida(
                 f"A variável AMI_LOG_NIVEL deve ser um destes: {', '.join(NIVEIS_DE_LOG)} "
@@ -95,4 +110,18 @@ class Configuracao:
             database_url=os.getenv("AMI_DATABASE_URL", DATABASE_URL_PADRAO),
             parametros=ParametrosClinicos.do_ambiente(),
             log_nivel=os.getenv("AMI_LOG_NIVEL", "INFO").strip().upper() or "INFO",
+            jwt_segredo=os.getenv("AMI_JWT_SEGREDO") or None,
+            jwt_expiracao_minutos=_inteiro_do_ambiente("AMI_JWT_EXPIRACAO_MINUTOS", 60),
         )
+
+
+def _inteiro_do_ambiente(variavel: str, padrao: int) -> int:
+    bruto = os.getenv(variavel, "").strip()
+    if not bruto:
+        return padrao
+    try:
+        return int(bruto)
+    except ValueError:
+        raise ConfiguracaoInvalida(
+            f"A variável {variavel} deve ser um número inteiro (recebido: {bruto!r})."
+        ) from None

@@ -3,15 +3,20 @@
 from datetime import date, timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 
 from antimicrobiano.database import SessaoDep
-from antimicrobiano.routers.dependencias import ParametrosDep
-from antimicrobiano.schemas.comum import RESPOSTA_422
+from antimicrobiano.routers.dependencias import ParametrosDep, usuario_atual
+from antimicrobiano.schemas.comum import RESPOSTA_401, RESPOSTA_422
 from antimicrobiano.schemas.relatorio import AntibiogramaCumulativo, IndicadoresConsumo
 from antimicrobiano.services import relatorios as servico
 
-router = APIRouter(prefix="/relatorios", tags=["Relatórios"], responses=RESPOSTA_422)
+router = APIRouter(
+    prefix="/relatorios",
+    tags=["Relatórios"],
+    dependencies=[Depends(usuario_atual)],
+    responses={**RESPOSTA_401, **RESPOSTA_422},
+)
 
 
 @router.get(

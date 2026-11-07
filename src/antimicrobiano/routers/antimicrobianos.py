@@ -1,28 +1,40 @@
 """Rotas do catálogo de antimicrobianos (UC01)."""
 
-from fastapi import APIRouter, Query, Response, status
+from fastapi import APIRouter, Depends, Query, Response, status
 
 from antimicrobiano.database import SessaoDep
 from antimicrobiano.enums import CategoriaAware
+from antimicrobiano.routers.dependencias import EditorCatalogoDep, usuario_atual
 from antimicrobiano.schemas.antimicrobiano import (
     AntimicrobianoAtualizar,
     AntimicrobianoCriar,
     AntimicrobianoResposta,
 )
-from antimicrobiano.schemas.comum import RESPOSTA_404, RESPOSTA_409, RESPOSTA_422
+from antimicrobiano.schemas.comum import (
+    RESPOSTA_401,
+    RESPOSTA_403,
+    RESPOSTA_404,
+    RESPOSTA_409,
+    RESPOSTA_422,
+)
 from antimicrobiano.services import antimicrobianos as servico
 
-router = APIRouter(prefix="/antimicrobianos", tags=["Antimicrobianos"], responses=RESPOSTA_422)
+router = APIRouter(
+    prefix="/antimicrobianos",
+    tags=["Antimicrobianos"],
+    dependencies=[Depends(usuario_atual)],
+    responses={**RESPOSTA_401, **RESPOSTA_422},
+)
 
 
 @router.post(
     "",
     status_code=status.HTTP_201_CREATED,
     response_model=AntimicrobianoResposta,
-    responses=RESPOSTA_409,
+    responses={**RESPOSTA_403, **RESPOSTA_409},
     summary="Cadastrar antimicrobiano",
 )
-def cadastrar(dados: AntimicrobianoCriar, sessao: SessaoDep):
+def cadastrar(dados: AntimicrobianoCriar, sessao: SessaoDep, _editor: EditorCatalogoDep):
     """Cadastra um antimicrobiano ativo. O nome é único (RN01)."""
     return servico.criar(sessao, dados)
 
@@ -53,10 +65,15 @@ def consultar(antimicrobiano_id: int, sessao: SessaoDep):
 @router.patch(
     "/{antimicrobiano_id}",
     response_model=AntimicrobianoResposta,
-    responses={**RESPOSTA_404, **RESPOSTA_409},
+    responses={**RESPOSTA_403, **RESPOSTA_404, **RESPOSTA_409},
     summary="Atualizar antimicrobiano",
 )
-def atualizar(antimicrobiano_id: int, dados: AntimicrobianoAtualizar, sessao: SessaoDep):
+def atualizar(
+    antimicrobiano_id: int,
+    dados: AntimicrobianoAtualizar,
+    sessao: SessaoDep,
+    _editor: EditorCatalogoDep,
+):
     """Atualiza os campos informados."""
     return servico.atualizar(sessao, antimicrobiano_id, dados)
 
@@ -64,10 +81,10 @@ def atualizar(antimicrobiano_id: int, dados: AntimicrobianoAtualizar, sessao: Se
 @router.delete(
     "/{antimicrobiano_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    responses=RESPOSTA_404,
+    responses={**RESPOSTA_403, **RESPOSTA_404},
     summary="Inativar antimicrobiano",
 )
-def inativar(antimicrobiano_id: int, sessao: SessaoDep) -> Response:
+def inativar(antimicrobiano_id: int, sessao: SessaoDep, _editor: EditorCatalogoDep) -> Response:
     """Inativa o antimicrobiano (exclusão lógica — RN03)."""
     servico.inativar(sessao, antimicrobiano_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
