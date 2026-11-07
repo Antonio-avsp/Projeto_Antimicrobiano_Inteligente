@@ -48,7 +48,7 @@ def test_codigo_de_paciente_fora_do_padrao_pseudonimizado_retorna_422(
     )
 
     assert resposta.status_code == 422
-    assert resposta.json()["detail"][0]["loc"] == ["body", "paciente_codigo"]
+    assert resposta.json()["campos"][0]["campo"] == "paciente_codigo"
 
 
 def test_antimicrobiano_inativo_nao_pode_ser_prescrito(client, novo_antimicrobiano):
@@ -58,7 +58,7 @@ def test_antimicrobiano_inativo_nao_pode_ser_prescrito(client, novo_antimicrobia
     resposta = client.post("/prescricoes", json=_payload(cefalotina["id"]))
 
     assert resposta.status_code == 422
-    assert resposta.json()["detail"] == "Antimicrobiano inativo não pode ser prescrito."
+    assert resposta.json()["mensagem"] == "Antimicrobiano inativo não pode ser prescrito."
 
 
 def test_antimicrobiano_inexistente_retorna_404(client):
@@ -170,4 +170,4 @@ def test_prescricao_inexistente_retorna_404(client, metodo):
     resposta = getattr(client, metodo)("/prescricoes/999", **kwargs)
 
     assert resposta.status_code == 404
-    assert resposta.json()["detail"] == "Prescrição 999 não encontrada."
+    assert resposta.json()["mensagem"] == "Prescrição 999 não encontrada."
