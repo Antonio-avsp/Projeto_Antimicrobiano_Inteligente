@@ -43,6 +43,7 @@ Legenda: ✅ implementado · 🗓️ planejado
 | RNF10 | Transparência clínica | #13, #16 | `tests/test_alertas.py` verifica mensagem, recomendação e evidências |
 | RNF11 | Configurabilidade | #18 | `tests/test_config.py` |
 | RNF12 | Processo | todas | Histórico do Git, PRs com `Closes #N`, tags SemVer e CHANGELOG |
+| RNF13 | Observabilidade | [#59](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/59) | `tests/test_observabilidade.py` |
 
 ## 3. Issues de suporte (documentação, configuração e qualidade)
 
