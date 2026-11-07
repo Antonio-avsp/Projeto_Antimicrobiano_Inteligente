@@ -39,23 +39,21 @@ flowchart TB
         swagger["<b>Swagger UI / ReDoc</b><br/>[Navegador]<br/>Documentação interativa gerada a partir do OpenAPI"]
         api["<b>API REST</b><br/>[Python 3.11+, FastAPI, Uvicorn]<br/>Autenticação JWT, regras de negócio, motor de regras e relatórios"]
         db[("<b>Banco de dados</b><br/>[SQLite via SQLAlchemy]<br/>Usuários, catálogo, prescrições, reavaliações, culturas e antibiogramas")]
-        web["<b>Interface web</b><br/>[HTML + JavaScript]<br/>Planejada — issue #26"]
+        web["<b>Interface web — /painel</b><br/>[HTML, CSS e JavaScript servidos pela API]<br/>Login e painel de alertas (RF18)"]
     end
 
     usuario -- "Usa [HTTPS]" --> swagger
-    usuario -. "Usará" .-> web
+    usuario -- "Usa [HTTPS]" --> web
     swagger -- "Chama [JSON/HTTPS]" --> api
-    web -. "Chamará [JSON/HTTPS]" .-> api
+    web -- "Chama com token Bearer [JSON/HTTPS]" --> api
     api -- "Lê e grava [SQL via ORM]" --> db
 
     classDef pessoa fill:#08427b,stroke:#052e56,color:#fff
     classDef container fill:#438dd5,stroke:#2e6295,color:#fff
     classDef banco fill:#438dd5,stroke:#2e6295,color:#fff
-    classDef futuro fill:#cccccc,stroke:#999999,color:#333,stroke-dasharray: 5 5
     class usuario pessoa
-    class swagger,api container
+    class swagger,api,web container
     class db banco
-    class web futuro
 ```
 
 ## 3. Nível 3 — Diagrama de componentes da API

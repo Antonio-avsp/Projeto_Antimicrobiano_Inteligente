@@ -46,14 +46,14 @@ Documento de requisitos do **Antimicrobiano Inteligente**. Os termos do domínio
 | **[RF13]** | O sistema deve disponibilizar o **painel de alertas** de uma data de referência, ordenado por severidade, com filtros (tipo, severidade, setor e paciente) e resumo de quantidades por severidade e por tipo. | Must | v0.3.0 | [#13](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/13), [#16](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/16) |
 | **[RF14]** | O sistema deve gerar o **antibiograma cumulativo** de um período (com filtro opcional por setor), contando o primeiro isolado por paciente e sinalizando combinações com menos de 30 isolados. | Should | v0.3.0 | [#17](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/17) |
 
-### 1.5 Planejados para a iteração 2
+### 1.5 Iteração 2 (entregues na v1.0.0)
 
 | ID | Requisito | Prioridade | Release | Issue |
 |---|---|---|---|---|
 | **[RF15]** | O sistema deve calcular **indicadores de consumo** em dias de terapia (DOT) por antimicrobiano e por categoria AWaRe. | Could | v1.0.0 | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) |
 | **[RF16]** | O sistema deve gerar alerta de **duplicidade terapêutica** (duas prescrições ativas da mesma classe para o mesmo paciente). | Could | v1.0.0 | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) |
 | **[RF17]** | O sistema deve exigir **autenticação** (login com token JWT de validade limitada) e controlar o acesso por perfil (farmacêutico, infectologista, laboratório e gestor), registrando o autor das prescrições e das intervenções. | Should | v1.0.0 | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) |
-| **[RF18]** | O sistema deve oferecer **interface web** para o painel de alertas. | Could | v1.0.0 | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) |
+| **[RF18]** | O sistema deve oferecer **interface web** para o painel de alertas, com login, filtro por setor e data, alertas agrupados por severidade (indicada por cor, ícone e texto) e o detalhe da recomendação e das evidências. | Could | v1.0.0 | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) |
 
 ---
 
