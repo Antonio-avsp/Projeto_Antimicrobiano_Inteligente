@@ -89,5 +89,5 @@ git push origin v0.2.0
 - [ ] Critérios de aceite da issue atendidos
 - [ ] Testes automatizados cobrindo os cenários Gherkin da história
 - [ ] `pytest --cov` (cobertura ≥ 80%), `ruff check .`, `ruff format --check .` e `bandit -c pyproject.toml -r src` sem erros
-- [ ] README e documentação em `docs/` atualizados (incluindo a matriz de rastreabilidade)
+- [ ] Documentação sincronizada no mesmo PR, conforme a [regra de sincronização](docs/README.md#regra-de-sincronização-documentação--código) (incluindo a matriz de rastreabilidade e a versão/data no índice)
 - [ ] PR mesclado em `develop` com referência à issue
