@@ -30,6 +30,7 @@ flowchart LR
         UC04(["UC04 Registrar cultura e antibiograma"])
         UC05(["UC05 Consultar painel de alertas"])
         UC06(["UC06 Gerar antibiograma cumulativo"])
+        UC07(["UC07 Consultar indicadores de consumo"])
         AVAL(["Avaliar regras clínicas"])
     end
 
@@ -44,6 +45,7 @@ flowchart LR
     lab --- UC04
     gestor --- UC01
     gestor --- UC06
+    gestor --- UC07
     UC05 -. "«include»" .-> AVAL
     AVAL --- motor
 ```
@@ -58,7 +60,7 @@ flowchart LR
 | UC04 | Registrar cultura e antibiograma | Analista de microbiologia | RF06 | #12 |
 | UC05 | Consultar painel de alertas inteligentes | Farmacêutico clínico, Médico infectologista | RF07 a RF13 | #13 a #16 |
 | UC06 | Gerar antibiograma cumulativo | Gestor da CCIH, Médico infectologista | RF14 | #17 |
-| UC07 | Consultar indicadores de consumo (planejado) | Gestor da CCIH | RF15 | #21 |
+| UC07 | Consultar indicadores de consumo | Gestor da CCIH | RF15 | #21 |
 | UC08 | Autenticar usuário (planejado) | Todos | RF17 | #24 |
 
 ---
@@ -256,9 +258,36 @@ flowchart LR
 
 - **FE01 — Período inválido** (início posterior ao fim ou datas mal formatadas): `422`.
 
+### UC07 — Consultar indicadores de consumo
+
+| Item | Descrição |
+|---|---|
+| **Objetivo** | Acompanhar o consumo de antimicrobianos em dias de terapia (DOT) e a meta de uso ACCESS da OMS. |
+| **Atores** | Gestor da CCIH (primário), Farmacêutico clínico |
+| **Requisitos** | RF15 · RN20, RN23 |
+| **Pré-condições** | Prescrições registradas (UC02). |
+| **Pós-condições** | Relatório gerado (consulta, sem alteração de dados). |
+
+**Fluxo principal**
+
+1. O ator envia `GET /relatorios/indicadores?inicio=2026-10-01&fim=2026-10-31`.
+2. O sistema seleciona as prescrições que tiveram dias de uso no período, considerando o término (ou hoje, se ainda ativas).
+3. O sistema conta 1 DOT por paciente, antimicrobiano e dia (RN23).
+4. O sistema agrega por antimicrobiano, por categoria AWaRe e por setor e calcula o percentual ACCESS.
+5. O sistema responde `200` com o total, o percentual ACCESS, a comparação com a meta de 60% e as quebras.
+
+**Fluxos alternativos**
+
+- **FA01 — Filtro por setor (unidade):** com `setor=UTI Adulto`, apenas prescrições desse setor são consideradas.
+- **FA02 — Período omitido:** o sistema usa os últimos 30 dias.
+- **FA03 — Nenhum consumo no período:** o sistema responde `200` com total 0 e percentual ACCESS nulo.
+
+**Fluxos de exceção**
+
+- **FE01 — Período inválido** (início posterior ao fim ou datas mal formatadas): `422`.
+
 ---
 
 ## 5. Casos de uso planejados (iteração 2)
 
-- **UC07 — Consultar indicadores de consumo:** o gestor consulta os dias de terapia (DOT) por antimicrobiano e por categoria AWaRe em um período ([#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21)).
 - **UC08 — Autenticar usuário:** o usuário informa credenciais, recebe um token com expiração e passa a ter acesso conforme o perfil ([#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24)).

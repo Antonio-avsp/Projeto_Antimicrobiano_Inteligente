@@ -167,6 +167,7 @@ sequenceDiagram
 | `PUT` | `/culturas/{id}/resultado` | Registrar resultado e antibiograma | RF06 |
 | `GET` | `/alertas` | Painel de alertas inteligentes | RF07–RF13 |
 | `GET` | `/relatorios/antibiograma-cumulativo` | Antibiograma cumulativo | RF14 |
+| `GET` | `/relatorios/indicadores` | Indicadores de consumo (DOT) por antimicrobiano, categoria AWaRe e setor | RF15 |
 
 **Convenção de erros:** `404` recurso inexistente · `409` conflito de estado ou de unicidade · `422` dados inválidos ou regra de negócio violada. Os erros de negócio retornam `{"detail": "mensagem em português"}`.
 
