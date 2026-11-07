@@ -127,6 +127,14 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
+**3.1. Criar o arquivo de configuração** a partir do modelo (os valores padrão já funcionam; veja [Variáveis de ambiente](#variáveis-de-ambiente)):
+
+```bash
+cp .env.example .env
+```
+
+No Windows (cmd), use `copy .env.example .env`. O `.env` não é versionado; defina nele o `AMI_JWT_SEGREDO` para que os tokens continuem válidos após reiniciar a API.
+
 **4. Criar os usuários: carga de demonstração ou primeiro GESTOR**
 
 Todas as rotas de dados exigem login. Para explorar o projeto, carregue os dados fictícios de demonstração:
@@ -177,6 +185,8 @@ ruff check .
 ```
 
 ### Variáveis de ambiente
+
+As variáveis podem ser definidas no sistema ou no arquivo `.env` (modelo comentado em [`.env.example`](.env.example)); as do sistema têm prioridade. `AMI_ARQUIVO_ENV` aponta para outro arquivo, e vazio desliga a leitura.
 
 | Variável | Padrão | Descrição |
 |---|---|---|
