@@ -196,6 +196,12 @@ bandit -c pyproject.toml -r src
 
 O CI executa as mesmas verificações e **bloqueia** o pull request se o lint, a formatação ou a análise de segurança falharem ou se a cobertura ficar abaixo de 80%; o relatório de cobertura fica disponível como artefato do workflow.
 
+O workflow **Segurança** também roda a cada push, pull request e semanalmente: o [gitleaks](https://github.com/gitleaks/gitleaks) procura segredos versionados nos commits e o [pip-audit](https://pypi.org/project/pip-audit/) falha se alguma dependência tiver vulnerabilidade conhecida. Para auditar localmente:
+
+```bash
+pip install pip-audit && pip-audit --skip-editable
+```
+
 ### Variáveis de ambiente
 
 As variáveis podem ser definidas no sistema ou no arquivo `.env` (modelo comentado em [`.env.example`](.env.example)); as do sistema têm prioridade. `AMI_ARQUIVO_ENV` aponta para outro arquivo, e vazio desliga a leitura.
