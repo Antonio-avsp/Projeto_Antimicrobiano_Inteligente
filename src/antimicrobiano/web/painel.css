@@ -1,0 +1,65 @@
+:root {
+  --fundo: #f4f6f5; --superficie: #ffffff; --texto: #1c2420; --suave: #56625b; --borda: #d6ddd8;
+  --primaria: #1f6f4f; --texto-primaria: #ffffff; --foco: #1f6f4f;
+  --alta: #b42318; --alta-fundo: #fdecea; --media: #8a5a00; --media-fundo: #fff4dc;
+  --baixa: #1d5fa8; --baixa-fundo: #e8f1fb;
+  --fonte: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fundo: #121614; --superficie: #1b211e; --texto: #e3eae6; --suave: #9aa8a0; --borda: #2e3833;
+    --primaria: #4cc28a; --texto-primaria: #0d1a13; --foco: #4cc28a;
+    --alta: #ff8a7a; --alta-fundo: #3a1714; --media: #f2b84b; --media-fundo: #34280f;
+    --baixa: #7fb6f0; --baixa-fundo: #13253a;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fundo); color: var(--texto); font: 15px/1.5 var(--fonte); }
+.topo, main, .rodape { max-width: 1040px; margin: 0 auto; padding-inline: 16px; }
+.topo { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-block: 20px 8px; }
+h1 { margin: 0; font-size: 1.6rem; }
+h2 { font-size: 1.15rem; margin: 0 0 12px; }
+.subtitulo, .aviso, .rodape { color: var(--suave); }
+.subtitulo { margin: 2px 0 0; font-size: .9rem; }
+.rodape { font-size: .82rem; padding-block: 24px; }
+.sessao { display: flex; gap: 12px; align-items: center; }
+.cartao { background: var(--superficie); border: 1px solid var(--borda); border-radius: 8px; padding: 20px; }
+.login { max-width: 360px; margin-top: 24px; }
+form { display: grid; gap: 8px; }
+label { font-weight: 600; font-size: .9rem; }
+input, select { font: inherit; padding: 8px 10px; border: 1px solid var(--borda); border-radius: 6px; background: var(--superficie); color: var(--texto); }
+button { font: inherit; font-weight: 600; padding: 8px 16px; border-radius: 6px; border: 1px solid var(--primaria); background: var(--primaria); color: var(--texto-primaria); cursor: pointer; }
+.botao-secundario { background: transparent; color: var(--texto); border-color: var(--borda); }
+:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
+.erro { color: var(--alta); font-weight: 600; margin: 4px 0; }
+.filtros { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; margin: 16px 0 8px; }
+.filtros div { display: grid; gap: 4px; }
+.resumo { list-style: none; padding: 0; margin: 12px 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.resumo li { border-radius: 8px; padding: 12px 14px; border: 1px solid var(--borda); background: var(--superficie); }
+.resumo strong { display: block; font-size: 1.7rem; font-variant-numeric: tabular-nums; }
+.grupo { margin-bottom: 20px; }
+.grupo h2 { display: flex; gap: 8px; align-items: center; }
+.selo { display: inline-flex; gap: 4px; align-items: center; font-size: .78rem; font-weight: 700; letter-spacing: .04em; padding: 2px 8px; border-radius: 999px; }
+.ALTA .selo, .selo.ALTA { color: var(--alta); background: var(--alta-fundo); }
+.MEDIA .selo, .selo.MEDIA { color: var(--media); background: var(--media-fundo); }
+.BAIXA .selo, .selo.BAIXA { color: var(--baixa); background: var(--baixa-fundo); }
+.resumo li.ALTA { border-left: 6px solid var(--alta); }
+.resumo li.MEDIA { border-left: 6px solid var(--media); }
+.resumo li.BAIXA { border-left: 6px solid var(--baixa); }
+details { background: var(--superficie); border: 1px solid var(--borda); border-radius: 8px; margin-bottom: 8px; }
+details.ALTA { border-left: 6px solid var(--alta); }
+details.MEDIA { border-left: 6px solid var(--media); }
+details.BAIXA { border-left: 6px solid var(--baixa); }
+summary { cursor: pointer; padding: 12px 14px; display: grid; gap: 4px; }
+summary .linha { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+summary .meta { color: var(--suave); font-size: .85rem; }
+.tipo { font-family: var(--mono); font-size: .82rem; }
+.detalhe { padding: 0 14px 14px; display: grid; gap: 8px; }
+.detalhe dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; font-size: .9rem; }
+.detalhe dt { color: var(--suave); }
+.detalhe dd { margin: 0; overflow-wrap: anywhere; }
+.vazio { color: var(--suave); }
+.visualmente-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

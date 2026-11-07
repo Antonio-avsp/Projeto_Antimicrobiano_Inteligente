@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel de alertas — Antimicrobiano Inteligente</title>
+  <link rel="stylesheet" href="/painel/static/painel.css">
+  <script src="/painel/static/painel.js" defer></script>
+</head>
+<body>
+  <header class="topo">
+    <div>
+      <h1>Painel de alertas</h1>
+      <p class="subtitulo">Antimicrobiano Inteligente · Programa de Gerenciamento do Uso de Antimicrobianos</p>
+    </div>
+    <div id="sessao" class="sessao" hidden>
+      <span id="usuario-logado"></span>
+      <button type="button" id="sair" class="botao-secundario">Sair</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="tela-login" class="cartao login" aria-labelledby="titulo-login">
+      <h2 id="titulo-login">Entrar</h2>
+      <form id="form-login">
+        <label for="login">Login</label>
+        <input id="login" name="login" autocomplete="username" required>
+        <label for="senha">Senha</label>
+        <input id="senha" name="senha" type="password" autocomplete="current-password" required>
+        <button type="submit">Entrar</button>
+        <p id="erro-login" class="erro" role="alert" hidden></p>
+      </form>
+    </section>
+
+    <section id="tela-painel" hidden>
+      <form id="filtros" class="filtros" aria-label="Filtros do painel">
+        <div>
+          <label for="setor">Setor</label>
+          <select id="setor"><option value="">Todos os setores</option></select>
+        </div>
+        <div>
+          <label for="data-referencia">Data de referência</label>
+          <input id="data-referencia" type="date">
+        </div>
+        <button type="submit">Atualizar</button>
+      </form>
+
+      <p id="aviso" class="aviso"></p>
+      <p id="erro-painel" class="erro" role="alert" hidden></p>
+
+      <section aria-labelledby="titulo-resumo">
+        <h2 id="titulo-resumo" class="visualmente-oculto">Resumo por severidade</h2>
+        <ul id="resumo" class="resumo"></ul>
+      </section>
+
+      <div id="grupos" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="rodape">Ferramenta de apoio à decisão para fins acadêmicos: não substitui o julgamento clínico. Utilize apenas dados fictícios.</footer>
+</body>
+</html>
