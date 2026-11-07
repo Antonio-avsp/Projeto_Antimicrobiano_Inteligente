@@ -9,11 +9,11 @@ from antimicrobiano.database import SessaoDep
 from antimicrobiano.enums import Severidade, TipoAlerta
 from antimicrobiano.routers.dependencias import ParametrosDep
 from antimicrobiano.schemas.alerta import PainelAlertas
-from antimicrobiano.schemas.comum import AVISO_APOIO_A_DECISAO
+from antimicrobiano.schemas.comum import AVISO_APOIO_A_DECISAO, RESPOSTA_422
 from antimicrobiano.schemas.prescricao import PADRAO_CODIGO_PACIENTE
 from antimicrobiano.services import alertas as servico
 
-router = APIRouter(prefix="/alertas", tags=["Alertas"])
+router = APIRouter(prefix="/alertas", tags=["Alertas"], responses=RESPOSTA_422)
 
 
 @router.get("", response_model=PainelAlertas, summary="Painel de alertas inteligentes")

@@ -7,10 +7,11 @@ from fastapi import APIRouter, Query
 
 from antimicrobiano.database import SessaoDep
 from antimicrobiano.routers.dependencias import ParametrosDep
+from antimicrobiano.schemas.comum import RESPOSTA_422
 from antimicrobiano.schemas.relatorio import AntibiogramaCumulativo, IndicadoresConsumo
 from antimicrobiano.services import relatorios as servico
 
-router = APIRouter(prefix="/relatorios", tags=["Relatórios"])
+router = APIRouter(prefix="/relatorios", tags=["Relatórios"], responses=RESPOSTA_422)
 
 
 @router.get(
