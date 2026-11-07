@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from antimicrobiano.config import Configuracao
 from antimicrobiano.enums import TipoAlerta
 from antimicrobiano.main import create_app
-from antimicrobiano.seed import main
+from antimicrobiano.seed import SENHA_DEMO_PADRAO, main
 
 
 @pytest.fixture
@@ -18,7 +18,12 @@ def banco_demo(tmp_path, monkeypatch) -> str:
 
 def _consultar(url: str, rota: str) -> dict | list:
     with TestClient(create_app(Configuracao(database_url=url))) as cliente:
-        resposta = cliente.get(rota)
+        login = cliente.post(
+            "/auth/login", json={"login": "farmaceutico.demo", "senha": SENHA_DEMO_PADRAO}
+        )
+        assert login.status_code == 200, login.text
+        token = login.json()["access_token"]
+        resposta = cliente.get(rota, headers={"Authorization": f"Bearer {token}"})
         assert resposta.status_code == 200, resposta.text
         return resposta.json()
 

@@ -6,7 +6,9 @@ import pytest
 from fastapi.testclient import TestClient
 
 from antimicrobiano.config import Configuracao, ParametrosClinicos
+from antimicrobiano.enums import Perfil
 from antimicrobiano.main import create_app
+from tests.conftest import cabecalho_de, criar_usuario
 
 URL = "/relatorios/antibiograma-cumulativo"
 PERIODO = {"inicio": "2026-10-01", "fim": "2026-10-31"}
@@ -82,7 +84,10 @@ def test_minimo_de_isolados_configuravel():
     config = Configuracao(
         database_url="sqlite://", parametros=ParametrosClinicos(minimo_isolados=2)
     )
-    with TestClient(create_app(config)) as cliente:
+    app = create_app(config)
+    with TestClient(app) as cliente:
+        criar_usuario(app, "gestor.teste", Perfil.GESTOR)
+        cliente.headers.update(cabecalho_de(cliente, "gestor.teste"))
         am = cliente.post(
             "/antimicrobianos",
             json={"nome": "Gentamicina", "classe": "Aminoglicosídeo", "categoria_aware": "ACCESS"},
