@@ -69,13 +69,26 @@ Cada objetivo é **E**specífico, **M**ensurável, **A**tingível, **R**elevante
 | Antibiograma cumulativo | Perfil local de sensibilidade (primeiro isolado por paciente) | #17 |
 | Qualidade e demonstração | Parâmetros configuráveis e carga de dados fictícios | #18, #19 |
 
-### 3.2 Fora do escopo (expressamente excluído desta semana)
+### 3.2 Entregas da iteração 2 (v1.0.0)
+
+Itens planejados como fora do escopo da iteração 1 e priorizados pela Avaliação Técnica Week_01:
+
+| Entrega | Descrição | Issues |
+|---|---|---|
+| Duplicidade terapêutica | 8ª regra do motor de alertas | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) |
+| Indicadores de consumo | DOT por antimicrobiano, categoria AWaRe e setor, com percentual ACCESS | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) |
+| Autenticação e perfis | Login com token JWT, permissões por perfil e autoria das intervenções | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) |
+| Interface web | Painel de alertas em `/painel` | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) |
+| Qualidade e segurança | Gates de lint, formatação, bandit e cobertura no CI; gitleaks, pip-audit e Dependabot | [#20](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/20), #64, #65 |
+| Operação | Formato único de erro, logs JSON com identificador, `.env.example`, Docker e teste ponta a ponta | #58, #59, #60, #61, #63 |
+| Documentação | Índice com regra de sincronização, decisões em ADRs e checklist de validação clínica | #66, #67, #68 |
+
+### 3.3 Fora do escopo
 
 - ❌ **Integração** com prontuário eletrônico, sistema hospitalar (HIS) ou laboratorial (LIS) — ex.: HL7/FHIR.
 - ❌ **Dados reais de pacientes** — o sistema trabalha apenas com códigos pseudonimizados e dados fictícios.
-- ❌ **Autenticação e perfis de acesso** — planejado para a v1.0.0 ([#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24)).
-- ❌ **Interface web** — nesta iteração a API é operada pelo Swagger UI; painel web planejado ([#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26)).
-- ❌ **Indicadores de consumo** (DOT/DDD) e **alerta de duplicidade terapêutica** — planejados ([#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21), [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22)).
+- ❌ **DDD** (doses diárias definidas) e indicadores por paciente-dia, que exigem o censo de leitos.
+- ❌ Login único corporativo (SSO/LDAP) e recuperação de senha por e-mail.
 - ❌ Prescrição eletrônica, dispensação, ajuste de dose por função renal e interações medicamentosas.
 - ❌ Modelos preditivos / aprendizado de máquina.
 - ❌ Notificações (e-mail, SMS, aplicativos de mensagem), aplicativo móvel e operação multi-hospital.
@@ -133,6 +146,10 @@ Cada objetivo é **E**specífico, **M**ensurável, **A**tingível, **R**elevante
 | Exposição de dados sensíveis | Baixa | Alto | Apenas códigos pseudonimizados e dados fictícios; `.env` ignorado pelo Git |
 | Conhecimento limitado do domínio | Média | Médio | Glossário e referências (OMS, ANVISA, CLSI, IDSA/SHEA) |
 | Fadiga de alertas (*alert fatigue*) | Média | Médio | Severidades, filtros no painel e parâmetros configuráveis |
+| Acesso indevido aos dados (v1.0.0) | Média | Alto | Token JWT com expiração, perfis com permissões mínimas, senhas em hash scrypt e `AMI_JWT_SEGREDO` obrigatório fora do desenvolvimento |
+| Dependências com vulnerabilidades (v1.0.0) | Média | Médio | pip-audit no CI e semanal, Dependabot e bandit |
+
+> Matriz revisada no marco v1.0.0 (07/11/2026): incluídos os riscos de acesso e de dependências. A revisão por especialista das regras clínicas é acompanhada no checklist de validação clínica (#68).
 
 ---
 
@@ -143,7 +160,7 @@ Cada objetivo é **E**specífico, **M**ensurável, **A**tingível, **R**elevante
 | `v0.1.0` | Documentação de planejamento e fundação técnica (setup, CI, README) | 05/11/2026 | #1 a #8 |
 | `v0.2.0` | Cadastros essenciais: catálogo, prescrições, reavaliação/encerramento e culturas | 06/11/2026 | #9 a #12 |
 | `v0.3.0` | Motor de regras inteligente, painel de alertas, antibiograma cumulativo e dados de demonstração | 07/11/2026 | #13 a #19 |
-| `v1.0.0` | Gates de qualidade no CI, indicadores DOT, duplicidade terapêutica, autenticação e interface web | Iteração 2 (após a próxima aula) | #20 a #26 |
+| `v1.0.0` | Feedback da Avaliação Técnica Week_01: indicadores DOT, duplicidade terapêutica, autenticação, interface web, gates de qualidade e segurança, Docker e documentação operacional | 07/11/2026 | #20 a #26 e #58 a #68 |
 
 ## 7. Critérios de sucesso do projeto
 

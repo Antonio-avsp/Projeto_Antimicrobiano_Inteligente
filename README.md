@@ -385,6 +385,7 @@ curl -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:8000/relatorios/indicad
 
 | Documento | Conteúdo |
 |---|---|
+| [🗂️ Índice da documentação](docs/README.md) | Versão e data de revisão de cada documento e regra de sincronização documentação × código |
 | [📋 Termo de Abertura](docs/project-charter.md) | Justificativa, visão do produto, objetivos SMART, escopo, stakeholders, riscos e marcos |
 | [📐 Requisitos](docs/requisitos.md) | Requisitos funcionais (RF), não funcionais (RNF) e regras de negócio (RN) |
 | [🎭 Casos de Uso](docs/casos-de-uso.md) | Atores, diagrama e fluxos principal, alternativos e de exceção |
