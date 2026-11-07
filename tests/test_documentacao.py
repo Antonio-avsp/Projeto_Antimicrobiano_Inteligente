@@ -74,3 +74,10 @@ def test_adr_tem_as_secoes_e_esta_nos_indices(adr):
     assert re.search(r"- \*\*Situação:\*\* (Proposta|Aceita|Substituída)", texto)
     assert f"]({adr.name})" in _ler(DOCS / "adr" / "README.md")
     assert f"](adr/{adr.name})" in _ler(DOCS / "arquitetura.md")
+
+
+def test_checklist_clinico_cobre_todas_as_regras_do_motor():
+    checklist = _ler(DOCS / "validacao-clinica.md")
+
+    for tipo in TipoAlerta:
+        assert f"`{tipo.value}`" in checklist

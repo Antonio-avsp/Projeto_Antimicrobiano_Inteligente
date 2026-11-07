@@ -149,7 +149,7 @@ Itens planejados como fora do escopo da iteração 1 e priorizados pela Avaliaç
 | Acesso indevido aos dados (v1.0.0) | Média | Alto | Token JWT com expiração, perfis com permissões mínimas, senhas em hash scrypt e `AMI_JWT_SEGREDO` obrigatório fora do desenvolvimento |
 | Dependências com vulnerabilidades (v1.0.0) | Média | Médio | pip-audit no CI e semanal, Dependabot e bandit |
 
-> Matriz revisada no marco v1.0.0 (07/11/2026): incluídos os riscos de acesso e de dependências. A revisão por especialista das regras clínicas é acompanhada no checklist de validação clínica (#68).
+> Matriz revisada no marco v1.0.0 (07/11/2026): incluídos os riscos de acesso e de dependências. A revisão por especialista das regras clínicas é acompanhada no [checklist de validação clínica](validacao-clinica.md) (#68).
 
 ---
 
