@@ -339,7 +339,8 @@ def _cenarios_do_painel(sessao: Session, am: dict[str, Antimicrobiano], hoje: da
 
 def _historico_microbiologico(sessao: Session, am: dict[str, Antimicrobiano], hoje: date) -> None:
     """Culturas fictícias dos últimos seis meses para o antibiograma cumulativo."""
-    sorteio = random.Random(42)
+    # Gerador determinístico para dados fictícios reproduzíveis; não há uso criptográfico.
+    sorteio = random.Random(42)  # nosec B311
     paciente = 2000
     for microrganismo, (quantidade, perfil) in PERFIS.items():
         for _ in range(quantidade):

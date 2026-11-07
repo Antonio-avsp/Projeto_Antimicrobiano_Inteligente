@@ -30,6 +30,7 @@ dev = [
     "httpx>=0.27",
     "httpx2>=2.0",
     "ruff>=0.6",
+    "bandit[toml]>=1.7",
 ]
 
 [tool.setuptools.dynamic]
@@ -53,6 +54,13 @@ branch = true
 [tool.coverage.report]
 show_missing = true
 skip_empty = true
+fail_under = 80
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
 
 [tool.ruff]
 line-length = 100
