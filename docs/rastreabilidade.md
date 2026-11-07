@@ -36,7 +36,7 @@ Legenda: ✅ implementado · 🗓️ planejado
 | RNF03 | Usabilidade | #6, #8, #58 | OpenAPI em `/docs`; formato único de erro com mensagens em português em `tests/test_erros.py` |
 | RNF04 | Privacidade (LGPD) | #10, #19 | Validação de `paciente_codigo` em `tests/test_prescricoes.py` e `tests/test_culturas.py`; seed apenas fictício |
 | RNF05 | Segurança | #6, #24, #60 | Testes de validação (422), `tests/test_autenticacao.py`, `.gitignore` com `.env.example` versionado (`tests/test_config.py`) e revisão de PR |
-| RNF06 | Portabilidade | #6, #7 | Pipeline de CI em Python 3.11, 3.12 e 3.13 |
+| RNF06 | Portabilidade | #6, #7, #61 | Pipeline de CI em Python 3.11, 3.12 e 3.13 e job de build da imagem Docker |
 | RNF07 | Manutenibilidade | #13, #18, #20 | Motor Strategy; ruff |
 | RNF08 | Testabilidade | #6, #20 | `pytest --cov` (meta ≥ 80%) |
 | RNF09 | Integridade | #9 | Testes de inativação lógica e chaves estrangeiras |
