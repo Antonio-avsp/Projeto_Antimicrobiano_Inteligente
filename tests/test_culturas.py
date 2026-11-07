@@ -148,7 +148,7 @@ def test_antimicrobiano_inexistente_no_antibiograma_retorna_422(client, nova_cul
     )
 
     assert resposta.status_code == 422
-    assert "999" in resposta.json()["detail"]
+    assert "999" in resposta.json()["mensagem"]
 
 
 def test_data_do_resultado_anterior_a_coleta_retorna_422(client, nova_cultura):
@@ -160,7 +160,7 @@ def test_data_do_resultado_anterior_a_coleta_retorna_422(client, nova_cultura):
     )
 
     assert resposta.status_code == 422
-    assert "anterior à coleta" in resposta.json()["detail"]
+    assert "anterior à coleta" in resposta.json()["mensagem"]
 
 
 @pytest.mark.parametrize(

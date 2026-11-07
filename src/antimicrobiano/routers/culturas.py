@@ -6,12 +6,12 @@ from fastapi import APIRouter, Query, status
 
 from antimicrobiano.database import SessaoDep
 from antimicrobiano.enums import StatusCultura
-from antimicrobiano.schemas.comum import RESPOSTA_404
+from antimicrobiano.schemas.comum import RESPOSTA_404, RESPOSTA_422
 from antimicrobiano.schemas.cultura import CulturaCriar, CulturaResposta, ResultadoCultura
 from antimicrobiano.schemas.prescricao import PADRAO_CODIGO_PACIENTE
 from antimicrobiano.services import culturas as servico
 
-router = APIRouter(prefix="/culturas", tags=["Microbiologia"])
+router = APIRouter(prefix="/culturas", tags=["Microbiologia"], responses=RESPOSTA_422)
 
 
 @router.post(

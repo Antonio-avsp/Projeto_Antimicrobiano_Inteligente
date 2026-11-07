@@ -6,7 +6,7 @@ from fastapi import APIRouter, Query, status
 
 from antimicrobiano.database import SessaoDep
 from antimicrobiano.enums import StatusPrescricao
-from antimicrobiano.schemas.comum import RESPOSTA_404, RESPOSTA_409
+from antimicrobiano.schemas.comum import RESPOSTA_404, RESPOSTA_409, RESPOSTA_422
 from antimicrobiano.schemas.prescricao import (
     PADRAO_CODIGO_PACIENTE,
     EncerramentoCriar,
@@ -18,7 +18,7 @@ from antimicrobiano.schemas.prescricao import (
 )
 from antimicrobiano.services import prescricoes as servico
 
-router = APIRouter(prefix="/prescricoes", tags=["Prescrições"])
+router = APIRouter(prefix="/prescricoes", tags=["Prescrições"], responses=RESPOSTA_422)
 
 
 @router.post(

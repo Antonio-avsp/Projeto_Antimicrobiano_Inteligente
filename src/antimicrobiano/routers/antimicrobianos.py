@@ -9,10 +9,10 @@ from antimicrobiano.schemas.antimicrobiano import (
     AntimicrobianoCriar,
     AntimicrobianoResposta,
 )
-from antimicrobiano.schemas.comum import RESPOSTA_404, RESPOSTA_409
+from antimicrobiano.schemas.comum import RESPOSTA_404, RESPOSTA_409, RESPOSTA_422
 from antimicrobiano.services import antimicrobianos as servico
 
-router = APIRouter(prefix="/antimicrobianos", tags=["Antimicrobianos"])
+router = APIRouter(prefix="/antimicrobianos", tags=["Antimicrobianos"], responses=RESPOSTA_422)
 
 
 @router.post(

@@ -33,7 +33,7 @@ Legenda: ✅ implementado · 🗓️ planejado
 |---|---|---|---|
 | RNF01 | Desempenho | #16 | `tests/test_desempenho.py` (1.000 prescrições ativas em até 2 s) |
 | RNF02 | Persistência | #6 | Configuração `AMI_DATABASE_URL` e testes com banco em memória |
-| RNF03 | Usabilidade | #6, #8 | OpenAPI em `/docs`; mensagens de erro em português nos testes de API |
+| RNF03 | Usabilidade | #6, #8, #58 | OpenAPI em `/docs`; formato único de erro com mensagens em português em `tests/test_erros.py` |
 | RNF04 | Privacidade (LGPD) | #10, #19 | Validação de `paciente_codigo` em `tests/test_prescricoes.py` e `tests/test_culturas.py`; seed apenas fictício |
 | RNF05 | Segurança | #6, #24 | Testes de validação (422); `.gitignore`; revisão de PR |
 | RNF06 | Portabilidade | #6, #7 | Pipeline de CI em Python 3.11, 3.12 e 3.13 |
