@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+import secrets
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -15,6 +17,7 @@ from antimicrobiano.observabilidade import registrar_observabilidade
 from antimicrobiano.routers import (
     alertas,
     antimicrobianos,
+    autenticacao,
     culturas,
     prescricoes,
     relatorios,
@@ -50,8 +53,21 @@ TAGS = [
         "name": "Relatórios",
         "description": "Antibiograma cumulativo (RF14) e indicadores de consumo DOT (RF15).",
     },
+    {
+        "name": "Autenticação",
+        "description": "Login com token JWT e cadastro de usuários por perfil (RF17).",
+    },
     {"name": "Sistema", "description": "Saúde e versão da API."},
 ]
+
+
+def _segredo_temporario() -> str:
+    """Segredo aleatório usado quando AMI_JWT_SEGREDO não está definido (apenas desenvolvimento)."""
+    logging.getLogger("antimicrobiano.seguranca").warning(
+        "AMI_JWT_SEGREDO não definido: usando um segredo temporário; os tokens deixam de valer "
+        "quando a API reiniciar. Defina a variável em produção."
+    )
+    return secrets.token_urlsafe(48)
 
 
 def create_app(config: Configuracao | None = None) -> FastAPI:
@@ -73,11 +89,13 @@ def create_app(config: Configuracao | None = None) -> FastAPI:
         lifespan=lifespan,
     )
     app.state.config = config
+    app.state.jwt_segredo = config.jwt_segredo or _segredo_temporario()
     app.state.engine = engine
     app.state.fabrica_sessoes = criar_fabrica_sessoes(engine)
 
     registrar_observabilidade(app, config.log_nivel)
     registrar_tratadores_de_erro(app)
+    app.include_router(autenticacao.router)
     app.include_router(antimicrobianos.router)
     app.include_router(prescricoes.router)
     app.include_router(culturas.router)

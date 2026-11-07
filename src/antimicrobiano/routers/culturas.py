@@ -2,25 +2,32 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, Depends, Query, status
 
 from antimicrobiano.database import SessaoDep
 from antimicrobiano.enums import StatusCultura
-from antimicrobiano.schemas.comum import RESPOSTA_404, RESPOSTA_422
+from antimicrobiano.routers.dependencias import EditorMicrobiologiaDep, usuario_atual
+from antimicrobiano.schemas.comum import RESPOSTA_401, RESPOSTA_403, RESPOSTA_404, RESPOSTA_422
 from antimicrobiano.schemas.cultura import CulturaCriar, CulturaResposta, ResultadoCultura
 from antimicrobiano.schemas.prescricao import PADRAO_CODIGO_PACIENTE
 from antimicrobiano.services import culturas as servico
 
-router = APIRouter(prefix="/culturas", tags=["Microbiologia"], responses=RESPOSTA_422)
+router = APIRouter(
+    prefix="/culturas",
+    tags=["Microbiologia"],
+    dependencies=[Depends(usuario_atual)],
+    responses={**RESPOSTA_401, **RESPOSTA_422},
+)
 
 
 @router.post(
     "",
     status_code=status.HTTP_201_CREATED,
     response_model=CulturaResposta,
+    responses=RESPOSTA_403,
     summary="Registrar coleta de cultura",
 )
-def registrar_coleta(dados: CulturaCriar, sessao: SessaoDep):
+def registrar_coleta(dados: CulturaCriar, sessao: SessaoDep, _editor: EditorMicrobiologiaDep):
     """Registra a coleta; a cultura fica PENDENTE até o resultado."""
     return servico.registrar_coleta(sessao, dados)
 
@@ -49,9 +56,11 @@ def consultar(cultura_id: int, sessao: SessaoDep):
 @router.put(
     "/{cultura_id}/resultado",
     response_model=CulturaResposta,
-    responses=RESPOSTA_404,
+    responses={**RESPOSTA_403, **RESPOSTA_404},
     summary="Registrar resultado e antibiograma",
 )
-def registrar_resultado(cultura_id: int, dados: ResultadoCultura, sessao: SessaoDep):
+def registrar_resultado(
+    cultura_id: int, dados: ResultadoCultura, sessao: SessaoDep, _editor: EditorMicrobiologiaDep
+):
     """Registra o resultado (POSITIVA com microrganismo e antibiograma, ou NEGATIVA)."""
     return servico.registrar_resultado(sessao, cultura_id, dados)

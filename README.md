@@ -75,7 +75,7 @@ Legenda: ✅ implementado · 🚧 em desenvolvimento · 🗓️ planejado
 | Gates de qualidade no CI (ruff + cobertura mínima) | RNF07, RNF08 | [#20](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/20) | v1.0.0 | 🗓️ |
 | Indicadores de consumo (DOT) por antimicrobiano, categoria AWaRe e setor | RF15 | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) | v1.0.0 | ✅ |
 | Alerta de duplicidade terapêutica | RF16 | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) | v1.0.0 | ✅ |
-| Autenticação e perfis de acesso | RF17 | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) | v1.0.0 | 🗓️ |
+| Autenticação JWT e perfis de acesso (farmacêutico, infectologista, laboratório e gestor) | RF17 | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) | v1.0.0 | ✅ |
 | Interface web do painel de alertas | RF18 | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) | v1.0.0 | 🗓️ |
 
 O detalhamento de cada requisito está em [docs/requisitos.md](docs/requisitos.md) e a ligação requisito → issue → teste em [docs/rastreabilidade.md](docs/rastreabilidade.md).
@@ -127,13 +127,32 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
-**4. (Opcional) Carregar dados fictícios de demonstração**
+**4. Criar os usuários: carga de demonstração ou primeiro GESTOR**
+
+Todas as rotas de dados exigem login. Para explorar o projeto, carregue os dados fictícios de demonstração:
 
 ```bash
 python -m antimicrobiano.seed
 ```
 
-O comando cria o catálogo com 21 antimicrobianos classificados pela AWaRe, prescrições que geram **um exemplo de cada tipo de alerta** no dia da execução e um histórico de culturas para o antibiograma cumulativo. Execuções repetidas não duplicam dados; use `--reset` para recriar a base.
+O comando cria um **usuário fictício de cada perfil**, o catálogo com 21 antimicrobianos classificados pela AWaRe, prescrições que geram **um exemplo de cada tipo de alerta** no dia da execução e um histórico de culturas para o antibiograma cumulativo. Execuções repetidas não duplicam dados; use `--reset` para recriar a base.
+
+| Login | Perfil | Pode alterar |
+|---|---|---|
+| `gestor.demo` | GESTOR | Tudo, inclusive usuários |
+| `farmaceutico.demo` | FARMACEUTICO | Catálogo, prescrições e intervenções |
+| `infectologista.demo` | INFECTOLOGISTA | Prescrições e intervenções |
+| `laboratorio.demo` | LABORATORIO | Culturas e resultados |
+
+A senha de todos é `senha-demo` (ou o valor de `AMI_SENHA_DEMO`). Todos os perfis consultam o painel e os relatórios. **Use esses usuários apenas em demonstração.**
+
+Para uma base sem dados de demonstração, crie o primeiro GESTOR; ele cadastra os demais usuários em `POST /usuarios`:
+
+```bash
+python -m antimicrobiano.usuarios criar --login ana.souza --nome "Ana Souza" --perfil GESTOR
+```
+
+> Bases criadas antes da v1.0.0 não têm a tabela de usuários: recrie a base de demonstração com `python -m antimicrobiano.seed --reset`.
 
 **5. Iniciar a API**
 
@@ -141,7 +160,7 @@ O comando cria o catálogo com 21 antimicrobianos classificados pela AWaRe, pres
 uvicorn antimicrobiano.main:app --reload
 ```
 
-**6. Acessar a documentação interativa** em <http://127.0.0.1:8000/docs> (Swagger UI) ou <http://127.0.0.1:8000/redoc>. Com os dados de demonstração, comece por `GET /alertas`.
+**6. Acessar a documentação interativa** em <http://127.0.0.1:8000/docs> (Swagger UI) ou <http://127.0.0.1:8000/redoc>. Faça login em `POST /auth/login`, copie o `access_token`, clique em **Authorize** e cole o token; depois comece por `GET /alertas`.
 
 **7. Executar os testes e a análise estática**
 
@@ -163,6 +182,9 @@ ruff check .
 | `AMI_JANELA_CULTURA_DIAS` | `7` | Dias antes do início da terapia em que uma cultura é considerada relevante. |
 | `AMI_MINIMO_ISOLADOS` | `30` | Mínimo de isolados para amostra suficiente no antibiograma cumulativo. |
 | `AMI_LOG_NIVEL` | `INFO` | Nível dos logs JSON (`DEBUG`, `INFO`, `WARNING`, `ERROR` ou `CRITICAL`). |
+| `AMI_JWT_SEGREDO` | *(gerado a cada início)* | Segredo de assinatura dos tokens, com **pelo menos 32 caracteres**. Sem ele, a API gera um segredo temporário e os tokens deixam de valer quando ela reinicia. **Obrigatório fora do ambiente de desenvolvimento.** |
+| `AMI_JWT_EXPIRACAO_MINUTOS` | `60` | Validade do token de acesso, em minutos. |
+| `AMI_SENHA_DEMO` | `senha-demo` | Senha dos usuários fictícios criados por `python -m antimicrobiano.seed`. |
 
 Os parâmetros clínicos variam entre protocolos institucionais; valores inválidos impedem a inicialização com uma mensagem que indica a variável.
 
@@ -192,10 +214,22 @@ curl http://127.0.0.1:8000/health
 
 > No Windows, execute os exemplos no **Git Bash** ou use o Swagger UI em `/docs`, que monta as requisições pelo navegador.
 
+**Entrar e guardar o token** (RF17) — os exemplos abaixo usam o usuário de demonstração `farmaceutico.demo`:
+
+```bash
+TOKEN=$(curl -s -X POST http://127.0.0.1:8000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"login": "farmaceutico.demo", "senha": "senha-demo"}' \
+  | python -c "import json, sys; print(json.load(sys.stdin)['access_token'])")
+```
+
+Sem o token a API responde `401`; com um perfil sem permissão para a operação, `403`. Culturas e resultados são registrados pelo perfil LABORATORIO; obtenha o token dele da mesma forma, trocando o login para `laboratorio.demo` e guardando em `TOKEN_LAB`.
+
 **Cadastrar um antimicrobiano no catálogo** (RF01):
 
 ```bash
 curl -X POST http://127.0.0.1:8000/antimicrobianos \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"nome": "Meropenem", "classe": "Carbapenêmico", "categoria_aware": "WATCH", "uso_restrito": true}'
 ```
@@ -203,13 +237,14 @@ curl -X POST http://127.0.0.1:8000/antimicrobianos \
 **Listar antimicrobianos WATCH de uso restrito** (RF02):
 
 ```bash
-curl "http://127.0.0.1:8000/antimicrobianos?categoria_aware=WATCH&uso_restrito=true"
+curl -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:8000/antimicrobianos?categoria_aware=WATCH&uso_restrito=true"
 ```
 
 **Registrar uma prescrição** para um paciente pseudonimizado (RF03):
 
 ```bash
 curl -X POST http://127.0.0.1:8000/prescricoes \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"paciente_codigo": "PAC-0001", "setor": "UTI Adulto", "antimicrobiano_id": 1,
        "dose": "1 g", "intervalo_horas": 8, "via": "IV", "indicacao": "EMPIRICA",
@@ -220,19 +255,21 @@ curl -X POST http://127.0.0.1:8000/prescricoes \
 **Listar as prescrições ativas da UTI** (RF04):
 
 ```bash
-curl "http://127.0.0.1:8000/prescricoes?status=ATIVA&setor=UTI%20Adulto"
+curl -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:8000/prescricoes?status=ATIVA&setor=UTI%20Adulto"
 ```
 
 **Registrar a coleta e o resultado de uma cultura com antibiograma** (RF06):
 
 ```bash
 curl -X POST http://127.0.0.1:8000/culturas \
+  -H "Authorization: Bearer $TOKEN_LAB" \
   -H "Content-Type: application/json" \
   -d '{"paciente_codigo": "PAC-0001", "setor": "UTI Adulto", "material": "SANGUE"}'
 ```
 
 ```bash
 curl -X PUT http://127.0.0.1:8000/culturas/1/resultado \
+  -H "Authorization: Bearer $TOKEN_LAB" \
   -H "Content-Type: application/json" \
   -d '{"resultado": "POSITIVA", "microrganismo": "Klebsiella pneumoniae",
        "antibiograma": [{"antimicrobiano_id": 1, "interpretacao": "S"}]}'
@@ -241,13 +278,13 @@ curl -X PUT http://127.0.0.1:8000/culturas/1/resultado \
 **Consultar o painel de alertas** de uma data de referência (RF07–RF13):
 
 ```bash
-curl "http://127.0.0.1:8000/alertas?data_referencia=2026-11-06"
+curl -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:8000/alertas?data_referencia=2026-11-06"
 ```
 
 **Filtrar o painel** — apenas alertas de severidade ALTA da UTI (RF13):
 
 ```bash
-curl "http://127.0.0.1:8000/alertas?severidade=ALTA&setor=UTI%20Adulto"
+curl -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:8000/alertas?severidade=ALTA&setor=UTI%20Adulto"
 ```
 
 Resposta resumida de uma consulta sem filtros:
@@ -280,13 +317,13 @@ Resposta resumida de uma consulta sem filtros:
 **Gerar o antibiograma cumulativo** de um período (RF14):
 
 ```bash
-curl "http://127.0.0.1:8000/relatorios/antibiograma-cumulativo?inicio=2026-01-01&fim=2026-10-31&setor=UTI%20Adulto"
+curl -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:8000/relatorios/antibiograma-cumulativo?inicio=2026-01-01&fim=2026-10-31&setor=UTI%20Adulto"
 ```
 
 **Consultar os indicadores de consumo** (dias de terapia — DOT) por antimicrobiano, categoria AWaRe e setor, com o percentual de uso ACCESS comparado à meta de 60% da OMS (RF15):
 
 ```bash
-curl "http://127.0.0.1:8000/relatorios/indicadores?inicio=2026-10-01&fim=2026-10-31"
+curl -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:8000/relatorios/indicadores?inicio=2026-10-01&fim=2026-10-31"
 ```
 
 ## Documentação do projeto

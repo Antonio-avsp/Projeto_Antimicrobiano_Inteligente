@@ -46,6 +46,8 @@ class AtualizacaoParcial(BaseModel):
         return self
 
 
+RESPOSTA_401 = {401: {"model": Erro, "description": "Token ausente, inválido ou expirado"}}
+RESPOSTA_403 = {403: {"model": Erro, "description": "Perfil sem permissão para a operação"}}
 RESPOSTA_404 = {404: {"model": Erro, "description": "Recurso não encontrado"}}
 RESPOSTA_409 = {409: {"model": Erro, "description": "Conflito de unicidade ou de estado"}}
 RESPOSTA_422 = {422: {"model": Erro, "description": "Dados inválidos ou regra de negócio violada"}}

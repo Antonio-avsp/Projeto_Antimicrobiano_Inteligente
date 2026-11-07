@@ -3,17 +3,22 @@
 from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 
 from antimicrobiano.database import SessaoDep
 from antimicrobiano.enums import Severidade, TipoAlerta
-from antimicrobiano.routers.dependencias import ParametrosDep
+from antimicrobiano.routers.dependencias import ParametrosDep, usuario_atual
 from antimicrobiano.schemas.alerta import PainelAlertas
-from antimicrobiano.schemas.comum import AVISO_APOIO_A_DECISAO, RESPOSTA_422
+from antimicrobiano.schemas.comum import AVISO_APOIO_A_DECISAO, RESPOSTA_401, RESPOSTA_422
 from antimicrobiano.schemas.prescricao import PADRAO_CODIGO_PACIENTE
 from antimicrobiano.services import alertas as servico
 
-router = APIRouter(prefix="/alertas", tags=["Alertas"], responses=RESPOSTA_422)
+router = APIRouter(
+    prefix="/alertas",
+    tags=["Alertas"],
+    dependencies=[Depends(usuario_atual)],
+    responses={**RESPOSTA_401, **RESPOSTA_422},
+)
 
 
 @router.get("", response_model=PainelAlertas, summary="Painel de alertas inteligentes")

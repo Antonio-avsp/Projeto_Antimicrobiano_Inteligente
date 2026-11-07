@@ -6,12 +6,16 @@ Uso::
     python -m antimicrobiano.seed --reset    # recria a base apenas com os dados de demonstração
 
 As datas são relativas ao dia da execução, para que o painel de alertas do dia apresente
-um exemplo de cada regra do motor.
+um exemplo de cada regra do motor. A carga também cria um usuário fictício de cada perfil
+(``gestor.demo``, ``farmaceutico.demo``, ``infectologista.demo`` e ``laboratorio.demo``), com a
+senha de demonstração definida em ``AMI_SENHA_DEMO`` (padrão: ``senha-demo``). Esses usuários
+servem apenas para demonstração e não devem existir em um ambiente real.
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import random
 from datetime import date, timedelta
 
@@ -26,6 +30,7 @@ from antimicrobiano.enums import (
     Indicacao,
     Interpretacao,
     Material,
+    Perfil,
     StatusCultura,
     StatusPrescricao,
     Via,
@@ -36,8 +41,18 @@ from antimicrobiano.models import (
     ItemAntibiograma,
     Prescricao,
     Reavaliacao,
+    Usuario,
 )
+from antimicrobiano.seguranca import gerar_hash_de_senha
 from antimicrobiano.texto import normalizar
+
+SENHA_DEMO_PADRAO = "senha-demo"
+USUARIOS_DEMO = (
+    ("gestor.demo", "Gestor(a) da CCIH — demonstração", Perfil.GESTOR),
+    ("farmaceutico.demo", "Farmacêutico(a) clínico(a) — demonstração", Perfil.FARMACEUTICO),
+    ("infectologista.demo", "Médico(a) infectologista — demonstração", Perfil.INFECTOLOGISTA),
+    ("laboratorio.demo", "Analista de microbiologia — demonstração", Perfil.LABORATORIO),
+)
 
 ACCESS, WATCH, RESERVE = CategoriaAware.ACCESS, CategoriaAware.WATCH, CategoriaAware.RESERVE
 
@@ -136,7 +151,13 @@ def _catalogo(sessao: Session) -> dict[str, Antimicrobiano]:
 
 
 def _prescricao(am: Antimicrobiano, **campos) -> Prescricao:
-    padrao = {"dose": "1 g", "intervalo_horas": 8, "via": Via.IV, "duracao_prevista_dias": 7}
+    padrao = {
+        "dose": "1 g",
+        "intervalo_horas": 8,
+        "via": Via.IV,
+        "duracao_prevista_dias": 7,
+        "registrado_por": "farmaceutico.demo",
+    }
     return Prescricao(antimicrobiano=am, **(padrao | campos))
 
 
@@ -208,7 +229,12 @@ def _cenarios_do_painel(sessao: Session, am: dict[str, Antimicrobiano], hoje: da
         intervalo_horas=6,
     )
     descalonavel.reavaliacoes.append(
-        Reavaliacao(data_reavaliacao=dias(1), conduta=Conduta.MANTER, observacao="Aguardar TSA")
+        Reavaliacao(
+            data_reavaliacao=dias(1),
+            conduta=Conduta.MANTER,
+            observacao="Aguardar TSA",
+            registrado_por="infectologista.demo",
+        )
     )
     sessao.add(descalonavel)
     sessao.add(
@@ -249,7 +275,13 @@ def _cenarios_do_painel(sessao: Session, am: dict[str, Antimicrobiano], hoje: da
         via=Via.VO,
         dose="500 mg",
     )
-    prolongada.reavaliacoes.append(Reavaliacao(data_reavaliacao=dias(6), conduta=Conduta.MANTER))
+    prolongada.reavaliacoes.append(
+        Reavaliacao(
+            data_reavaliacao=dias(6),
+            conduta=Conduta.MANTER,
+            registrado_por="infectologista.demo",
+        )
+    )
     sessao.add(prolongada)
     # DUPLICIDADE_TERAPEUTICA: transição IV → VO sem suspender a cefalosporina IV
     for nome, via, dose in (("Cefazolina", Via.IV, "1 g"), ("Cefalexina", Via.VO, "500 mg")):
@@ -330,14 +362,23 @@ def _historico_microbiologico(sessao: Session, am: dict[str, Antimicrobiano], ho
             )
 
 
-def carregar(sessao: Session, hoje: date | None = None) -> dict[str, int]:
-    """Insere o catálogo, os cenários do painel e o histórico microbiológico."""
+def _usuarios_demo(sessao: Session, senha: str) -> None:
+    """Um usuário fictício de cada perfil, com a mesma senha de demonstração."""
+    senha_hash = gerar_hash_de_senha(senha)
+    for login, nome, perfil in USUARIOS_DEMO:
+        sessao.add(Usuario(login=login, nome=nome, perfil=perfil, senha_hash=senha_hash))
+
+
+def carregar(sessao: Session, hoje: date | None = None, senha: str | None = None) -> dict[str, int]:
+    """Insere usuários, catálogo, cenários do painel e histórico microbiológico."""
     hoje = hoje or date.today()
+    _usuarios_demo(sessao, senha or os.getenv("AMI_SENHA_DEMO") or SENHA_DEMO_PADRAO)
     antimicrobianos = _catalogo(sessao)
     _cenarios_do_painel(sessao, antimicrobianos, hoje)
     _historico_microbiologico(sessao, antimicrobianos, hoje)
     sessao.commit()
     return {
+        "usuarios": sessao.scalar(select(func.count(Usuario.id))),
         "antimicrobianos": sessao.scalar(select(func.count(Antimicrobiano.id))),
         "prescricoes": sessao.scalar(select(func.count(Prescricao.id))),
         "culturas": sessao.scalar(select(func.count(Cultura.id))),
@@ -376,7 +417,15 @@ def main(argv: list[str] | None = None) -> int:
         f"Carga concluída em {config.database_url}: {totais['antimicrobianos']} antimicrobianos, "
         f"{totais['prescricoes']} prescrições e {totais['culturas']} culturas (dados fictícios)."
     )
-    print("Inicie a API com 'uvicorn antimicrobiano.main:app' e consulte GET /alertas.")
+    print(
+        f"Usuários de demonstração ({totais['usuarios']}): "
+        + ", ".join(login for login, _, _ in USUARIOS_DEMO)
+        + " — senha definida em AMI_SENHA_DEMO (padrão: senha-demo)."
+    )
+    print(
+        "Inicie a API com 'uvicorn antimicrobiano.main:app', faça login em POST /auth/login "
+        "e consulte GET /alertas (ou abra /painel)."
+    )
     return 0
 
 

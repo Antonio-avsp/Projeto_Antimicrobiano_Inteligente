@@ -15,6 +15,7 @@ from antimicrobiano.enums import (
     Indicacao,
     Interpretacao,
     Material,
+    Perfil,
     StatusCultura,
     StatusPrescricao,
     Via,
@@ -76,6 +77,8 @@ class Prescricao(Auditavel, Base):
     )
     data_fim: Mapped[date | None]
     motivo_encerramento: Mapped[str | None] = mapped_column(String(300))
+    registrado_por: Mapped[str | None] = mapped_column(String(40))
+    encerrado_por: Mapped[str | None] = mapped_column(String(40))
 
     antimicrobiano: Mapped[Antimicrobiano] = relationship(lazy="joined")
     reavaliacoes: Mapped[list[Reavaliacao]] = relationship(
@@ -101,6 +104,7 @@ class Reavaliacao(Base):
     data_reavaliacao: Mapped[date]
     conduta: Mapped[Conduta] = mapped_column(_enum(Conduta))
     observacao: Mapped[str | None] = mapped_column(String(500))
+    registrado_por: Mapped[str | None] = mapped_column(String(40))
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=agora_utc)
 
     prescricao: Mapped[Prescricao] = relationship(back_populates="reavaliacoes")
@@ -143,3 +147,16 @@ class ItemAntibiograma(Base):
 
     cultura: Mapped[Cultura] = relationship(back_populates="antibiograma")
     antimicrobiano: Mapped[Antimicrobiano] = relationship(lazy="joined")
+
+
+class Usuario(Auditavel, Base):
+    """Usuário da API com perfil de acesso (RF17)."""
+
+    __tablename__ = "usuarios"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    login: Mapped[str] = mapped_column(String(40), unique=True, index=True)
+    nome: Mapped[str] = mapped_column(String(120))
+    perfil: Mapped[Perfil] = mapped_column(_enum(Perfil))
+    senha_hash: Mapped[str] = mapped_column(String(255))
+    ativo: Mapped[bool] = mapped_column(default=True)

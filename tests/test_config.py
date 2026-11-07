@@ -12,7 +12,9 @@ from antimicrobiano.config import (
     ConfiguracaoInvalida,
     ParametrosClinicos,
 )
+from antimicrobiano.enums import Perfil
 from antimicrobiano.main import create_app
+from tests.conftest import cabecalho_de, criar_usuario
 
 
 def test_usa_sqlite_local_por_padrao(monkeypatch):
@@ -72,7 +74,10 @@ def test_timeout_de_48_horas_configurado_por_ambiente(monkeypatch, sem_variaveis
     monkeypatch.setenv("AMI_TIMEOUT_DIAS", "2")
     dois_dias_atras = (date.today() - timedelta(days=2)).isoformat()
 
-    with TestClient(create_app()) as cliente:
+    app = create_app()
+    with TestClient(app) as cliente:
+        criar_usuario(app, "gestor.teste", Perfil.GESTOR)
+        cliente.headers.update(cabecalho_de(cliente, "gestor.teste"))
         antimicrobiano = cliente.post(
             "/antimicrobianos",
             json={"nome": "Ceftriaxona", "classe": "Cefalosporina", "categoria_aware": "WATCH"},

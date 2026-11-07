@@ -40,6 +40,8 @@ erDiagram
         string status "ATIVA, CONCLUIDA ou SUSPENSA"
         date data_fim "opcional"
         string motivo_encerramento "opcional"
+        string registrado_por "login do autor"
+        string encerrado_por "login do autor"
         datetime criado_em
         datetime atualizado_em
     }
@@ -49,6 +51,7 @@ erDiagram
         date data_reavaliacao
         string conduta "MANTER, AJUSTAR, DESCALONAR ou SUSPENDER"
         string observacao "opcional"
+        string registrado_por "login do autor"
         datetime criado_em
     }
     CULTURA {
@@ -69,6 +72,16 @@ erDiagram
         int antimicrobiano_id FK
         string interpretacao "S, I ou R"
     }
+    USUARIO {
+        int id PK
+        string login UK
+        string nome
+        string perfil "FARMACEUTICO, INFECTOLOGISTA, LABORATORIO ou GESTOR"
+        string senha_hash "scrypt com sal"
+        boolean ativo
+        datetime criado_em
+        datetime atualizado_em
+    }
 ```
 
 **Cardinalidades**
@@ -76,6 +89,7 @@ erDiagram
 - Um antimicrobiano pode estar em **zero ou muitas** prescrições; cada prescrição refere-se a **exatamente um** antimicrobiano.
 - Uma prescrição recebe **zero ou muitas** reavaliações.
 - Uma cultura positiva possui **zero ou muitos** itens de antibiograma; cada item refere-se a **um** antimicrobiano, que aparece no máximo uma vez por cultura (RN10).
+- `USUARIO` não tem chave estrangeira para as demais tabelas: a autoria das intervenções é gravada como o **login** em `registrado_por` e `encerrado_por`, preservando o histórico mesmo que o usuário seja inativado.
 
 ## 2. Dicionário de dados
 
@@ -111,6 +125,8 @@ erDiagram
 | `status` | enum | sim | `ATIVA`, `CONCLUIDA`, `SUSPENSA` | Situação da prescrição |
 | `data_fim` | data | não | início ≤ data ≤ hoje | Data de término (RN09) |
 | `motivo_encerramento` | texto (300) | não | — | Motivo informado no encerramento |
+| `registrado_por` | texto (40) | não | login do usuário | Quem registrou a prescrição (RF17) |
+| `encerrado_por` | texto (40) | não | login do usuário | Quem encerrou a prescrição (RF17) |
 | `criado_em`, `atualizado_em` | data e hora | sim | automáticos (UTC) | Auditoria |
 
 ### 2.3 `reavaliacoes`
@@ -122,6 +138,7 @@ erDiagram
 | `data_reavaliacao` | data | sim | início ≤ data ≤ hoje | Data do time-out (RN09) |
 | `conduta` | enum | sim | `MANTER`, `AJUSTAR`, `DESCALONAR`, `SUSPENDER` | Decisão tomada |
 | `observacao` | texto (500) | não | — | Detalhes da intervenção |
+| `registrado_por` | texto (40) | não | login do usuário | Quem registrou o time-out (RF17) |
 | `criado_em` | data e hora | sim | automático (UTC) | Auditoria |
 
 ### 2.4 `culturas`
@@ -147,6 +164,20 @@ erDiagram
 | `antimicrobiano_id` | inteiro | sim | FK → `antimicrobianos.id` | Antimicrobiano testado |
 | `interpretacao` | enum | sim | `S`, `I`, `R` | Interpretação BrCAST/EUCAST |
 | (`cultura_id`, `antimicrobiano_id`) | — | — | **único** | Um antimicrobiano por antibiograma (RN10) |
+
+### 2.6 `usuarios`
+
+| Campo | Tipo | Obrig. | Restrições | Descrição |
+|---|---|---|---|---|
+| `id` | inteiro | sim | PK | Identificador |
+| `login` | texto (40) | sim | **único**; `^[a-z0-9._-]{3,40}$` | Identificador de acesso |
+| `nome` | texto (120) | sim | 3 a 120 caracteres | Nome do usuário |
+| `perfil` | enum | sim | `FARMACEUTICO`, `INFECTOLOGISTA`, `LABORATORIO`, `GESTOR` | Perfil de acesso (RN24) |
+| `senha_hash` | texto (255) | sim | scrypt com sal aleatório | A senha nunca é armazenada em texto (RNF05) |
+| `ativo` | booleano | sim | padrão `true` | Usuário inativo não autentica |
+| `criado_em`, `atualizado_em` | data e hora | sim | automáticos (UTC) | Auditoria |
+
+> A v1.0.0 incluiu a tabela `usuarios` e as colunas de autoria. Como o projeto não usa ferramenta de migração, uma base criada em versão anterior deve ser recriada (`python -m antimicrobiano.seed --reset` para a base de demonstração).
 
 ## 3. Diagrama de classes
 
@@ -255,3 +286,4 @@ classDiagram
 | `Interpretacao` | `S` (sensível), `I` (sensível, aumentando exposição), `R` (resistente) |
 | `TipoAlerta` | `TIMEOUT_REAVALIACAO`, `DURACAO_EXCEDIDA`, `PROFILAXIA_PROLONGADA`, `RESTRITO_SEM_JUSTIFICATIVA`, `SEM_CULTURA`, `RESISTENCIA`, `DESCALONAMENTO`, `DUPLICIDADE_TERAPEUTICA` |
 | `Severidade` | `ALTA`, `MEDIA`, `BAIXA` (RN21) |
+| `Perfil` | `FARMACEUTICO`, `INFECTOLOGISTA`, `LABORATORIO`, `GESTOR` (RN24) |

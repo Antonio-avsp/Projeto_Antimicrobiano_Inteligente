@@ -31,6 +31,7 @@ flowchart LR
         UC05(["UC05 Consultar painel de alertas"])
         UC06(["UC06 Gerar antibiograma cumulativo"])
         UC07(["UC07 Consultar indicadores de consumo"])
+        UC08(["UC08 Autenticar usuário e administrar acessos"])
         AVAL(["Avaliar regras clínicas"])
     end
 
@@ -46,6 +47,10 @@ flowchart LR
     gestor --- UC01
     gestor --- UC06
     gestor --- UC07
+    gestor --- UC08
+    farm --- UC08
+    infecto --- UC08
+    lab --- UC08
     UC05 -. "«include»" .-> AVAL
     AVAL --- motor
 ```
@@ -61,7 +66,7 @@ flowchart LR
 | UC05 | Consultar painel de alertas inteligentes | Farmacêutico clínico, Médico infectologista | RF07 a RF13 | #13 a #16 |
 | UC06 | Gerar antibiograma cumulativo | Gestor da CCIH, Médico infectologista | RF14 | #17 |
 | UC07 | Consultar indicadores de consumo | Gestor da CCIH | RF15 | #21 |
-| UC08 | Autenticar usuário (planejado) | Todos | RF17 | #24 |
+| UC08 | Autenticar usuário e administrar acessos | Todos (cadastro de usuários: Gestor da CCIH) | RF17 | #24 |
 
 ---
 
@@ -288,6 +293,38 @@ flowchart LR
 
 ---
 
-## 5. Casos de uso planejados (iteração 2)
+### UC08 — Autenticar usuário e administrar acessos
 
-- **UC08 — Autenticar usuário:** o usuário informa credenciais, recebe um token com expiração e passa a ter acesso conforme o perfil ([#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24)).
+| Item | Descrição |
+|---|---|
+| **Objetivo** | Garantir que apenas usuários autenticados acessem os dados e que cada um execute somente as operações do seu perfil, registrando a autoria das intervenções. |
+| **Atores** | Todos (autenticação); Gestor da CCIH (cadastro de usuários) |
+| **Requisitos** | RF17 · RN24, RN25 · RNF05 |
+| **Pré-condições** | Usuário cadastrado e ativo. O primeiro GESTOR é criado com `python -m antimicrobiano.usuarios criar` (ou pela carga de demonstração). |
+| **Pós-condições** | Token de acesso emitido; as requisições seguintes são atendidas conforme o perfil. |
+
+**Fluxo principal**
+
+1. O usuário envia `POST /auth/login` com login e senha.
+2. O sistema confere a senha com o hash armazenado e emite um token JWT assinado com o login, o perfil e a expiração (padrão: 60 minutos).
+3. O usuário envia as próximas requisições com o cabeçalho `Authorization: Bearer <token>`.
+4. Para cada requisição, o sistema valida o token, carrega o usuário ativo e verifica se o perfil permite a operação (RN24).
+5. Nas prescrições, reavaliações e encerramentos, o sistema grava o login do usuário como autor (RN25).
+
+**Fluxos alternativos**
+
+- **FA01 — Cadastro de usuário:** o GESTOR envia `POST /usuarios` com login, nome, perfil e senha; o sistema guarda apenas o hash da senha e responde `201`.
+- **FA02 — Consultar o próprio usuário:** `GET /auth/me` devolve os dados do dono do token.
+
+**Fluxos de exceção**
+
+- **FE01 — Credenciais inválidas:** login inexistente, senha errada ou usuário inativo → `401` com a mesma mensagem genérica.
+- **FE02 — Token ausente, inválido ou expirado:** `401` com `WWW-Authenticate: Bearer`.
+- **FE03 — Perfil sem permissão:** ex.: LABORATORIO tentando prescrever ou inativar um antimicrobiano → `403`.
+- **FE04 — Login já cadastrado:** `409`.
+
+---
+
+## 5. Casos de uso planejados
+
+Todos os casos de uso especificados foram implementados até a v1.0.0. Novos casos de uso entram nesta seção quando forem planejados.

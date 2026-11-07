@@ -24,7 +24,7 @@ Legenda: ✅ implementado · 🗓️ planejado
 | RF14 | Antibiograma cumulativo | UC06 | US14 | RN19 | [#17](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/17) | v0.3.0 | `tests/test_relatorios.py` | ✅ |
 | RF15 | Indicadores de consumo (DOT) | UC07 | US15 | RN23 | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) | v1.0.0 | `tests/test_indicadores.py` | ✅ |
 | RF16 | Alerta de duplicidade terapêutica | UC05 | US16 | RN22 | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) | v1.0.0 | `tests/regras/test_regras_politicas.py`, `tests/test_alertas.py` | ✅ |
-| RF17 | Autenticação e perfis de acesso | UC08 | US17 | — | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) | v1.0.0 | — | 🗓️ |
+| RF17 | Autenticação e perfis de acesso | UC08 | US17 | RN24, RN25 | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) | v1.0.0 | `tests/test_autenticacao.py` | ✅ |
 | RF18 | Interface web do painel | UC05 | US18 | — | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) | v1.0.0 | — | 🗓️ |
 
 ## 2. Requisitos não funcionais

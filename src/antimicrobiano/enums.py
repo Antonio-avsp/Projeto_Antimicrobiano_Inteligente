@@ -3,6 +3,15 @@
 from enum import StrEnum
 
 
+class Perfil(StrEnum):
+    """Perfil de acesso do usuário (RF17, RN24)."""
+
+    FARMACEUTICO = "FARMACEUTICO"
+    INFECTOLOGISTA = "INFECTOLOGISTA"
+    LABORATORIO = "LABORATORIO"
+    GESTOR = "GESTOR"
+
+
 class CategoriaAware(StrEnum):
     """Classificação AWaRe da OMS (Access, Watch, Reserve)."""
 

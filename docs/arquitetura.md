@@ -37,8 +37,8 @@ flowchart TB
 
     subgraph fronteira["Antimicrobiano Inteligente"]
         swagger["<b>Swagger UI / ReDoc</b><br/>[Navegador]<br/>Documentação interativa gerada a partir do OpenAPI"]
-        api["<b>API REST</b><br/>[Python 3.11+, FastAPI, Uvicorn]<br/>Regras de negócio, motor de regras e relatórios"]
-        db[("<b>Banco de dados</b><br/>[SQLite via SQLAlchemy]<br/>Catálogo, prescrições, reavaliações, culturas e antibiogramas")]
+        api["<b>API REST</b><br/>[Python 3.11+, FastAPI, Uvicorn]<br/>Autenticação JWT, regras de negócio, motor de regras e relatórios"]
+        db[("<b>Banco de dados</b><br/>[SQLite via SQLAlchemy]<br/>Usuários, catálogo, prescrições, reavaliações, culturas e antibiogramas")]
         web["<b>Interface web</b><br/>[HTML + JavaScript]<br/>Planejada — issue #26"]
     end
 
@@ -68,6 +68,7 @@ flowchart LR
         direction LR
         subgraph http["Camada de apresentação"]
             routers["<b>routers/</b><br/>Rotas FastAPI por recurso"]
+            deps["<b>dependencias.py</b><br/>Usuário do token e perfis (RN24)"]
             schemas["<b>schemas/</b><br/>Contratos Pydantic<br/>(validação de entrada e saída)"]
         end
         subgraph negocio["Camada de negócio"]
@@ -80,6 +81,7 @@ flowchart LR
             database["<b>database.py</b><br/>Engine e sessão"]
         end
         config["<b>config.py</b><br/>Configuração por variáveis de ambiente"]
+        seguranca["<b>seguranca.py</b><br/>Hash scrypt e tokens JWT"]
         obs["<b>observabilidade.py</b><br/>Middleware: X-Request-ID e log JSON"]
     end
 
@@ -87,6 +89,8 @@ flowchart LR
 
     cliente --> obs
     obs --> routers
+    routers --> deps
+    deps --> seguranca
     routers --> schemas
     routers --> services
     services --> erros
@@ -150,7 +154,11 @@ sequenceDiagram
 
 | Método | Rota | Descrição | Requisito |
 |---|---|---|---|
-| `GET` | `/health` | Status e versão da aplicação | RNF03 |
+| `GET` | `/health` | Status e versão da aplicação (público) | RNF03 |
+| `POST` | `/auth/login` | Entrar: devolve o token Bearer (público) | RF17 |
+| `GET` | `/auth/me` | Usuário autenticado | RF17 |
+| `POST` | `/usuarios` | Cadastrar usuário (GESTOR) | RF17 |
+| `GET` | `/usuarios` | Listar usuários (GESTOR) | RF17 |
 | `POST` | `/antimicrobianos` | Cadastrar antimicrobiano | RF01 |
 | `GET` | `/antimicrobianos` | Listar com filtros | RF02 |
 | `GET` | `/antimicrobianos/{id}` | Consultar | RF02 |
@@ -171,6 +179,8 @@ sequenceDiagram
 | `GET` | `/relatorios/antibiograma-cumulativo` | Antibiograma cumulativo | RF14 |
 | `GET` | `/relatorios/indicadores` | Indicadores de consumo (DOT) por antimicrobiano, categoria AWaRe e setor | RF15 |
 
+**Autenticação:** exceto `/health`, `/docs`, `/redoc`, `/painel` e `POST /auth/login`, todas as rotas exigem o cabeçalho `Authorization: Bearer <token>` (`401` sem token válido). As operações de escrita verificam o perfil (`403`), conforme a RN24.
+
 **Convenção de erros:** `404` recurso inexistente · `405` método não permitido · `409` conflito de estado ou de unicidade · `422` dados inválidos ou regra de negócio violada. Todas as respostas de erro — de negócio, de validação e do próprio framework — seguem o esquema único `Erro` (`erros.py`), com mensagens em português:
 
 ```json
@@ -187,6 +197,8 @@ sequenceDiagram
 | `codigo` | Status | Quando |
 |---|---|---|
 | `RECURSO_NAO_ENCONTRADO` | 404 | Recurso ou rota inexistente |
+| `NAO_AUTENTICADO` | 401 | Token ausente, inválido ou expirado, ou credenciais incorretas |
+| `ACESSO_NEGADO` | 403 | Perfil sem permissão para a operação |
 | `METODO_NAO_PERMITIDO` | 405 | Método HTTP não aceito pela rota |
 | `CONFLITO` | 409 | Unicidade ou estado do recurso (ex.: prescrição encerrada) |
 | `REGRA_DE_NEGOCIO` | 422 | Dados bem formados que violam uma regra de negócio |
