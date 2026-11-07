@@ -120,6 +120,7 @@ Cada regra a seguir gera um alerta com tipo, severidade, mensagem, recomendaçã
 | **[RN16]** | `SEM_CULTURA` | MEDIA | Indicação `EMPIRICA`, antimicrobiano `WATCH` ou `RESERVE` e **nenhuma cultura relevante** do paciente. | Coletar culturas pertinentes ao sítio de infecção, idealmente antes da próxima dose. |
 | **[RN17]** | `RESISTENCIA` | ALTA | Existe cultura positiva relevante com interpretação **`R`** para o antimicrobiano prescrito. | Revisar a terapia. Alternativas: antimicrobianos ativos com `S` em todas as culturas positivas relevantes, ordenados por categoria AWaRe (ACCESS primeiro). |
 | **[RN18]** | `DESCALONAMENTO` | BAIXA | Antimicrobiano prescrito `WATCH` ou `RESERVE`, nenhuma cultura relevante com `R` para ele e ao menos um antimicrobiano ativo com `S` em **todas** as culturas positivas relevantes e de **categoria AWaRe inferior**. | Considerar o descalonamento para as opções listadas. |
+| **[RN22]** | `DUPLICIDADE_TERAPEUTICA` | MEDIA | O paciente tem outra prescrição `ATIVA`, iniciada até a data de referência, de antimicrobiano da **mesma classe** (comparação sem diferenciar maiúsculas e acentos). Um alerta para cada prescrição envolvida, mesmo que estejam em setores diferentes. | Manter apenas um antimicrobiano da classe, salvo indicação documentada (ex.: transição IV → VO, que exige suspender a via anterior). |
 
 ### 3.5 Relatórios e apresentação
 

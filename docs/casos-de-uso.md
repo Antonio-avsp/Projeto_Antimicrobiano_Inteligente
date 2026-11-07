@@ -205,7 +205,7 @@ flowchart LR
 |---|---|
 | **Objetivo** | Obter a lista priorizada de intervenções do dia, gerada pelo motor de regras. |
 | **Atores** | Farmacêutico clínico e Médico infectologista (primários); Motor de regras (secundário) |
-| **Requisitos** | RF07 a RF13 · RN11 a RN18, RN21 · RNF01, RNF10 |
+| **Requisitos** | RF07 a RF13, RF16 · RN11 a RN18, RN21, RN22 · RNF01, RNF10 |
 | **Pré-condições** | Prescrições registradas (UC02). |
 | **Pós-condições** | Nenhum dado é alterado (consulta). A equipe executa as intervenções em UC02 e UC03. |
 
