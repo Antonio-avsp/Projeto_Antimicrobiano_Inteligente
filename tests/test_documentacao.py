@@ -60,3 +60,17 @@ def test_todo_tipo_de_alerta_esta_documentado():
 
 def test_versao_do_pacote_registrada_no_changelog():
     assert f"## [{__version__}]" in _ler(RAIZ / "CHANGELOG.md")
+
+
+ADRS = sorted((DOCS / "adr").glob("[0-9][0-9][0-9][0-9]-*.md"))
+
+
+@pytest.mark.parametrize("adr", ADRS, ids=[adr.stem for adr in ADRS])
+def test_adr_tem_as_secoes_e_esta_nos_indices(adr):
+    texto = _ler(adr)
+
+    for secao in ("## Contexto", "## Decisão", "## Alternativas consideradas", "## Consequências"):
+        assert secao in texto, f"{adr.name} sem a seção {secao}"
+    assert re.search(r"- \*\*Situação:\*\* (Proposta|Aceita|Substituída)", texto)
+    assert f"]({adr.name})" in _ler(DOCS / "adr" / "README.md")
+    assert f"](adr/{adr.name})" in _ler(DOCS / "arquitetura.md")
