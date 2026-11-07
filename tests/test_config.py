@@ -1,6 +1,10 @@
 """Testes da configuração por variáveis de ambiente (RNF02, RNF11)."""
 
+import os
+import shutil
+import subprocess
 from datetime import date, timedelta
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -11,6 +15,7 @@ from antimicrobiano.config import (
     Configuracao,
     ConfiguracaoInvalida,
     ParametrosClinicos,
+    ler_arquivo_env,
 )
 from antimicrobiano.enums import Perfil
 from antimicrobiano.main import create_app
@@ -102,3 +107,82 @@ def test_timeout_de_48_horas_configurado_por_ambiente(monkeypatch, sem_variaveis
     timeout = next(a for a in painel["alertas"] if a["tipo"] == "TIMEOUT_REAVALIACAO")
     assert timeout["evidencias"]["limite_dias"] == 2
     assert "48 horas" in timeout["mensagem"]
+
+
+# --- Arquivo .env e .env.example ----------------------------------------------------------------
+
+RAIZ = Path(__file__).resolve().parent.parent
+
+
+def test_leitura_do_arquivo_env(tmp_path):
+    arquivo = tmp_path / ".env"
+    arquivo.write_text(
+        '# comentário\n\nAMI_A=1\nexport AMI_B = dois \nAMI_C="com # cerquilha"\n'
+        "AMI_D='aspas simples'\nAMI_E=valor # comentário no fim\nAMI_F=\n",
+        encoding="utf-8",
+    )
+
+    assert ler_arquivo_env(arquivo) == {
+        "AMI_A": "1",
+        "AMI_B": "dois",
+        "AMI_C": "com # cerquilha",
+        "AMI_D": "aspas simples",
+        "AMI_E": "valor",
+        "AMI_F": "",
+    }
+    assert ler_arquivo_env(tmp_path / "inexistente") == {}
+
+
+@pytest.mark.parametrize("linha", ["SEM_IGUAL", "1INVALIDA=x", "COM ESPACO=x"])
+def test_linha_invalida_no_arquivo_env(tmp_path, linha):
+    arquivo = tmp_path / ".env"
+    arquivo.write_text(f"AMI_OK=1\n{linha}\n", encoding="utf-8")
+
+    with pytest.raises(ConfiguracaoInvalida, match="Linha 2"):
+        ler_arquivo_env(arquivo)
+
+
+def test_configuracao_lida_do_arquivo_e_sistema_tem_prioridade(tmp_path, monkeypatch):
+    arquivo = tmp_path / "config.env"
+    arquivo.write_text("AMI_TIMEOUT_DIAS=5\nAMI_LOG_NIVEL=debug\n", encoding="utf-8")
+    monkeypatch.setenv("AMI_ARQUIVO_ENV", str(arquivo))
+    monkeypatch.delenv("AMI_TIMEOUT_DIAS", raising=False)
+    monkeypatch.setenv("AMI_LOG_NIVEL", "ERROR")
+
+    config = Configuracao.do_ambiente()
+
+    assert config.parametros.timeout_dias == 5
+    assert config.log_nivel == "ERROR"
+
+
+def test_env_example_documenta_e_configura_a_aplicacao(monkeypatch):
+    """Critério da issue: um clone limpo roda apenas com o .env.example copiado."""
+    exemplo = RAIZ / ".env.example"
+    variaveis = ler_arquivo_env(exemplo)
+    for variavel in list(os.environ):
+        if variavel.startswith("AMI_"):
+            monkeypatch.delenv(variavel)
+    monkeypatch.setenv("AMI_ARQUIVO_ENV", str(exemplo))
+
+    config = Configuracao.do_ambiente()
+
+    assert set(VARIAVEIS_PARAMETROS.values()) <= set(variaveis)
+    assert {"AMI_DATABASE_URL", "AMI_JWT_SEGREDO", "AMI_LOG_NIVEL", "AMI_SENHA_DEMO"} <= set(
+        variaveis
+    )
+    assert config.database_url == variaveis["AMI_DATABASE_URL"]
+    assert config.parametros == ParametrosClinicos()
+    readme = (RAIZ / "README.md").read_text(encoding="utf-8")
+    assert all(f"`{variavel}`" in readme for variavel in variaveis)
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="git indisponível")
+def test_env_ignorado_e_env_example_versionado():
+    def ignorado(caminho: str) -> bool:
+        return (
+            subprocess.run(["git", "check-ignore", "-q", caminho], cwd=RAIZ, check=False).returncode
+            == 0
+        )
+
+    assert ignorado(".env")
+    assert not ignorado(".env.example")
