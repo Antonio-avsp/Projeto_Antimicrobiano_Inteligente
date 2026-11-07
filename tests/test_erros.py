@@ -6,14 +6,21 @@ import pytest
 
 from antimicrobiano.erros import traduzir_erro_de_validacao
 
-CHAVES = {"codigo", "mensagem", "campos"}
+CHAVES = {"codigo", "mensagem", "campos", "id_requisicao"}
+
+
+def _sem_id(resposta) -> dict:
+    """Corpo do erro sem o identificador, conferindo que ele é o mesmo do cabeçalho."""
+    corpo = resposta.json()
+    assert corpo.pop("id_requisicao") == resposta.headers["X-Request-ID"]
+    return corpo
 
 
 def test_recurso_inexistente(client):
     resposta = client.get("/antimicrobianos/999")
 
     assert resposta.status_code == 404
-    assert resposta.json() == {
+    assert _sem_id(resposta) == {
         "codigo": "RECURSO_NAO_ENCONTRADO",
         "mensagem": "Antimicrobiano 999 não encontrado.",
         "campos": [],
@@ -53,7 +60,7 @@ def test_regra_de_negocio_violada(client, novo_antimicrobiano, nova_prescricao):
     )
 
     assert resposta.status_code == 422
-    assert resposta.json() == {
+    assert _sem_id(resposta) == {
         "codigo": "REGRA_DE_NEGOCIO",
         "mensagem": "Antimicrobiano inativo não pode ser prescrito.",
         "campos": [],
