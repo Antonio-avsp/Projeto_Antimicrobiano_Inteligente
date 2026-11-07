@@ -76,7 +76,7 @@ Legenda: ✅ implementado · 🚧 em desenvolvimento · 🗓️ planejado
 | Indicadores de consumo (DOT) por antimicrobiano, categoria AWaRe e setor | RF15 | [#21](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/21) | v1.0.0 | ✅ |
 | Alerta de duplicidade terapêutica | RF16 | [#22](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/22) | v1.0.0 | ✅ |
 | Autenticação JWT e perfis de acesso (farmacêutico, infectologista, laboratório e gestor) | RF17 | [#24](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/24) | v1.0.0 | ✅ |
-| Interface web do painel de alertas | RF18 | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) | v1.0.0 | 🗓️ |
+| Interface web do painel de alertas (`/painel`) | RF18 | [#26](https://github.com/Antonio-avsp/Projeto_Antimicrobiano_Inteligente/issues/26) | v1.0.0 | ✅ |
 
 O detalhamento de cada requisito está em [docs/requisitos.md](docs/requisitos.md) e a ligação requisito → issue → teste em [docs/rastreabilidade.md](docs/rastreabilidade.md).
 
@@ -162,7 +162,11 @@ uvicorn antimicrobiano.main:app --reload
 
 **6. Acessar a documentação interativa** em <http://127.0.0.1:8000/docs> (Swagger UI) ou <http://127.0.0.1:8000/redoc>. Faça login em `POST /auth/login`, copie o `access_token`, clique em **Authorize** e cole o token; depois comece por `GET /alertas`.
 
-**7. Executar os testes e a análise estática**
+**7. Abrir o painel de alertas** em <http://127.0.0.1:8000/painel> e entrar com um dos usuários de demonstração. O painel mostra o resumo por severidade, os alertas agrupados de ALTA para BAIXA e, ao clicar em um alerta, a recomendação e as evidências usadas pela regra; é possível filtrar por setor e por data de referência.
+
+![Painel de alertas com o resumo por severidade e um alerta aberto mostrando a recomendação e as evidências](docs/img/painel-de-alertas.png)
+
+**8. Executar os testes e a análise estática**
 
 ```bash
 pytest --cov

@@ -23,11 +23,14 @@ from antimicrobiano.routers import (
     relatorios,
     sistema,
 )
+from antimicrobiano.routers.web import registrar_interface_web
 
 DESCRICAO = """
 API de apoio ao **Programa de Gerenciamento do Uso de Antimicrobianos (PGA / stewardship)**.
 
 Centraliza prescrições, culturas e antibiogramas e gera alertas explicáveis para a equipe do PGA.
+O painel para uso no dia a dia fica em [/painel](/painel); nesta documentação, faça login em
+`POST /auth/login` e use o botão **Authorize** com o token recebido.
 
 > ⚠️ Ferramenta de apoio à decisão para fins acadêmicos — não substitui o julgamento clínico.
 """
@@ -102,6 +105,7 @@ def create_app(config: Configuracao | None = None) -> FastAPI:
     app.include_router(alertas.router)
     app.include_router(relatorios.router)
     app.include_router(sistema.router)
+    registrar_interface_web(app)
     return app
 
 
