@@ -2,7 +2,7 @@
 # Construir:  docker build -t antimicrobiano-inteligente .
 # Executar:   docker compose up   (ver docker-compose.yml)
 
-FROM python:3.12-slim AS base
+FROM python:3.15-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
